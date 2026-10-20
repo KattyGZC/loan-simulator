@@ -1,0 +1,30 @@
+# Private project documentation (not published)
+DECISIONS/
+
+# Dependencies
+node_modules/
+
+# WXT build output
+.output/
+.wxt/
+dist/
+*.zip
+
+# Tests
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Environment
+.env
+.env.*
+
+# Editors and OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
