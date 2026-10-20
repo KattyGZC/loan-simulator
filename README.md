@@ -159,7 +159,7 @@ Everything else (rates, term, amortization methods, insurance and extra payments
 - **Chrome Extension Manifest V3**, with the UI in the **side panel** (`side_panel`).
 - **[WXT](https://wxt.dev/) + TypeScript.**
 - The calculation engine is a pure module with no Chrome dependencies, covered by unit tests.
-- Single permission: `storage`, for saving scenarios in the browser.
+- Permissions: `storage` (save scenarios in the browser) and `sidePanel` (show the UI). No host permissions.
 - UI in **English and Spanish** via Chrome's i18n (`_locales`): it follows the browser language and falls back to English.
 
 ### Planned structure

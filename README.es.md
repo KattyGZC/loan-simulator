@@ -159,7 +159,7 @@ El resto (tasas, plazo, sistemas de amortización, seguros y abonos) es igual en
 - **Chrome Extension Manifest V3**, con la interfaz en el **panel lateral** (`side_panel`).
 - **[WXT](https://wxt.dev/) + TypeScript.**
 - El motor de cálculo está en un módulo puro, sin dependencias de Chrome, y tiene tests unitarios.
-- Único permiso: `storage`, para guardar escenarios en el navegador.
+- Permisos: `storage` (guardar escenarios en el navegador) y `sidePanel` (mostrar la interfaz). Sin acceso a ningún sitio web.
 - Interfaz en **inglés y español** con el sistema de idiomas de Chrome (`_locales`): sigue el idioma del navegador y, si no es ninguno de los dos, usa inglés.
 
 ### Estructura prevista
