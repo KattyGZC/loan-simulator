@@ -180,7 +180,21 @@ loan-simulator/
 
 ### Desarrollo
 
-> Pendiente: se completa al inicializar el proyecto.
+Requiere **Node.js 22** y npm.
+
+```bash
+npm install        # instalar dependencias
+npm run dev        # abrir Chrome con la extensión cargada y recarga en caliente
+npm test           # correr los tests unitarios
+npm run lint       # ESLint
+npm run typecheck  # TypeScript
+npm run build      # build de producción en .output/chrome-mv3
+npm run zip        # zip listo para la Chrome Web Store
+```
+
+Para cargar el build a mano: abre `chrome://extensions`, activa el **Modo de desarrollador**, haz clic en **Cargar descomprimida** y elige `.output/chrome-mv3`. Al hacer clic en el ícono de la barra se abre el panel lateral.
+
+La CI (GitHub Actions) corre lint, revisión de formato, typecheck, tests y build en cada push a `main` y en cada pull request.
 
 ---
 
