@@ -1,0 +1,6 @@
+.output/
+.wxt/
+coverage/
+DECISIONS/
+package-lock.json
+*.md
