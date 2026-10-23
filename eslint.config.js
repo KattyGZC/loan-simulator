@@ -13,4 +13,9 @@ export default tseslint.config(
       globals: { ...globals.browser },
     },
   },
+  {
+    // Tests index into schedules whose length they just asserted.
+    files: ['tests/**'],
+    rules: { '@typescript-eslint/no-non-null-assertion': 'off' },
+  },
 );
