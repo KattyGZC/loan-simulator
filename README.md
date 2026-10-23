@@ -50,6 +50,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 | **Credit life insurance: rate** | No insurance | As published in the institution's transparency section |
 | **Credit life insurance: unit** | % per year | `% per year`, `% per month` or `‰ per month` (per mille). Institutions publish it in different formats |
 | **Credit life insurance: base** | Balance | `Balance`: decreases over time (most common). `Original amount`: fixed for the whole loan |
+| **Credit life insurance: in the payment** | Yes | French method only. `Yes`: the fixed payment already includes the insurance, so the total payment is the same every month (most credit unions). `No`: the insurance is added on top, so the total payment changes every month |
 | **Other charges per payment** | $0 | Fixed monthly amount: other insurance, membership fees, etc. |
 | **SOLCA contribution** | On, 0.5% | Deducted once at disbursement. Turn it off if it doesn't apply (e.g. outside Ecuador or on exempt loans) |
 | **First payment date** | One month from today | Only used to put dates in the schedule |
@@ -78,7 +79,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 
 ## How it's calculated
 
-Commercial **30/360** day count: each month counts as 30 days of a 360-day year, the same as Ecuadorian bank simulators. Values are rounded to 2 decimals per payment, and the last payment is adjusted so the balance ends at exactly $0.
+Commercial **30/360** day count: each month counts as 30 days of a 360-day year. Every value in the schedule is rounded to 2 decimals (half up), the rounded balance carries over to the next month, and the last payment is adjusted so the balance ends at exactly $0. The engine is tested against the schedules of Cooperativa JEP's simulator and its published cost table, within $0.01 per payment. Some institutions count actual days instead (Banco Guayaquil's simulator does), so their figures can differ by a few cents or dollars.
 
 ### Rates
 
@@ -95,6 +96,8 @@ payment   = P × i / (1 − (1 + i)^−n)
 interest  = balance × i
 principal = payment − interest
 ```
+
+With insurance **in the payment**, insurance on the balance works like extra interest: the payment uses `i + s` (`s` = monthly insurance rate) and `principal = payment − interest − insurance`. Insurance on the original amount is added to the payment as a fixed sum.
 
 ### German method (fixed principal)
 
@@ -125,6 +128,8 @@ After payment N, the extra payment is subtracted from the balance and the rest o
 |---|---|---|
 | **French** | New payment from the new balance and the remaining payments | Same payment; new number of payments: `n = −ln(1 − S·i / C) / ln(1 + i)` |
 | **German** | New fixed principal: `S / remaining payments` | Same fixed principal; the leftover payments are dropped |
+
+An extra payment larger than the balance is reduced to the balance and pays the loan off. Extra payments due after the loan is already paid off are ignored. In both cases the extension shows a notice.
 
 ---
 
@@ -214,7 +219,8 @@ Results are **approximate estimates**. They may differ from the institution's fi
 
 ## References
 
-- [Multicrédito simulator – Banco Guayaquil](https://www.bancoguayaquil.com/creditos/multicredito/): shows payment, principal, interest, insurance, SOLCA and totals; 360-day basis.
+- [Multicrédito simulator – Banco Guayaquil](https://www.bancoguayaquil.com/creditos/multicredito/): shows payment, principal, interest, insurance, SOLCA and totals. It says it uses a 360-day basis, but its interest uses actual days.
+- [Credit simulator – Cooperativa JEP](https://www.jep.coop/productos-servicios/creditos/simulador-de-credito) and its [published cost table](https://www.jep.coop/documents/20182/0/CostosfinancierosMarzo2026.pdf/): reference cases for the engine tests.
 - [SOLCA contribution on loans – El Diario](https://www.eldiario.ec/centro/bancos-de-ecuador-que-es-la-contribucion-para-solca-y-por-que-te-la-descuentan-durante-ciertas-transacciones-06042026/)
 - [Maximum rates per segment – Expreso](https://www.expreso.ec/actualidad/economia/junta-politica-regulacion-monetaria-financiera-remoza-esquema-tasas-interes-90700.html)
 - [Right to prepay, art. 48 of the Consumer Protection Law – Expreso](https://www.expreso.ec/actualidad/dice-articulo-48-ley-consumidor-ecuador-179339.html)
