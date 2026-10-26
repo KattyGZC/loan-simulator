@@ -96,6 +96,15 @@ describe('validate', () => {
     ]);
   });
 
+  it('does not repeat an invalid term on every extra payment', () => {
+    const errors = validate({
+      ...valid,
+      termMonths: 0,
+      extraPayments: [{ afterPayment: 3, amount: 100, effect: 'reduceTerm' }],
+    });
+    expect(errors.map((error) => error.field)).toEqual(['termMonths']);
+  });
+
   it('reports every invalid field at once', () => {
     expect(validate({ ...valid, amount: -5, termMonths: 0 }).map((e) => e.field)).toEqual([
       'amount',

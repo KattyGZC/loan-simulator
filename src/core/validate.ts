@@ -48,8 +48,9 @@ const TERM: NumberRule = { kind: 'wholeNumber', min: 1, max: MAX_TERM_MONTHS };
  */
 export function validate(input: LoanInput): ValidationError[] {
   const termError = numberError('termMonths', input.termMonths, TERM);
-  // An extra payment after the last payment has nothing left to prepay.
-  const lastPrepayablePayment = input.termMonths - 1;
+  // An extra payment after the last payment has nothing left to prepay. With an invalid term,
+  // check against the longest one so the term error is not repeated on every extra payment.
+  const lastPrepayablePayment = (termError ? MAX_TERM_MONTHS : input.termMonths) - 1;
   const afterPayment: NumberRule = { kind: 'wholeNumber', min: 1, max: lastPrepayablePayment };
 
   const errors = [
