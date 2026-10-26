@@ -1,18 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { InsuranceInput, LoanInput } from '@/core/types';
-import { expectConsistent, run, sum } from './helpers';
-
-const french: LoanInput = {
-  amount: 10000,
-  termMonths: 12,
-  annualRate: 12,
-  rateType: 'nominal',
-  method: 'french',
-};
-
-const german: LoanInput = { ...french, amount: 12000, method: 'german' };
-
-const balanceInsurance: InsuranceInput = { rate: 1.2, unit: 'percentPerYear', base: 'balance' };
+import { total } from '@/core/summary';
+import { balanceInsurance, expectConsistent, french, german, run } from './helpers';
 
 describe('French method', () => {
   it('uses a fixed payment from the annuity formula', () => {
@@ -33,13 +21,13 @@ describe('French method', () => {
     const { rows } = run(french).base;
     expectConsistent(rows, french.amount);
     expect(Math.abs(rows.at(-1)!.payment - 888.49)).toBeLessThan(0.1);
-    expect(sum(rows, 'principal')).toBe(10000);
+    expect(total(rows, 'principal')).toBe(10000);
   });
 
   it('splits the amount evenly at 0 %', () => {
     const { rows } = run({ ...french, annualRate: 0, amount: 1000, termMonths: 3 }).base;
     expect(rows.map((row) => row.payment)).toEqual([333.33, 333.33, 333.34]);
-    expect(sum(rows, 'interest')).toBe(0);
+    expect(total(rows, 'interest')).toBe(0);
   });
 
   it('handles a single payment', () => {
@@ -64,7 +52,7 @@ describe('German method', () => {
     expect(rows.every((row) => row.principal === 1000)).toBe(true);
     expect(rows[0]).toMatchObject({ interest: 120, payment: 1120, balance: 11000 });
     expect(rows[11]).toMatchObject({ interest: 10, payment: 1010, balance: 0 });
-    expect(sum(rows, 'interest')).toBe(780);
+    expect(total(rows, 'interest')).toBe(780);
   });
 
   it('puts the rounding remainder in the last principal', () => {

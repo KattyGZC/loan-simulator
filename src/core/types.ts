@@ -105,9 +105,21 @@ export type ValidationCode =
   | 'outOfRange'
   | 'invalidDate';
 
+/** Path of an input field, e.g. `amount` or `extraPayments.1.afterPayment`. */
+export type ValidationField =
+  | 'amount'
+  | 'termMonths'
+  | 'annualRate'
+  | 'insurance.rate'
+  | 'otherCharges'
+  | 'solcaPercent'
+  | 'firstPaymentDate'
+  | 'maxRate'
+  | `extraPayments.${number}.afterPayment`
+  | `extraPayments.${number}.amount`;
+
 export interface ValidationError {
-  /** Path of the field, e.g. `amount` or `extraPayments.1.afterPayment`. */
-  field: string;
+  field: ValidationField;
   code: ValidationCode;
   /** Values for the message, e.g. `{ min: 1, max: 360 }` for `outOfRange`. */
   params?: Record<string, number>;
@@ -120,13 +132,18 @@ export type SimulationWarning =
   /** The loan was already paid off when this extra payment was due. */
   | { code: 'extraPaymentIgnored'; index: number };
 
+/** The schedule with the extra payments applied, compared with the base schedule. */
+export interface WithExtraPayments {
+  schedule: Schedule;
+  comparison: Comparison;
+}
+
 export type SimulationResult =
   | {
       ok: true;
       base: Schedule;
       /** Null when there are no extra payments. */
-      withExtras: Schedule | null;
-      comparison: Comparison | null;
+      withExtraPayments: WithExtraPayments | null;
       warnings: SimulationWarning[];
     }
   | { ok: false; errors: ValidationError[] };

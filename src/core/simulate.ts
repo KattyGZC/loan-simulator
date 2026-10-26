@@ -1,8 +1,8 @@
 import { buildSchedule, type ScheduleParams } from './amortization';
 import { insuranceMonthlyRate } from './insurance';
 import { roundMoney } from './money';
-import { effectiveToNominal, monthlyRate, nominalToEffective } from './rates';
-import { compare, summarize } from './summary';
+import { annualRates, monthlyRate, percentOf, percentToFraction } from './rates';
+import { compare, summarize, type LoanTerms } from './summary';
 import type { LoanInput, Schedule, SimulationResult, SimulationWarning } from './types';
 import { validate } from './validate';
 
@@ -10,30 +10,24 @@ export function simulate(input: LoanInput): SimulationResult {
   const errors = validate(input);
   if (errors.length > 0) return { ok: false, errors };
 
-  // Keep the rate the user entered exactly as is and derive the other one.
-  const nominalRate =
-    input.rateType === 'nominal'
-      ? input.annualRate
-      : effectiveToNominal(input.annualRate / 100) * 100;
-  const effectiveRate =
-    input.rateType === 'effective'
-      ? input.annualRate
-      : nominalToEffective(input.annualRate / 100) * 100;
+  const { nominalRate, effectiveRate } = annualRates(input.annualRate, input.rateType);
 
   const params: ScheduleParams = {
     amount: input.amount,
     termMonths: input.termMonths,
     method: input.method,
-    monthlyRate: monthlyRate(nominalRate / 100),
-    insuranceRate: insuranceMonthlyRate(input.insurance),
-    insuranceBase: input.insurance?.base ?? 'balance',
-    insuranceOnTop: input.insurance?.onTopOfInstallment ?? false,
+    monthlyRate: monthlyRate(percentToFraction(nominalRate)),
+    insurance: {
+      monthlyRate: insuranceMonthlyRate(input.insurance),
+      base: input.insurance?.base ?? 'balance',
+      onTopOfInstallment: input.insurance?.onTopOfInstallment ?? false,
+    },
     otherCharges: input.otherCharges ?? 0,
     firstPaymentDate: input.firstPaymentDate,
   };
-  const loan = {
+  const loan: LoanTerms = {
     amount: input.amount,
-    solca: roundMoney((input.amount * (input.solcaPercent ?? 0)) / 100),
+    solca: roundMoney(percentOf(input.amount, input.solcaPercent ?? 0)),
     nominalRate,
     effectiveRate,
   };
@@ -48,11 +42,12 @@ export function simulate(input: LoanInput): SimulationResult {
 
   const extraPayments = input.extraPayments ?? [];
   if (extraPayments.length === 0) {
-    return { ok: true, base, withExtras: null, comparison: null, warnings };
+    return { ok: true, base, withExtraPayments: null, warnings };
   }
 
   const extra = buildSchedule(params, extraPayments);
   warnings.push(...extra.warnings);
-  const withExtras: Schedule = { rows: extra.rows, summary: summarize(extra.rows, loan) };
-  return { ok: true, base, withExtras, comparison: compare(base, withExtras), warnings };
+  const schedule: Schedule = { rows: extra.rows, summary: summarize(extra.rows, loan) };
+  const comparison = compare(base, schedule);
+  return { ok: true, base, withExtraPayments: { schedule, comparison }, warnings };
 }
