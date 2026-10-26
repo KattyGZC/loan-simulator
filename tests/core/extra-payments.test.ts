@@ -1,17 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { ExtraPayment, InsuranceInput, LoanInput } from '@/core/types';
-import { expectConsistent, run } from './helpers';
-
-const german: LoanInput = {
-  amount: 12000,
-  termMonths: 12,
-  annualRate: 12,
-  rateType: 'nominal',
-  method: 'german',
-};
-const french: LoanInput = { ...german, amount: 10000, method: 'french' };
-
-const balanceInsurance: InsuranceInput = { rate: 1.2, unit: 'percentPerYear', base: 'balance' };
+import type { ExtraPayment } from '@/core/types';
+import { balanceInsurance, expectConsistent, french, german, run } from './helpers';
 
 function extra(afterPayment: number, amount: number, effect: ExtraPayment['effect']): ExtraPayment {
   return { afterPayment, amount, effect };
@@ -85,6 +74,16 @@ describe('extra payments, French method', () => {
     const balance = rows[3]!.balance;
     const payment = Math.round(((balance * 0.011) / (1 - 1.011 ** -8)) * 100) / 100;
     expect(rows.slice(4, -1).every((row) => row.payment === payment)).toBe(true);
+    expectConsistent(rows, french.amount);
+  });
+
+  it('reduce term at 0 %: divides the new balance by the same payment', () => {
+    const rows = run({ ...french, annualRate: 0, extraPayments: [extra(4, 3000, 'reduceTerm')] })
+      .withExtraPayments!.schedule.rows;
+    // 10000 − 4 × 833.33 − 3000 = 3666.68 left, at 833.33 a month: 5 more payments.
+    expect(rows).toHaveLength(9);
+    expect(rows.slice(0, -1).every((row) => row.payment === 833.33)).toBe(true);
+    expect(rows.at(-1)!.payment).toBe(333.36);
     expectConsistent(rows, french.amount);
   });
 });
