@@ -196,6 +196,7 @@ npm test           # run the unit tests
 npm run lint       # ESLint
 npm run typecheck  # TypeScript
 npm run build      # production build in .output/chrome-mv3
+npm run check      # everything CI runs: lint, format, typecheck, coverage, build
 npm run zip        # zip ready for the Chrome Web Store
 ```
 

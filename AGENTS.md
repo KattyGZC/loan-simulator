@@ -54,7 +54,7 @@ Smallest change that solves the cause. Do not refactor nearby code in the same c
 
 ## Architecture
 
-- `src/core/` imports nothing outside `src/core/`. No `browser`, `chrome`, `wxt/*`, DOM, `Date.now()`, `new Date()` without arguments or `Math.random()`. WXT auto-imports `browser` everywhere, so nothing but this rule keeps it out of the engine.
+- `src/core/` imports nothing outside `src/core/`. No `browser`, `chrome`, `wxt/*`, DOM, `Date.now()`, `new Date()` without arguments or `Math.random()`. WXT auto-imports `browser` everywhere; ESLint (`eslint.config.js`) rejects it, and the rest of this list, in `src/core/`.
 - The UI and storage import the engine from `@/core` only, never from a file inside it.
 - The engine is the only place that computes money. The UI formats and displays; it does not add, round or derive amounts.
 - One concept, one name, everywhere. If the type says `onTopOfInstallment`, the engine does not call it `insuranceOnTop` and `insuranceInInstallment`.
@@ -100,15 +100,7 @@ Smallest change that solves the cause. Do not refactor nearby code in the same c
 
 ## Before presenting work
 
-All of these exit 0:
-
-```bash
-npm run lint
-npm run format:check
-npm run typecheck
-npm run test:coverage
-npm run build
-```
+`npm run check` exits 0. It runs what CI runs: lint, format check, typecheck, tests with coverage, and build.
 
 Then run the `self-grade` skill (`.claude/skills/self-grade/`).
 
