@@ -50,6 +50,7 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
 | **Seguro de desgravamen: tasa** | Sin seguro | Lo que publica la entidad en transparencia |
 | **Seguro de desgravamen: unidad** | % anual | `% anual`, `% mensual` o `‰ mensual` (por mil). Las entidades lo publican en formatos distintos |
 | **Seguro de desgravamen: base** | Saldo | `Saldo`: baja con el tiempo (lo más común). `Monto original`: fijo todo el crédito |
+| **Seguro de desgravamen: en la cuota** | Sí | Solo sistema francés. `Sí`: la cuota fija ya incluye el seguro, así que la cuota total es la misma cada mes (lo usual en cooperativas). `No`: el seguro se suma encima, así que la cuota total cambia cada mes |
 | **Otros cargos por cuota** | $0 | Valor fijo mensual: otros seguros, cuota de socio, etc. |
 | **Contribución SOLCA** | Activada, 0,5 % | Se descuenta una sola vez al desembolsar. Desactívala si no aplica (por ejemplo, fuera de Ecuador o en créditos exentos) |
 | **Fecha del primer pago** | Un mes después de hoy | Solo sirve para poner fechas en la tabla |
@@ -78,7 +79,7 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
 
 ## Cómo se calcula
 
-Base comercial **30/360**: cada mes cuenta como 30 días de un año de 360, igual que en los simuladores bancarios de Ecuador. Los valores se redondean a 2 decimales por cuota, y la última cuota se ajusta para que el saldo quede exactamente en $0.
+Base comercial **30/360**: cada mes cuenta como 30 días de un año de 360. Cada valor de la tabla se redondea a 2 decimales (la mitad hacia arriba), el saldo redondeado pasa al mes siguiente y la última cuota se ajusta para que el saldo quede exactamente en $0. El motor está probado contra las tablas del simulador de la Cooperativa JEP y su tabla de costos publicada, con una diferencia máxima de $0,01 por cuota. Algunas entidades cuentan días reales (el simulador de Banco Guayaquil lo hace), así que sus cifras pueden diferir en centavos o algunos dólares.
 
 ### Tasas
 
@@ -95,6 +96,8 @@ cuota   = P × i / (1 − (1 + i)^−n)
 interés = saldo × i
 capital = cuota − interés
 ```
+
+Con el seguro **en la cuota**, el seguro sobre saldo funciona como un interés adicional: la cuota se calcula con `i + s` (`s` = tasa mensual del seguro) y `capital = cuota − interés − seguro`. El seguro sobre el monto original se suma a la cuota como un valor fijo.
 
 ### Sistema alemán (capital fijo)
 
@@ -125,6 +128,8 @@ Después de pagar la cuota N, el abono se resta del saldo y se recalcula el rest
 |---|---|---|
 | **Francés** | Nueva cuota con el saldo nuevo y las cuotas restantes | Misma cuota; nuevo número de cuotas: `n = −ln(1 − S·i / C) / ln(1 + i)` |
 | **Alemán** | Nuevo capital fijo: `S / cuotas restantes` | Mismo capital fijo; se eliminan las cuotas que sobran |
+
+Un abono mayor al saldo se reduce al saldo y cancela el crédito. Los abonos que tocan después de que el crédito ya se pagó se ignoran. En ambos casos la extensión muestra un aviso.
 
 ---
 
@@ -214,7 +219,8 @@ Los resultados son **aproximados y referenciales**. Pueden diferir de los de la 
 
 ## Referencias
 
-- [Simulador Multicrédito – Banco Guayaquil](https://www.bancoguayaquil.com/creditos/multicredito/): muestra cuota, capital, interés, seguro, SOLCA y totales; base de 360 días.
+- [Simulador Multicrédito – Banco Guayaquil](https://www.bancoguayaquil.com/creditos/multicredito/): muestra cuota, capital, interés, seguro, SOLCA y totales. Dice usar base de 360 días, pero su interés usa días reales.
+- [Simulador de crédito – Cooperativa JEP](https://www.jep.coop/productos-servicios/creditos/simulador-de-credito) y su [tabla de costos publicada](https://www.jep.coop/documents/20182/0/CostosfinancierosMarzo2026.pdf/): casos de referencia para los tests del motor.
 - [Contribución SOLCA en créditos – El Diario](https://www.eldiario.ec/centro/bancos-de-ecuador-que-es-la-contribucion-para-solca-y-por-que-te-la-descuentan-durante-ciertas-transacciones-06042026/)
 - [Tasas máximas por segmento – Expreso](https://www.expreso.ec/actualidad/economia/junta-politica-regulacion-monetaria-financiera-remoza-esquema-tasas-interes-90700.html)
 - [Derecho a pagos anticipados, art. 48 de la Ley del Consumidor – Expreso](https://www.expreso.ec/actualidad/dice-articulo-48-ley-consumidor-ecuador-179339.html)
