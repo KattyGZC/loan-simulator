@@ -1,14 +1,47 @@
-// Annual rates are fractions (0.156 = 15.6%), compounded monthly.
+import type { RateType } from './types';
 
+export function percentToFraction(percent: number): number {
+  return percent / 100;
+}
+
+export function fractionToPercent(fraction: number): number {
+  return fraction * 100;
+}
+
+export function perMilleToFraction(perMille: number): number {
+  return perMille / 1000;
+}
+
+/** `percent` % of `amount`, not rounded. */
+export function percentOf(amount: number, percent: number): number {
+  return (amount * percent) / 100;
+}
+
+/** Effective annual rate of a nominal annual rate compounded monthly, both as fractions. */
 export function nominalToEffective(nominal: number): number {
   return (1 + nominal / 12) ** 12 - 1;
 }
 
+/** Nominal annual rate, compounded monthly, of an effective annual rate, both as fractions. */
 export function effectiveToNominal(effective: number): number {
   return 12 * ((1 + effective) ** (1 / 12) - 1);
 }
 
-/** Monthly rate used for payments: the nominal annual rate over 12 (30/360 basis). */
+/** Monthly rate used for payments: the nominal annual rate over 12 (30/360 basis), as fractions. */
 export function monthlyRate(nominal: number): number {
   return nominal / 12;
+}
+
+/** Both annual rates in percent: the one entered, unchanged, and the other derived from it. */
+export function annualRates(
+  annualRatePercent: number,
+  rateType: RateType,
+): { nominalRate: number; effectiveRate: number } {
+  const rate = percentToFraction(annualRatePercent);
+  return rateType === 'nominal'
+    ? { nominalRate: annualRatePercent, effectiveRate: fractionToPercent(nominalToEffective(rate)) }
+    : {
+        nominalRate: fractionToPercent(effectiveToNominal(rate)),
+        effectiveRate: annualRatePercent,
+      };
 }

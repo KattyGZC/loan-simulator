@@ -1,14 +1,15 @@
+import { perMilleToFraction, percentToFraction } from './rates';
 import type { InsuranceInput } from './types';
 
-/** Monthly insurance rate as a fraction (0.001 = 0.1 % per month). */
+/** Monthly insurance rate as a fraction (0.001 = 0.1 % per month); 0 without insurance. */
 export function insuranceMonthlyRate(insurance: InsuranceInput | undefined): number {
   if (!insurance) return 0;
   switch (insurance.unit) {
     case 'percentPerYear':
-      return insurance.rate / 12 / 100;
+      return percentToFraction(insurance.rate / 12);
     case 'percentPerMonth':
-      return insurance.rate / 100;
+      return percentToFraction(insurance.rate);
     case 'perMillePerMonth':
-      return insurance.rate / 1000;
+      return perMilleToFraction(insurance.rate);
   }
 }

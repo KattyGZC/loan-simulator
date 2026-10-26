@@ -1,7 +1,7 @@
 import { buildSchedule, type ScheduleParams } from './amortization';
 import { insuranceMonthlyRate } from './insurance';
 import { roundMoney } from './money';
-import { effectiveToNominal, monthlyRate, nominalToEffective } from './rates';
+import { annualRates, monthlyRate, percentOf, percentToFraction } from './rates';
 import { compare, summarize } from './summary';
 import type { LoanInput, Schedule, SimulationResult, SimulationWarning } from './types';
 import { validate } from './validate';
@@ -10,21 +10,13 @@ export function simulate(input: LoanInput): SimulationResult {
   const errors = validate(input);
   if (errors.length > 0) return { ok: false, errors };
 
-  // Keep the rate the user entered exactly as is and derive the other one.
-  const nominalRate =
-    input.rateType === 'nominal'
-      ? input.annualRate
-      : effectiveToNominal(input.annualRate / 100) * 100;
-  const effectiveRate =
-    input.rateType === 'effective'
-      ? input.annualRate
-      : nominalToEffective(input.annualRate / 100) * 100;
+  const { nominalRate, effectiveRate } = annualRates(input.annualRate, input.rateType);
 
   const params: ScheduleParams = {
     amount: input.amount,
     termMonths: input.termMonths,
     method: input.method,
-    monthlyRate: monthlyRate(nominalRate / 100),
+    monthlyRate: monthlyRate(percentToFraction(nominalRate)),
     insuranceRate: insuranceMonthlyRate(input.insurance),
     insuranceBase: input.insurance?.base ?? 'balance',
     insuranceOnTop: input.insurance?.onTopOfInstallment ?? false,
@@ -33,7 +25,7 @@ export function simulate(input: LoanInput): SimulationResult {
   };
   const loan = {
     amount: input.amount,
-    solca: roundMoney((input.amount * (input.solcaPercent ?? 0)) / 100),
+    solca: roundMoney(percentOf(input.amount, input.solcaPercent ?? 0)),
     nominalRate,
     effectiveRate,
   };
