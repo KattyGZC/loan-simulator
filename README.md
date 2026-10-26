@@ -8,6 +8,8 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 
 > Built for Ecuador (USD, SOLCA contribution, Central Bank credit segments). Since almost all data is entered by the user, it works for other countries once the Ecuador-specific options are turned off.
 
+> **Status:** in development, not published yet. The calculation engine (`src/core/`) is done and tested; the side panel UI, languages, saved scenarios and CSV export are next. This README describes the planned extension.
+
 ---
 
 ## What it does
@@ -194,10 +196,13 @@ npm test           # run the unit tests
 npm run lint       # ESLint
 npm run typecheck  # TypeScript
 npm run build      # production build in .output/chrome-mv3
+npm run check      # everything CI runs: lint, format, typecheck, coverage, build
 npm run zip        # zip ready for the Chrome Web Store
 ```
 
 To load the build by hand: open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and pick `.output/chrome-mv3`. Clicking the toolbar icon opens the side panel.
+
+Before changing code, read [AGENTS.md](AGENTS.md): coding standard, current status and the decisions the engine relies on.
 
 CI (GitHub Actions) runs lint, format check, typecheck, tests and build on every push to `main` and on every pull request.
 

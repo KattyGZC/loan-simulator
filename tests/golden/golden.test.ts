@@ -1,5 +1,5 @@
 // Reference cases from real Ecuadorian simulators. The accepted difference is ±$0.01 per
-// payment (implementation plan, task 1.15).
+// payment, accumulated over the loan for totals.
 //
 // Banco Guayaquil is not here: its simulator charges interest on actual days / 365, while
 // this engine uses 30/360. Actual-day bases are planned for after v1.

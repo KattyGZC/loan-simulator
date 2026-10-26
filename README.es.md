@@ -8,6 +8,8 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
 
 > Pensada para Ecuador (USD, SOLCA, segmentos del BCE), pero como casi todos los datos los ingresa el usuario, sirve para otros países desactivando lo específico de Ecuador.
 
+> **Estado:** en desarrollo, aún no publicada. El motor de cálculo (`src/core/`) está terminado y probado; faltan la interfaz del panel lateral, los idiomas, los escenarios guardados y la exportación a CSV. Este README describe la extensión prevista.
+
 ---
 
 ## Qué hace
@@ -194,10 +196,13 @@ npm test           # correr los tests unitarios
 npm run lint       # ESLint
 npm run typecheck  # TypeScript
 npm run build      # build de producción en .output/chrome-mv3
+npm run check      # todo lo que corre la CI: lint, formato, typecheck, cobertura, build
 npm run zip        # zip listo para la Chrome Web Store
 ```
 
 Para cargar el build a mano: abre `chrome://extensions`, activa el **Modo de desarrollador**, haz clic en **Cargar descomprimida** y elige `.output/chrome-mv3`. Al hacer clic en el ícono de la barra se abre el panel lateral.
+
+Antes de cambiar código, lee [AGENTS.md](AGENTS.md) (en inglés): estándar de código, estado actual y las decisiones en las que se apoya el motor.
 
 La CI (GitHub Actions) corre lint, revisión de formato, typecheck, tests y build en cada push a `main` y en cada pull request.
 
