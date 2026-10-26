@@ -105,9 +105,21 @@ export type ValidationCode =
   | 'outOfRange'
   | 'invalidDate';
 
+/** Path of an input field, e.g. `amount` or `extraPayments.1.afterPayment`. */
+export type ValidationField =
+  | 'amount'
+  | 'termMonths'
+  | 'annualRate'
+  | 'insurance.rate'
+  | 'otherCharges'
+  | 'solcaPercent'
+  | 'firstPaymentDate'
+  | 'maxRate'
+  | `extraPayments.${number}.afterPayment`
+  | `extraPayments.${number}.amount`;
+
 export interface ValidationError {
-  /** Path of the field, e.g. `amount` or `extraPayments.1.afterPayment`. */
-  field: string;
+  field: ValidationField;
   code: ValidationCode;
   /** Values for the message, e.g. `{ min: 1, max: 360 }` for `outOfRange`. */
   params?: Record<string, number>;
