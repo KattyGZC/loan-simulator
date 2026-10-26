@@ -38,16 +38,18 @@ export function summarize(rows: readonly ScheduleRow[], loan: LoanTerms): LoanSu
   };
 }
 
-export function compare(base: Schedule, withExtras: Schedule): Comparison {
-  const { rows } = withExtras;
+export function compare(base: Schedule, withExtraPayments: Schedule): Comparison {
+  const { rows } = withExtraPayments;
   const lastExtra = rows.findLastIndex((row) => row.extraPayment > 0);
   return {
-    interestSaved: roundMoney(base.summary.totalInterest - withExtras.summary.totalInterest),
-    insuranceSaved: roundMoney(base.summary.totalInsurance - withExtras.summary.totalInsurance),
-    otherChargesSaved: roundMoney(
-      base.summary.totalOtherCharges - withExtras.summary.totalOtherCharges,
+    interestSaved: roundMoney(base.summary.totalInterest - withExtraPayments.summary.totalInterest),
+    insuranceSaved: roundMoney(
+      base.summary.totalInsurance - withExtraPayments.summary.totalInsurance,
     ),
-    totalCostSaved: roundMoney(base.summary.totalCost - withExtras.summary.totalCost),
+    otherChargesSaved: roundMoney(
+      base.summary.totalOtherCharges - withExtraPayments.summary.totalOtherCharges,
+    ),
+    totalCostSaved: roundMoney(base.summary.totalCost - withExtraPayments.summary.totalCost),
     paymentsSaved: base.rows.length - rows.length,
     newPayment: lastExtra === -1 ? null : (rows[lastExtra + 1]?.payment ?? null),
   };
