@@ -8,7 +8,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 
 > Built for Ecuador (USD, SOLCA contribution, Central Bank credit segments). Since almost all data is entered by the user, it works for other countries once the Ecuador-specific options are turned off.
 
-> **Status:** in development, not published yet. The calculation engine (`src/core/`) is done and tested; the side panel UI, languages, saved scenarios and CSV export are next. This README describes the planned extension.
+> **Status:** in development, not published yet. The calculation engine (`src/core/`) and the English and Spanish texts and number formats (`src/i18n/`) are done and tested; the side panel UI, saved scenarios and CSV export are next. This README describes the planned extension.
 
 ---
 
@@ -175,13 +175,14 @@ Everything else (rates, term, amortization methods, insurance and extra payments
 loan-simulator/
 ├── src/
 │   ├── core/          # calculation engine (rates, French, German, insurance, extra payments)
+│   ├── i18n/          # UI text, number and date formats, reading typed numbers
 │   ├── entrypoints/
 │   │   ├── background.ts
 │   │   └── sidepanel/ # UI
 │   └── storage/       # saved scenarios
 ├── public/
 │   └── _locales/      # UI strings: en/ and es/ messages.json
-├── tests/             # engine tests against known cases
+├── tests/             # engine tests against known cases, and i18n tests
 └── wxt.config.ts
 ```
 
