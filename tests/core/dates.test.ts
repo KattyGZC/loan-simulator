@@ -23,6 +23,10 @@ describe('paymentDate', () => {
     expect(paymentDate('2028-02-29', 13)).toBe('2029-02-28');
     expect(paymentDate('2028-02-29', 49)).toBe('2032-02-29');
   });
+
+  it('throws on an invalid first payment date', () => {
+    expect(() => paymentDate('2027-02-30', 1)).toThrow('Invalid first payment date: 2027-02-30');
+  });
 });
 
 describe('isIsoDate', () => {
