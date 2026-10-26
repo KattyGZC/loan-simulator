@@ -3,14 +3,20 @@ import type { Comparison, LoanSummary, Schedule, ScheduleRow } from './types';
 
 type AmountKey = Exclude<keyof ScheduleRow, 'number' | 'date'>;
 
-function total(rows: readonly ScheduleRow[], key: AmountKey): number {
+/** Figures of the loan that do not depend on the schedule. Rates in percent. */
+export interface LoanTerms {
+  amount: number;
+  solca: number;
+  nominalRate: number;
+  effectiveRate: number;
+}
+
+/** Sum of one amount column, rounded to cents. */
+export function total(rows: readonly ScheduleRow[], key: AmountKey): number {
   return roundMoney(rows.reduce((sum, row) => sum + row[key], 0));
 }
 
-export function summarize(
-  rows: readonly ScheduleRow[],
-  loan: { amount: number; solca: number; nominalRate: number; effectiveRate: number },
-): LoanSummary {
+export function summarize(rows: readonly ScheduleRow[], loan: LoanTerms): LoanSummary {
   const totalInterest = total(rows, 'interest');
   const totalInsurance = total(rows, 'insurance');
   const totalOtherCharges = total(rows, 'otherCharges');

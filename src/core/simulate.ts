@@ -2,7 +2,7 @@ import { buildSchedule, type ScheduleParams } from './amortization';
 import { insuranceMonthlyRate } from './insurance';
 import { roundMoney } from './money';
 import { annualRates, monthlyRate, percentOf, percentToFraction } from './rates';
-import { compare, summarize } from './summary';
+import { compare, summarize, type LoanTerms } from './summary';
 import type { LoanInput, Schedule, SimulationResult, SimulationWarning } from './types';
 import { validate } from './validate';
 
@@ -25,7 +25,7 @@ export function simulate(input: LoanInput): SimulationResult {
     otherCharges: input.otherCharges ?? 0,
     firstPaymentDate: input.firstPaymentDate,
   };
-  const loan = {
+  const loan: LoanTerms = {
     amount: input.amount,
     solca: roundMoney(percentOf(input.amount, input.solcaPercent ?? 0)),
     nominalRate,
@@ -42,11 +42,12 @@ export function simulate(input: LoanInput): SimulationResult {
 
   const extraPayments = input.extraPayments ?? [];
   if (extraPayments.length === 0) {
-    return { ok: true, base, withExtras: null, comparison: null, warnings };
+    return { ok: true, base, withExtraPayments: null, warnings };
   }
 
   const extra = buildSchedule(params, extraPayments);
   warnings.push(...extra.warnings);
-  const withExtras: Schedule = { rows: extra.rows, summary: summarize(extra.rows, loan) };
-  return { ok: true, base, withExtras, comparison: compare(base, withExtras), warnings };
+  const schedule: Schedule = { rows: extra.rows, summary: summarize(extra.rows, loan) };
+  const comparison = compare(base, schedule);
+  return { ok: true, base, withExtraPayments: { schedule, comparison }, warnings };
 }
