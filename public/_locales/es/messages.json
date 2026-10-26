@@ -1,0 +1,36 @@
+{
+  "extName": {
+    "message": "Simulador de Créditos"
+  },
+  "extDescription": {
+    "message": "Simula créditos de cualquier banco o cooperativa, con abonos a capital."
+  },
+  "actionTitle": {
+    "message": "Abrir el Simulador de Créditos"
+  },
+  "validation_required": {
+    "message": "Ingresa un valor."
+  },
+  "validation_notANumber": {
+    "message": "Ingresa un número."
+  },
+  "validation_mustBeInteger": {
+    "message": "Ingresa un número entero."
+  },
+  "validation_mustBePositive": {
+    "message": "Ingresa un valor mayor que 0."
+  },
+  "validation_mustBeNonNegative": {
+    "message": "Ingresa 0 o más."
+  },
+  "validation_outOfRange": {
+    "message": "Ingresa un valor de $MIN$ a $MAX$.",
+    "placeholders": {
+      "min": { "content": "$1", "example": "1" },
+      "max": { "content": "$2", "example": "360" }
+    }
+  },
+  "validation_invalidDate": {
+    "message": "Ingresa una fecha válida."
+  }
+}

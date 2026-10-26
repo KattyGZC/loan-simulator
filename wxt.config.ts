@@ -7,11 +7,12 @@ export default defineConfig({
     plugins: [preact()],
   }),
   manifest: {
-    name: 'Loan Simulator',
-    description: 'Simulate loans from any bank or credit union, with extra principal payments.',
+    name: '__MSG_extName__',
+    description: '__MSG_extDescription__',
+    default_locale: 'en',
     permissions: ['storage', 'sidePanel'],
     action: {
-      default_title: 'Open Loan Simulator',
+      default_title: '__MSG_actionTitle__',
     },
   },
 });
