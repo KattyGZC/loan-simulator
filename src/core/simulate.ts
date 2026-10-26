@@ -17,9 +17,11 @@ export function simulate(input: LoanInput): SimulationResult {
     termMonths: input.termMonths,
     method: input.method,
     monthlyRate: monthlyRate(percentToFraction(nominalRate)),
-    insuranceRate: insuranceMonthlyRate(input.insurance),
-    insuranceBase: input.insurance?.base ?? 'balance',
-    insuranceOnTop: input.insurance?.onTopOfInstallment ?? false,
+    insurance: {
+      monthlyRate: insuranceMonthlyRate(input.insurance),
+      base: input.insurance?.base ?? 'balance',
+      onTopOfInstallment: input.insurance?.onTopOfInstallment ?? false,
+    },
     otherCharges: input.otherCharges ?? 0,
     firstPaymentDate: input.firstPaymentDate,
   };

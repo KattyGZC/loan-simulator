@@ -3,6 +3,7 @@ import { roundMoney } from './money';
 import type {
   AmortizationMethod,
   ExtraPayment,
+  ExtraPaymentEffect,
   InsuranceBase,
   ScheduleRow,
   SimulationWarning,
@@ -14,14 +15,37 @@ export interface ScheduleParams {
   method: AmortizationMethod;
   /** Monthly interest rate as a fraction. */
   monthlyRate: number;
-  /** Monthly insurance rate as a fraction; 0 for no insurance. */
-  insuranceRate: number;
-  insuranceBase: InsuranceBase;
-  /** French only: the fixed payment covers principal + interest, and insurance goes on top. */
-  insuranceOnTop: boolean;
+  insurance: ScheduleInsurance;
   otherCharges: number;
   firstPaymentDate?: string;
 }
+
+export interface ScheduleInsurance {
+  /** Monthly rate as a fraction; 0 for no insurance. */
+  monthlyRate: number;
+  base: InsuranceBase;
+  /** French only: insurance is added on top of the fixed payment instead of inside it. */
+  onTopOfInstallment: boolean;
+}
+
+/**
+ * What differs between amortization methods. The installment is the fixed payment (French)
+ * or the fixed principal (German).
+ */
+interface Method {
+  installment(balance: number, payments: number): number;
+  principal(installment: number, interest: number, insurance: number): number;
+  paymentsToRepay(balance: number, installment: number): number;
+}
+
+/** What is left to repay after a payment and its extra payments. */
+interface Outstanding {
+  balance: number;
+  installment: number;
+  lastPaymentNumber: number;
+}
+
+type NumberedExtraPayment = ExtraPayment & { index: number };
 
 // Guards against float noise when a remaining term is a whole number (e.g. 6.0000000001).
 const TERM_EPSILON = 1e-9;
@@ -40,91 +64,134 @@ function periodsToRepay(balance: number, rate: number, payment: number): number 
 }
 
 /**
- * Builds the payment schedule, applying extra payments right after the payment they name.
+ * Fixed payment of principal + interest, plus the insurance when it is inside the payment.
+ * Balance-based insurance then works like extra interest, and insurance on the original amount
+ * is a fixed sum added to the annuity. Principal is whatever the payment leaves.
+ */
+function frenchMethod({ amount, monthlyRate, insurance }: ScheduleParams): Method {
+  const insuranceInside = !insurance.onTopOfInstallment;
+  const onBalance = insurance.base === 'balance';
+  const annuityRate =
+    insuranceInside && onBalance ? monthlyRate + insurance.monthlyRate : monthlyRate;
+  const fixedInsurance =
+    insuranceInside && !onBalance ? roundMoney(amount * insurance.monthlyRate) : 0;
+  return {
+    installment: (balance, payments) =>
+      roundMoney(annuity(balance, annuityRate, payments) + fixedInsurance),
+    principal: (installment, interest, insuranceCharge) =>
+      roundMoney(installment - (insuranceInside ? interest + insuranceCharge : interest)),
+    paymentsToRepay: (balance, installment) =>
+      periodsToRepay(balance, annuityRate, installment - fixedInsurance),
+  };
+}
+
+const germanMethod: Method = {
+  installment: (balance, payments) => roundMoney(balance / payments),
+  principal: (installment) => installment,
+  paymentsToRepay: (balance, installment) => Math.ceil(balance / installment - TERM_EPSILON),
+};
+
+function reschedule(
+  outstanding: Outstanding,
+  effect: ExtraPaymentEffect,
+  paymentNumber: number,
+  method: Method,
+): Outstanding {
+  if (outstanding.balance === 0) return outstanding;
+  const { balance, installment, lastPaymentNumber } = outstanding;
+  return effect === 'reducePayment'
+    ? {
+        ...outstanding,
+        installment: method.installment(balance, lastPaymentNumber - paymentNumber),
+      }
+    : {
+        ...outstanding,
+        lastPaymentNumber: paymentNumber + method.paymentsToRepay(balance, installment),
+      };
+}
+
+/** Applies the extra payments made right after `paymentNumber`, in order. */
+function applyExtraPayments(
+  outstanding: Outstanding,
+  due: readonly NumberedExtraPayment[],
+  paymentNumber: number,
+  method: Method,
+): { outstanding: Outstanding; extraPaid: number; warnings: SimulationWarning[] } {
+  let current = outstanding;
+  let extraPaid = 0;
+  const warnings: SimulationWarning[] = [];
+  for (const extra of due) {
+    if (current.balance === 0) {
+      warnings.push({ code: 'extraPaymentIgnored', index: extra.index });
+      continue;
+    }
+    const applied = Math.min(extra.amount, current.balance);
+    if (applied < extra.amount) {
+      warnings.push({ code: 'extraPaymentClipped', index: extra.index, appliedAmount: applied });
+    }
+    extraPaid = roundMoney(extraPaid + applied);
+    const balance = roundMoney(current.balance - applied);
+    current = reschedule({ ...current, balance }, extra.effect, paymentNumber, method);
+  }
+  return { outstanding: current, extraPaid, warnings };
+}
+
+/**
+ * Builds the payment schedule, applying each extra payment right after the payment it names.
  *
  * Each value is rounded to cents and the rounded balance carries over to the next month.
  * The last payment takes whatever principal is left, so the balance ends at exactly 0.
- *
- * `installment` is the fixed payment (French) or the fixed principal (German). An extra
- * payment either recomputes it over the remaining payments (reduce payment) or keeps it and
- * moves the last payment earlier (reduce term).
- *
- * When the French payment includes insurance, balance-based insurance works like extra
- * interest (the annuity uses interest rate + insurance rate), and insurance on the original
- * amount is a fixed sum added to the annuity. Principal is whatever the payment leaves.
+ * An extra payment that reduces the payment recomputes the installment over the remaining
+ * payments; one that reduces the term keeps it and moves the last payment earlier.
  */
 export function buildSchedule(
   params: ScheduleParams,
   extraPayments: readonly ExtraPayment[] = [],
 ): { rows: ScheduleRow[]; warnings: SimulationWarning[] } {
-  const { amount, method, monthlyRate: rate, insuranceRate, otherCharges } = params;
-  const french = method === 'french';
-  const insuranceInInstallment = french && !params.insuranceOnTop;
-  const byBalance = params.insuranceBase === 'balance';
-  // Rate and fixed sum the French annuity covers on top of principal.
-  const annuityRate = insuranceInInstallment && byBalance ? rate + insuranceRate : rate;
-  const fixedInsurance =
-    insuranceInInstallment && !byBalance ? roundMoney(amount * insuranceRate) : 0;
-  const frenchPayment = (principalLeft: number, periods: number) =>
-    roundMoney(annuity(principalLeft, annuityRate, periods) + fixedInsurance);
-  const pending = extraPayments
+  const method = params.method === 'french' ? frenchMethod(params) : germanMethod;
+  const scheduled: NumberedExtraPayment[] = extraPayments
     .map((extra, index) => ({ ...extra, index }))
     .sort((a, b) => a.afterPayment - b.afterPayment);
 
   const rows: ScheduleRow[] = [];
   const warnings: SimulationWarning[] = [];
-  let balance = amount;
-  let lastNumber = params.termMonths;
-  let installment = french ? frenchPayment(balance, lastNumber) : roundMoney(balance / lastNumber);
+  let outstanding: Outstanding = {
+    balance: params.amount,
+    installment: method.installment(params.amount, params.termMonths),
+    lastPaymentNumber: params.termMonths,
+  };
 
-  for (let number = 1; balance > 0; number++) {
-    const interest = roundMoney(balance * rate);
-    const insurance = roundMoney((byBalance ? balance : amount) * insuranceRate);
-    const covered = insuranceInInstallment ? interest + insurance : interest;
-    let principal = french ? roundMoney(installment - covered) : installment;
-    if (number >= lastNumber || principal >= balance) principal = balance;
-    balance = roundMoney(balance - principal);
+  while (outstanding.balance > 0) {
+    const paymentNumber = rows.length + 1;
+    const { balance, installment, lastPaymentNumber } = outstanding;
+    const interest = roundMoney(balance * params.monthlyRate);
+    const insuredAmount = params.insurance.base === 'balance' ? balance : params.amount;
+    const insurance = roundMoney(insuredAmount * params.insurance.monthlyRate);
+    const principal =
+      paymentNumber >= lastPaymentNumber
+        ? balance
+        : Math.min(method.principal(installment, interest, insurance), balance);
 
-    let extraPaid = 0;
-    for (let extra = pending[0]; extra?.afterPayment === number; extra = pending[0]) {
-      pending.shift();
-      if (balance === 0) {
-        warnings.push({ code: 'extraPaymentIgnored', index: extra.index });
-        continue;
-      }
-      const applied = Math.min(extra.amount, balance);
-      if (applied < extra.amount) {
-        warnings.push({ code: 'extraPaymentClipped', index: extra.index, appliedAmount: applied });
-      }
-      balance = roundMoney(balance - applied);
-      extraPaid = roundMoney(extraPaid + applied);
-      if (balance === 0) continue;
-
-      const remaining = lastNumber - number;
-      if (extra.effect === 'reducePayment') {
-        installment = french ? frenchPayment(balance, remaining) : roundMoney(balance / remaining);
-      } else {
-        lastNumber =
-          number +
-          (french
-            ? periodsToRepay(balance, annuityRate, installment - fixedInsurance)
-            : Math.ceil(balance / installment - TERM_EPSILON));
-      }
-    }
+    const due = scheduled.filter((extra) => extra.afterPayment === paymentNumber);
+    const afterPayment = { ...outstanding, balance: roundMoney(balance - principal) };
+    const prepaid = applyExtraPayments(afterPayment, due, paymentNumber, method);
+    outstanding = prepaid.outstanding;
+    warnings.push(...prepaid.warnings);
 
     rows.push({
-      number,
-      date: params.firstPaymentDate ? paymentDate(params.firstPaymentDate, number) : null,
-      payment: roundMoney(principal + interest + insurance + otherCharges),
+      number: paymentNumber,
+      date: params.firstPaymentDate ? paymentDate(params.firstPaymentDate, paymentNumber) : null,
+      payment: roundMoney(principal + interest + insurance + params.otherCharges),
       principal,
       interest,
       insurance,
-      otherCharges,
-      extraPayment: extraPaid,
-      balance,
+      otherCharges: params.otherCharges,
+      extraPayment: prepaid.extraPaid,
+      balance: outstanding.balance,
     });
   }
 
-  for (const extra of pending) warnings.push({ code: 'extraPaymentIgnored', index: extra.index });
+  const dueAfterPayoff = scheduled.filter((extra) => extra.afterPayment > rows.length);
+  for (const { index } of dueAfterPayoff) warnings.push({ code: 'extraPaymentIgnored', index });
   return { rows, warnings };
 }
