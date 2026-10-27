@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
+import { loanCalendar } from '@/core/calendar';
+import { roundMoney } from '@/core/money';
 import { total } from '@/core/summary';
+import type { LoanInput } from '@/core/types';
 import { balanceInsurance, expectConsistent, french, german, run } from './helpers';
 
 describe('French method', () => {
@@ -183,5 +186,106 @@ describe('dates', () => {
 
   it('leaves dates empty without a first payment date', () => {
     expect(run(german).base.rows[0]?.date).toBeNull();
+  });
+});
+
+describe('actual days / 360', () => {
+  const actual: LoanInput = {
+    ...german,
+    dayCount: 'actual360',
+    disbursementDate: '2026-10-20',
+    firstPaymentDate: '2026-11-17',
+  };
+
+  it('charges the days of each period over 360', () => {
+    const { rows } = run(actual).base;
+    // 28 days from the disbursement, 30 to Dec 17, and 32 to Jan 18 (Jan 17 is a Sunday).
+    expect(rows.slice(0, 3).map((row) => row.interest)).toEqual([
+      roundMoney((12000 * 0.12 * 28) / 360),
+      roundMoney((11000 * 0.12 * 30) / 360),
+      roundMoney((10000 * 0.12 * 32) / 360),
+    ]);
+  });
+
+  it('moves weekend due dates to Monday, and counts the next period from the moved date', () => {
+    const { rows } = run(actual).base;
+    // 2027-01-17 is a Sunday; 2027-02-17 is a Wednesday.
+    expect(rows[2]?.date).toBe('2027-01-18');
+    expect(rows[3]?.date).toBe('2027-02-17');
+    expect(rows[3]?.interest).toBe(roundMoney((9000 * 0.12 * 30) / 360));
+  });
+
+  it('fixes the French payment over the real periods, so the last one is not a balloon', () => {
+    const long: LoanInput = {
+      ...actual,
+      method: 'french',
+      amount: 100000,
+      termMonths: 240,
+      annualRate: 10,
+    };
+    const { rows } = run(long).base;
+    const regular = rows[0]!.payment;
+    // From the monthly rate alone, the last payment of this loan was 8,571.28.
+    expect(Math.abs(rows.at(-1)!.payment - regular)).toBeLessThan(regular * 0.01);
+    expect(rows.slice(1, -1).every((row) => row.payment === regular)).toBe(true);
+    expect(rows.every((row) => row.principal > 0)).toBe(true);
+    expectConsistent(rows, 100000);
+  });
+
+  it('adds to the balance a long period whose interest exceeds the payment', () => {
+    const thirtyYears: LoanInput = {
+      ...actual,
+      method: 'french',
+      amount: 100000,
+      termMonths: 360,
+      annualRate: 9.5,
+    };
+    const { rows } = run(thirtyYears).base;
+    // A Saturday due date moved to Monday, after a 31-day month, makes a 33-day period whose
+    // interest is more than the fixed payment: principal is negative that month, and the loan
+    // still ends at 0.
+    expect(rows.some((row) => row.principal < 0)).toBe(true);
+    expectConsistent(rows, 100000);
+  });
+
+  it('reschedules a French loan over the real periods after an extra payment', () => {
+    const base: LoanInput = { ...actual, method: 'french', amount: 10000 };
+    const reducePayment = run({
+      ...base,
+      extraPayments: [{ afterPayment: 3, amount: 3000, effect: 'reducePayment' }],
+    }).withExtraPayments!.schedule.rows;
+    const newPayment = reducePayment[3]!.payment;
+    expect(Math.abs(reducePayment.at(-1)!.payment - newPayment)).toBeLessThan(1);
+    expectConsistent(reducePayment, 10000);
+
+    const reduceTerm = run({
+      ...base,
+      extraPayments: [{ afterPayment: 3, amount: 3000, effect: 'reduceTerm' }],
+    }).withExtraPayments!.schedule.rows;
+    expect(reduceTerm.length).toBeLessThan(12);
+    expectConsistent(reduceTerm, 10000);
+  });
+
+  it('keeps the term when an extra payment cannot shorten it', () => {
+    const rows = run({
+      ...actual,
+      method: 'french',
+      amount: 10000,
+      extraPayments: [{ afterPayment: 11, amount: 1, effect: 'reduceTerm' }],
+    }).withExtraPayments!.schedule.rows;
+    expect(rows).toHaveLength(12);
+  });
+
+  it('leaves 30/360 dates where they fall', () => {
+    const { rows } = run({ ...german, firstPaymentDate: '2026-10-17' }).base;
+    expect(rows[0]?.date).toBe('2026-10-17');
+  });
+});
+
+describe('loanCalendar', () => {
+  it('refuses actual days without both dates, which validate() reports first', () => {
+    expect(() => loanCalendar({ ...german, dayCount: 'actual360' }, 0.12)).toThrow(
+      'actual360 needs the first payment and disbursement dates.',
+    );
   });
 });

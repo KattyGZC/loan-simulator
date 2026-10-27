@@ -12,6 +12,19 @@ const valid: LoanInput = {
 };
 
 describe('validate', () => {
+  it('needs no dates under 30/360, and ignores the disbursement date there', () => {
+    expect(validate({ ...valid, dayCount: 'thirty360', disbursementDate: 'not a date' })).toEqual(
+      [],
+    );
+  });
+
+  it('reports both missing dates under actual days', () => {
+    expect(validate({ ...valid, dayCount: 'actual360' })).toEqual([
+      { field: 'firstPaymentDate', code: 'required' },
+      { field: 'disbursementDate', code: 'required' },
+    ]);
+  });
+
   it('accepts a complete input', () => {
     expect(
       validate({
@@ -44,6 +57,28 @@ describe('validate', () => {
     [{ maxRate: 0 }, { field: 'maxRate', code: 'mustBePositive' }],
     [{ maxRate: 101 }, { field: 'maxRate', code: 'tooLarge', params: { max: 100 } }],
     [{ firstPaymentDate: '2027-02-30' }, { field: 'firstPaymentDate', code: 'invalidDate' }],
+    [{ firstPaymentDate: '0020-01-04' }, { field: 'firstPaymentDate', code: 'invalidDate' }],
+    [{ firstPaymentDate: '2101-01-01' }, { field: 'firstPaymentDate', code: 'invalidDate' }],
+    [
+      { dayCount: 'actual360', firstPaymentDate: '2026-11-27', disbursementDate: '0202-10-27' },
+      { field: 'disbursementDate', code: 'invalidDate' },
+    ],
+    [
+      { dayCount: 'actual360', disbursementDate: '2026-10-27' },
+      { field: 'firstPaymentDate', code: 'required' },
+    ],
+    [
+      { dayCount: 'actual360', firstPaymentDate: '2026-11-27' },
+      { field: 'disbursementDate', code: 'required' },
+    ],
+    [
+      { dayCount: 'actual360', firstPaymentDate: '2026-11-27', disbursementDate: '2026-13-01' },
+      { field: 'disbursementDate', code: 'invalidDate' },
+    ],
+    [
+      { dayCount: 'actual360', firstPaymentDate: '2026-10-27', disbursementDate: '2026-10-27' },
+      { field: 'firstPaymentDate', code: 'notAfterDisbursement' },
+    ],
   ] as const)('rejects %o', (change, error) => {
     expect(validate({ ...valid, ...change })).toEqual([error]);
   });
