@@ -3,6 +3,20 @@ import { useId, useState } from 'preact/hooks';
 import type { FieldError } from './errors';
 import { visibleError } from './form';
 
+/**
+ * The error a field shows now, and the handlers that tell it the user typed in the field and
+ * left it: "enter a value" waits for both (`visibleError`).
+ */
+function useVisibleError(error: FieldError | undefined, value: string) {
+  const [edited, setEdited] = useState(false);
+  const [left, setLeft] = useState(false);
+  return {
+    shownError: visibleError(error, value, edited && left),
+    markEdited: () => setEdited(true),
+    markLeft: () => setLeft(true),
+  };
+}
+
 interface NumberFieldProps {
   label: string;
   value: string;
@@ -15,9 +29,7 @@ interface NumberFieldProps {
 /** A labelled text input for a number, with its error or hint below it. */
 export function NumberField({ label, value, onInput, inputMode, error, hint }: NumberFieldProps) {
   const id = useId();
-  const [edited, setEdited] = useState(false);
-  const [left, setLeft] = useState(false);
-  const shownError = visibleError(error, value, edited && left);
+  const { shownError, markEdited, markLeft } = useVisibleError(error, value);
   const noteId = `${id}-note`;
   const note = shownError ?? hint;
   return (
@@ -32,10 +44,10 @@ export function NumberField({ label, value, onInput, inputMode, error, hint }: N
         aria-invalid={shownError ? true : undefined}
         aria-describedby={note ? noteId : undefined}
         onInput={(event) => {
-          setEdited(true);
+          markEdited();
           onInput(event.currentTarget.value);
         }}
-        onBlur={() => setLeft(true)}
+        onBlur={markLeft}
       />
       {note && (
         <p id={noteId} class={shownError ? 'field-error' : 'field-hint'}>
@@ -57,8 +69,9 @@ interface DateFieldProps {
 /** A labelled date input, with its error or hint below it. */
 export function DateField({ label, value, onInput, error, hint }: DateFieldProps) {
   const id = useId();
+  const { shownError, markEdited, markLeft } = useVisibleError(error, value);
   const noteId = `${id}-note`;
-  const note = error?.message ?? hint;
+  const note = shownError ?? hint;
   return (
     <div class="field">
       <label for={id}>{label}</label>
@@ -66,12 +79,16 @@ export function DateField({ label, value, onInput, error, hint }: DateFieldProps
         id={id}
         type="date"
         value={value}
-        aria-invalid={error ? true : undefined}
+        aria-invalid={shownError ? true : undefined}
         aria-describedby={note ? noteId : undefined}
-        onInput={(event) => onInput(event.currentTarget.value)}
+        onInput={(event) => {
+          markEdited();
+          onInput(event.currentTarget.value);
+        }}
+        onBlur={markLeft}
       />
       {note && (
-        <p id={noteId} class={error ? 'field-error' : 'field-hint'}>
+        <p id={noteId} class={shownError ? 'field-error' : 'field-hint'}>
           {note}
         </p>
       )}
