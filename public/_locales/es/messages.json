@@ -30,6 +30,15 @@
       "max": { "content": "$2", "example": "360" }
     }
   },
+  "validation_tooLarge": {
+    "message": "Ingresa como máximo $MAX$.",
+    "placeholders": {
+      "max": { "content": "$1", "example": "100" }
+    }
+  },
+  "validation_noPaymentToPrepay": {
+    "message": "Un crédito de una sola cuota no admite abonos a capital."
+  },
   "validation_invalidDate": {
     "message": "Ingresa una fecha válida."
   }

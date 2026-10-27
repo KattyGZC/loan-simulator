@@ -11,7 +11,7 @@ const errorsOf = (input: Parameters<typeof simulate>[0]): ValidationError[] => {
 };
 
 describe('validationMessage', () => {
-  it('fills the range of outOfRange with grouped numbers', () => {
+  it('fills the maximum of tooLarge with grouped numbers', () => {
     useLocale('es');
     const [error] = errorsOf({
       amount: 2e9,
@@ -21,7 +21,7 @@ describe('validationMessage', () => {
       method: 'french',
     });
     expect(validationMessage(error!, createFormat('es-EC'))).toBe(
-      'Ingresa un valor de 0 a 1.000.000.000.',
+      'Ingresa como máximo 1.000.000.000.',
     );
   });
 
@@ -35,6 +35,8 @@ describe('validationMessage', () => {
       mustBePositive: { field: 'amount', code: 'mustBePositive' },
       mustBeNonNegative: { field: 'otherCharges', code: 'mustBeNonNegative' },
       outOfRange: { field: 'termMonths', code: 'outOfRange', params: { min: 1, max: 360 } },
+      tooLarge: { field: 'amount', code: 'tooLarge', params: { max: 1e9 } },
+      noPaymentToPrepay: { field: 'extraPayments.0.afterPayment', code: 'noPaymentToPrepay' },
       invalidDate: { field: 'firstPaymentDate', code: 'invalidDate' },
     } satisfies Record<ValidationCode, ValidationError>;
     const errors = Object.values(oneErrorPerCode);
@@ -45,6 +47,8 @@ describe('validationMessage', () => {
       'Enter a value greater than 0.',
       'Enter 0 or more.',
       'Enter a value from 1 to 360.',
+      'Enter at most 1,000,000,000.',
+      'A loan with a single payment has no payment to prepay.',
       'Enter a valid date.',
     ]);
   });

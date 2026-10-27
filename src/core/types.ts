@@ -103,6 +103,8 @@ export type ValidationCode =
   | 'mustBePositive'
   | 'mustBeNonNegative'
   | 'outOfRange'
+  | 'tooLarge'
+  | 'noPaymentToPrepay'
   | 'invalidDate';
 
 /** Path of an input field, e.g. `amount` or `extraPayments.1.afterPayment`. */
@@ -118,9 +120,15 @@ export type ValidationField =
   | `extraPayments.${number}.afterPayment`
   | `extraPayments.${number}.amount`;
 
+/**
+ * `outOfRange` bounds a whole number on both sides; `tooLarge` caps an amount or a percentage
+ * that already has its lower bound. `noPaymentToPrepay` marks an extra payment on a loan with a
+ * single payment, where no value is valid.
+ */
 export type ValidationError =
   | { field: ValidationField; code: 'outOfRange'; params: { min: number; max: number } }
-  | { field: ValidationField; code: Exclude<ValidationCode, 'outOfRange'> };
+  | { field: ValidationField; code: 'tooLarge'; params: { max: number } }
+  | { field: ValidationField; code: Exclude<ValidationCode, 'outOfRange' | 'tooLarge'> };
 
 export type SimulationWarning =
   | { code: 'rateAboveMaximum'; effectiveRate: number; maxRate: number }

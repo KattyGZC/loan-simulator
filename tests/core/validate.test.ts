@@ -29,7 +29,7 @@ describe('validate', () => {
   it.each([
     [{ amount: Number.NaN }, { field: 'amount', code: 'notANumber' }],
     [{ amount: 0 }, { field: 'amount', code: 'mustBePositive' }],
-    [{ amount: 2e9 }, { field: 'amount', code: 'outOfRange', params: { min: 0, max: 1e9 } }],
+    [{ amount: 2e9 }, { field: 'amount', code: 'tooLarge', params: { max: 1e9 } }],
     [{ termMonths: 12.5 }, { field: 'termMonths', code: 'mustBeInteger' }],
     [{ termMonths: 0 }, { field: 'termMonths', code: 'outOfRange', params: { min: 1, max: 360 } }],
     [
@@ -37,17 +37,12 @@ describe('validate', () => {
       { field: 'termMonths', code: 'outOfRange', params: { min: 1, max: 360 } },
     ],
     [{ annualRate: -1 }, { field: 'annualRate', code: 'mustBeNonNegative' }],
-    [
-      { annualRate: 101 },
-      { field: 'annualRate', code: 'outOfRange', params: { min: 0, max: 100 } },
-    ],
+    [{ annualRate: 101 }, { field: 'annualRate', code: 'tooLarge', params: { max: 100 } }],
     [{ otherCharges: -1 }, { field: 'otherCharges', code: 'mustBeNonNegative' }],
     [{ solcaPercent: -0.5 }, { field: 'solcaPercent', code: 'mustBeNonNegative' }],
-    [
-      { solcaPercent: 150 },
-      { field: 'solcaPercent', code: 'outOfRange', params: { min: 0, max: 100 } },
-    ],
+    [{ solcaPercent: 150 }, { field: 'solcaPercent', code: 'tooLarge', params: { max: 100 } }],
     [{ maxRate: 0 }, { field: 'maxRate', code: 'mustBePositive' }],
+    [{ maxRate: 101 }, { field: 'maxRate', code: 'tooLarge', params: { max: 100 } }],
     [{ firstPaymentDate: '2027-02-30' }, { field: 'firstPaymentDate', code: 'invalidDate' }],
   ] as const)('rejects %o', (change, error) => {
     expect(validate({ ...valid, ...change })).toEqual([error]);
@@ -89,10 +84,14 @@ describe('validate', () => {
     const errors = validate({
       ...valid,
       termMonths: 1,
-      extraPayments: [{ afterPayment: 1, amount: 100, effect: 'reduceTerm' }],
+      extraPayments: [
+        { afterPayment: 1, amount: 100, effect: 'reduceTerm' },
+        { afterPayment: Number.NaN, amount: 100, effect: 'reduceTerm' },
+      ],
     });
     expect(errors).toEqual([
-      { field: 'extraPayments.0.afterPayment', code: 'outOfRange', params: { min: 1, max: 0 } },
+      { field: 'extraPayments.0.afterPayment', code: 'noPaymentToPrepay' },
+      { field: 'extraPayments.1.afterPayment', code: 'noPaymentToPrepay' },
     ]);
   });
 
