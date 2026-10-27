@@ -42,6 +42,9 @@
   "validation_invalidDate": {
     "message": "Enter a valid date."
   },
+  "validation_notAfterDisbursement": {
+    "message": "The first payment must come after the disbursement."
+  },
   "section_loan": {
     "message": "Loan"
   },
@@ -128,6 +131,21 @@
   },
   "field_firstPaymentDate": {
     "message": "First payment date"
+  },
+  "field_disbursementDate": {
+    "message": "Disbursement date"
+  },
+  "field_dayCount": {
+    "message": "Day count"
+  },
+  "dayCount_thirty360": {
+    "message": "30/360 (every month counts 30 days)"
+  },
+  "dayCount_actual360": {
+    "message": "Actual days/360"
+  },
+  "hint_weekendDueDates": {
+    "message": "Due dates on a Saturday or Sunday move to Monday."
   },
   "field_maxRate": {
     "message": "Segment maximum rate (effective, %)"

@@ -42,6 +42,9 @@
   "validation_invalidDate": {
     "message": "Ingresa una fecha válida."
   },
+  "validation_notAfterDisbursement": {
+    "message": "El primer pago debe ser posterior al desembolso."
+  },
   "section_loan": {
     "message": "Crédito"
   },
@@ -128,6 +131,21 @@
   },
   "field_firstPaymentDate": {
     "message": "Fecha del primer pago"
+  },
+  "field_disbursementDate": {
+    "message": "Fecha de desembolso"
+  },
+  "field_dayCount": {
+    "message": "Base de días"
+  },
+  "dayCount_thirty360": {
+    "message": "30/360 (cada mes cuenta 30 días)"
+  },
+  "dayCount_actual360": {
+    "message": "Días reales/360"
+  },
+  "hint_weekendDueDates": {
+    "message": "Los vencimientos en sábado o domingo pasan al lunes."
   },
   "field_maxRate": {
     "message": "Tasa máxima del segmento (efectiva, %)"
