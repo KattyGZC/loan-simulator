@@ -1,23 +1,13 @@
-import { useMemo, useState } from 'preact/hooks';
-import { t } from '@/i18n/translate';
-import { fieldErrors } from './errors';
-import {
-  counterpartRate,
-  defaultForm,
-  errorsOf,
-  hasFixedPayment,
-  panelState,
-  type LoanForm,
-  type PanelState,
-} from './form';
-import { LoanFields } from './LoanFields';
-import { locale } from './locale';
-import { ScheduleTable } from './ScheduleTable';
-import { Summary } from './Summary';
-import { useDebounced } from './useDebounced';
-import { Warnings } from './Warnings';
+import { useId, useState } from 'preact/hooks';
+import { t, type MessageKey } from '@/i18n/translate';
+import { ExistingLoan } from './ExistingLoan';
+import { NewLoan } from './NewLoan';
 
-const RECOMPUTE_DELAY_MS = 250;
+type Tab = 'newLoan' | 'existingLoan';
+const TABS: readonly { tab: Tab; label: MessageKey }[] = [
+  { tab: 'newLoan', label: 'tab_newLoan' },
+  { tab: 'existingLoan', label: 'tab_existingLoan' },
+];
 
 /** Today in the user's time zone, as an ISO date. */
 function today(): string {
@@ -26,56 +16,49 @@ function today(): string {
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }
 
+/** Two simulators in tabs. Both stay mounted, so each keeps what was typed in it. */
 export function App() {
-  const [form, setForm] = useState(() => defaultForm(today(), locale));
-  const update = (changes: Partial<LoanForm>) => setForm((current) => ({ ...current, ...changes }));
-
-  const simulated = useDebounced(form, RECOMPUTE_DELAY_MS);
-  const state = useMemo(() => panelState(simulated, locale), [simulated]);
-  const errors = errorsOf(state);
-  const errorOf = useMemo(() => fieldErrors(errors), [errors]);
+  const [selected, setSelected] = useState<Tab>('newLoan');
+  const [todayDate] = useState(today);
+  const idPrefix = useId();
+  const tabId = (tab: Tab) => `${idPrefix}-tab-${tab}`;
+  const panelId = (tab: Tab) => `${idPrefix}-panel-${tab}`;
 
   return (
     <>
       <header>
         <h1>{t('extName')}</h1>
+        <div class="tabs" role="tablist">
+          {TABS.map(({ tab, label }) => (
+            <button
+              key={tab}
+              id={tabId(tab)}
+              type="button"
+              role="tab"
+              aria-selected={selected === tab}
+              aria-controls={panelId(tab)}
+              onClick={() => setSelected(tab)}
+            >
+              {t(label)}
+            </button>
+          ))}
+        </div>
       </header>
       <main>
-        <form class="loan-form" onSubmit={(event) => event.preventDefault()} noValidate>
-          <LoanFields
-            form={form}
-            update={update}
-            errorOf={errorOf}
-            counterpartRate={counterpartRate(simulated, errors, locale)}
-          />
-        </form>
-        <Results state={state} form={simulated} />
+        {TABS.map(({ tab }) => (
+          <div
+            key={tab}
+            id={panelId(tab)}
+            class="tab-panel"
+            role="tabpanel"
+            aria-labelledby={tabId(tab)}
+            hidden={selected !== tab}
+          >
+            {tab === 'newLoan' ? <NewLoan today={todayDate} /> : <ExistingLoan today={todayDate} />}
+          </div>
+        ))}
       </main>
       <footer class="disclaimer">{t('disclaimer')}</footer>
     </>
   );
-}
-
-function Results({ state, form }: { state: PanelState; form: LoanForm }) {
-  switch (state.kind) {
-    case 'loanIncomplete':
-      return (
-        <section class="empty-state" aria-labelledby="empty-title">
-          <h2 id="empty-title">{t('empty_title')}</h2>
-          <p>{t('empty_body')}</p>
-        </section>
-      );
-    case 'invalid':
-      return <p class="note">{t('invalid_body')}</p>;
-    case 'simulated': {
-      const { base, warnings } = state.simulation;
-      return (
-        <div class="results">
-          <Warnings warnings={warnings} />
-          <Summary summary={base.summary} fixedPayment={hasFixedPayment(form, base.summary)} />
-          <ScheduleTable schedule={base} />
-        </div>
-      );
-    }
-  }
 }

@@ -1,0 +1,48 @@
+import { useId } from 'preact/hooks';
+import { t } from '@/i18n/translate';
+import { counterpartRate, defaultForm, hasFixedPayment, panelState } from './form';
+import { LoanFields } from './LoanFields';
+import { locale } from './locale';
+import { ScheduleTable } from './ScheduleTable';
+import { Summary } from './Summary';
+import { useSimulation } from './useSimulation';
+import { Warnings } from './Warnings';
+
+/** The new-loan simulator: the loan's fields, then its summary and schedule. */
+export function NewLoan({ today }: { today: string }) {
+  const { form, update, simulated, state, errors, errorOf } = useSimulation(
+    () => defaultForm(today, locale),
+    panelState,
+  );
+  const emptyTitleId = useId();
+
+  return (
+    <>
+      <form class="loan-form" onSubmit={(event) => event.preventDefault()} noValidate>
+        <LoanFields
+          form={form}
+          update={update}
+          errorOf={errorOf}
+          counterpartRate={counterpartRate(simulated, errors, locale)}
+        />
+      </form>
+      {state.kind === 'loanIncomplete' && (
+        <section class="empty-state" aria-labelledby={emptyTitleId}>
+          <h2 id={emptyTitleId}>{t('empty_title')}</h2>
+          <p>{t('empty_body')}</p>
+        </section>
+      )}
+      {state.kind === 'invalid' && <p class="note">{t('invalid_body')}</p>}
+      {state.kind === 'simulated' && (
+        <div class="results">
+          <Warnings warnings={state.simulation.warnings} />
+          <Summary
+            summary={state.simulation.schedule.summary}
+            fixedPayment={hasFixedPayment(simulated, state.simulation.schedule.summary)}
+          />
+          <ScheduleTable schedule={state.simulation.schedule} title="section_schedule" />
+        </div>
+      )}
+    </>
+  );
+}

@@ -1,8 +1,10 @@
-import type { SimulationWarning } from '@/core';
+import type { ExistingLoanWarning, SimulationWarning } from '@/core';
 import { t } from '@/i18n/translate';
 import { format } from './locale';
 
-function warningText(warning: SimulationWarning): string {
+type Warning = SimulationWarning | ExistingLoanWarning;
+
+function warningText(warning: Warning): string {
   switch (warning.code) {
     case 'rateAboveMaximum':
       return t('warning_rateAboveMaximum', [
@@ -10,17 +12,17 @@ function warningText(warning: SimulationWarning): string {
         format.percent(warning.maxRate),
       ]);
     case 'extraPaymentClipped':
-      return t('warning_extraPaymentClipped', [
-        String(warning.index + 1),
-        format.money(warning.appliedAmount),
+      return t('warning_extraPaymentClipped', [format.money(warning.appliedAmount)]);
+    case 'paymentDoesNotFitTerm':
+      return t('warning_paymentDoesNotFitTerm', [
+        format.integer(warning.paymentCount),
+        format.money(warning.lastPayment),
       ]);
-    case 'extraPaymentIgnored':
-      return t('warning_extraPaymentIgnored', [String(warning.index + 1)]);
   }
 }
 
-/** Notices about the simulation: a rate above the segment maximum, or extra payments adjusted. */
-export function Warnings({ warnings }: { warnings: readonly SimulationWarning[] }) {
+/** Notices about the results: a rate above the maximum, an extra payment cut, a payment off. */
+export function Warnings({ warnings }: { warnings: readonly Warning[] }) {
   if (warnings.length === 0) return null;
   return (
     <div role="status">
