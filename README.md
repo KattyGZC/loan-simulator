@@ -8,7 +8,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 
 > Built for Ecuador (USD, SOLCA contribution, Central Bank credit segments). Since almost all data is entered by the user, it works for other countries once the Ecuador-specific options are turned off.
 
-> **Status:** in development, not published yet. The calculation engine (`src/core/`) and the English and Spanish texts and number formats (`src/i18n/`) are done and tested; the side panel UI, saved scenarios and CSV export are next. This README describes the planned extension.
+> **Status:** in development, not published yet. The calculation engine (`src/core/`) and the English and Spanish texts and number formats (`src/i18n/`) are done and tested, and the side panel simulates a new loan when loaded unpacked; extra payments on a loan you already have, saved scenarios and CSV export are next. This README describes the planned extension.
 
 ---
 
@@ -71,7 +71,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 
 ## Outputs
 
-- **Monthly payment.** Under the French method there is a single one; under the German method the first and last payments are shown.
+- **Monthly payment.** Under the French method there is a single one; under the German method, or when insurance on the balance is added on top of the French payment, the first and last payments are shown.
 - **Net amount received:** amount − SOLCA.
 - **Totals:** interest, insurance, SOLCA and total paid.
 - **Amortization schedule:** #, date, total payment, principal, interest, insurance, other charges and balance.
