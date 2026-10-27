@@ -3,6 +3,7 @@ import type { ExistingLoanResult } from '@/core';
 import {
   defaultExistingLoanForm,
   existingLoanState,
+  restoreExistingLoanForm,
   simulateExistingLoanForm,
   type ExistingLoanForm,
 } from '@/entrypoints/sidepanel/existing-form';
@@ -107,5 +108,33 @@ describe('existingLoanState', () => {
 
   it('simulates a complete form', () => {
     expect(existingLoanState(filledForm(), 'en-US').kind).toBe('simulated');
+  });
+});
+
+describe('restoreExistingLoanForm', () => {
+  const defaults = defaultExistingLoanForm(TODAY);
+
+  it('restores every field it saved', () => {
+    const saved = filledForm({
+      rateType: 'effective',
+      insuranceRate: '0.05',
+      insuranceUnit: 'percentPerMonth',
+      onTopOfInstallment: true,
+      otherCharges: '2',
+      currentPayment: '250',
+    });
+    expect(restoreExistingLoanForm(JSON.parse(JSON.stringify(saved)), defaults)).toEqual(saved);
+  });
+
+  it('starts from the defaults without a draft', () => {
+    expect(restoreExistingLoanForm(undefined, defaults)).toEqual(defaults);
+  });
+
+  it('drops a value the form cannot hold', () => {
+    const restored = restoreExistingLoanForm(
+      { balance: 5843.78, extraPaymentEffect: 'skipPayment', onTopOfInstallment: 1 },
+      defaults,
+    );
+    expect(restored).toEqual(defaults);
   });
 });
