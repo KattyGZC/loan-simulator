@@ -30,6 +30,15 @@
       "max": { "content": "$2", "example": "360" }
     }
   },
+  "validation_tooLarge": {
+    "message": "Enter at most $MAX$.",
+    "placeholders": {
+      "max": { "content": "$1", "example": "100" }
+    }
+  },
+  "validation_noPaymentToPrepay": {
+    "message": "A loan with a single payment has no payment to prepay."
+  },
   "validation_invalidDate": {
     "message": "Enter a valid date."
   }
