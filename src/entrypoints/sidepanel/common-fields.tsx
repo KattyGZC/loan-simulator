@@ -1,19 +1,11 @@
 import type { ComponentChildren } from 'preact';
-import type { AmortizationMethod, DayCount, InsuranceUnit, RateType } from '@/core';
+import type { AmortizationMethod, DayCount, RateType } from '@/core';
 import { t } from '@/i18n/translate';
+import { DAY_COUNTS, INSURANCE_UNITS, METHODS, RATE_TYPES } from './choices';
 import type { FieldError } from './errors';
 import { CheckboxField, FieldGroup, NumberField, SelectField } from './fields';
 import type { LoanForm } from './form';
 import { format } from './locale';
-
-const RATE_TYPES: readonly RateType[] = ['nominal', 'effective'];
-const METHODS: readonly AmortizationMethod[] = ['french', 'german'];
-const DAY_COUNTS: readonly DayCount[] = ['thirty360', 'actual360'];
-const INSURANCE_UNITS: readonly InsuranceUnit[] = [
-  'percentPerYear',
-  'percentPerMonth',
-  'perMillePerMonth',
-];
 
 interface RateFieldsProps {
   annualRate: string;
