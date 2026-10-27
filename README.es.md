@@ -24,6 +24,7 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
 - Muestra los totales: intereses, seguros, SOLCA y total pagado.
 - Exporta la tabla a CSV.
 - Interfaz en inglés y español.
+- Conserva lo que escribiste en cada pestaña al cerrar el panel.
 - Guarda escenarios de crédito nuevo y compara dos lado a lado (por ejemplo, «Coop X – consumo» vs «Banco Y – consumo»).
 
 ## Qué NO hace
@@ -182,7 +183,7 @@ El resto (tasas, plazo, sistemas de amortización, seguros y abonos) es igual en
 - **Chrome Extension Manifest V3**, con la interfaz en el **panel lateral** (`side_panel`).
 - **[WXT](https://wxt.dev/) + TypeScript.**
 - El motor de cálculo está en un módulo puro, sin dependencias de Chrome, y tiene tests unitarios.
-- Permisos: `storage` (guardar escenarios en el navegador) y `sidePanel` (mostrar la interfaz). Sin acceso a ningún sitio web.
+- Permisos: `storage` (conservar tus formularios y escenarios guardados en el navegador) y `sidePanel` (mostrar la interfaz). Sin acceso a ningún sitio web.
 - Interfaz en **inglés y español** con el sistema de idiomas de Chrome (`_locales`): sigue el idioma del navegador y, si no es ninguno de los dos, usa inglés.
 
 ### Estructura prevista
@@ -195,7 +196,7 @@ loan-simulator/
 │   ├── entrypoints/
 │   │   ├── background.ts
 │   │   └── sidepanel/ # interfaz
-│   └── storage/       # escenarios guardados
+│   └── storage/       # borradores del formulario de cada pestaña, escenarios guardados
 ├── public/
 │   └── _locales/      # textos de la interfaz: en/ y es/ messages.json
 ├── tests/             # tests del motor contra casos conocidos, y de i18n
@@ -227,7 +228,7 @@ La CI (GitHub Actions) corre lint, revisión de formato, typecheck, tests y buil
 
 ## Privacidad
 
-La extensión **no recoge, no envía y no comparte ningún dato**. Los escenarios guardados quedan solo en el almacenamiento local de tu navegador.
+La extensión **no recoge, no envía y no comparte ningún dato**. Lo que escribes y los escenarios que guardas quedan solo en el almacenamiento local de tu navegador.
 
 ## Aviso
 
