@@ -16,6 +16,7 @@ import {
 } from '@/core';
 import type { FormatLocale } from '@/i18n/format';
 import { parseDecimal } from '@/i18n/parse-number';
+import type { FieldError } from './errors';
 
 const DEFAULT_SOLCA_PERCENT = 0.5;
 const LOAN_FIELDS: readonly ValidationField[] = ['amount', 'termMonths', 'annualRate'];
@@ -171,4 +172,19 @@ export function counterpartRate(
   if (rate === undefined || rateIsInvalid) return null;
   const { nominalRate, effectiveRate } = annualRates(rate, form.rateType);
   return form.rateType === 'nominal' ? effectiveRate : nominalRate;
+}
+
+/**
+ * The message `error` shows now. "Enter a value" shows only on an empty field the user has
+ * typed in and left at least once: an untouched field is covered by the empty state, and the
+ * message on a field that has text again is stale (results lag the keystrokes). Showing it
+ * earlier also moved the page under a click that had just left the field, so the click missed.
+ */
+export function visibleError(
+  error: FieldError | undefined,
+  value: string,
+  emptiedByUser: boolean,
+): string | undefined {
+  if (!error?.required) return error?.message;
+  return emptiedByUser && value.trim() === '' ? error.message : undefined;
 }

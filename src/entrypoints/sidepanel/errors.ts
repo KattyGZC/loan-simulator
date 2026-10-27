@@ -5,7 +5,7 @@ import { format } from './locale';
 /** The error a field shows, as text in the browser's language. */
 export interface FieldError {
   message: string;
-  /** The field is only empty: the message waits until the user leaves it. */
+  /** The field is only empty; `visibleError()` decides when that shows. */
   required: boolean;
 }
 

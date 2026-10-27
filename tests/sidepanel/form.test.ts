@@ -7,6 +7,7 @@ import {
   hasFixedPayment,
   panelState,
   simulateForm,
+  visibleError,
   type LoanForm,
 } from '@/entrypoints/sidepanel/form';
 
@@ -230,5 +231,30 @@ describe('panelState', () => {
     const state = panelState(filledForm(), 'en-US');
     expect(state).toEqual({ kind: 'simulated', simulation: simulateForm(filledForm(), 'en-US') });
     expect(errorsOf(state)).toEqual([]);
+  });
+});
+
+describe('visibleError', () => {
+  const required = { message: 'Enter a value.', required: true };
+  const notANumber = { message: 'Enter a number.', required: false };
+
+  it('shows any other error at once', () => {
+    expect(visibleError(notANumber, 'abc', false)).toBe('Enter a number.');
+  });
+
+  it('shows "enter a value" once the user emptied the field', () => {
+    expect(visibleError(required, ' ', true)).toBe('Enter a value.');
+  });
+
+  it('waits on a field the user has not emptied', () => {
+    expect(visibleError(required, '', false)).toBeUndefined();
+  });
+
+  it('hides a stale "enter a value" on a field that has text again', () => {
+    expect(visibleError(required, '1000', true)).toBeUndefined();
+  });
+
+  it('shows nothing without an error', () => {
+    expect(visibleError(undefined, '', true)).toBeUndefined();
   });
 });

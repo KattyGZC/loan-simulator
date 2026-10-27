@@ -1,6 +1,7 @@
 import type { ComponentChildren } from 'preact';
 import { useId, useState } from 'preact/hooks';
 import type { FieldError } from './errors';
+import { visibleError } from './form';
 
 interface NumberFieldProps {
   label: string;
@@ -14,8 +15,9 @@ interface NumberFieldProps {
 /** A labelled text input for a number, with its error or hint below it. */
 export function NumberField({ label, value, onInput, inputMode, error, hint }: NumberFieldProps) {
   const id = useId();
+  const [edited, setEdited] = useState(false);
   const [left, setLeft] = useState(false);
-  const shownError = error?.required && !left ? undefined : error?.message;
+  const shownError = visibleError(error, value, edited && left);
   const noteId = `${id}-note`;
   const note = shownError ?? hint;
   return (
@@ -29,7 +31,10 @@ export function NumberField({ label, value, onInput, inputMode, error, hint }: N
         value={value}
         aria-invalid={shownError ? true : undefined}
         aria-describedby={note ? noteId : undefined}
-        onInput={(event) => onInput(event.currentTarget.value)}
+        onInput={(event) => {
+          setEdited(true);
+          onInput(event.currentTarget.value);
+        }}
         onBlur={() => setLeft(true)}
       />
       {note && (
