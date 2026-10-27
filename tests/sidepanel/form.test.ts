@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { SimulationResult } from '@/core';
+import { roundMoney, type SimulationResult } from '@/core';
 import {
   counterpartRate,
   defaultForm,
@@ -33,6 +33,13 @@ function validationErrors(result: SimulationResult) {
 }
 
 describe('defaultForm', () => {
+  it('starts at 30/360, paid out today', () => {
+    expect(defaultForm(TODAY, 'en-US')).toMatchObject({
+      dayCount: 'thirty360',
+      disbursementDate: TODAY,
+    });
+  });
+
   it('turns SOLCA on at 0.5 % written with the locale decimal separator', () => {
     expect(defaultForm(TODAY, 'en-US')).toMatchObject({ solcaEnabled: true, solcaPercent: '0.5' });
     expect(defaultForm(TODAY, 'es-EC').solcaPercent).toBe('0,5');
@@ -104,6 +111,25 @@ describe('simulateForm', () => {
     expect(dated.base.rows[0]!.date).toBe('2026-11-27');
     const undated = okResult(simulateForm(filledForm({ firstPaymentDate: '' }), 'en-US'));
     expect(undated.base.rows[0]!.date).toBeNull();
+  });
+
+  it('uses the disbursement date only with actual days', () => {
+    const thirty = filledForm({ disbursementDate: 'not a date' });
+    expect(simulateForm(thirty, 'en-US').ok).toBe(true);
+    const actual = filledForm({ dayCount: 'actual360', disbursementDate: '2026-11-27' });
+    expect(validationErrors(simulateForm(actual, 'en-US'))).toEqual([
+      { field: 'firstPaymentDate', code: 'notAfterDisbursement' },
+    ]);
+    const empty = filledForm({ dayCount: 'actual360', disbursementDate: '' });
+    expect(validationErrors(simulateForm(empty, 'en-US'))).toEqual([
+      { field: 'disbursementDate', code: 'required' },
+    ]);
+  });
+
+  it('counts actual days from the default disbursement, today', () => {
+    const { base } = okResult(simulateForm(filledForm({ dayCount: 'actual360' }), 'en-US'));
+    // 2026-10-27 → 2026-11-27 is 31 days.
+    expect(base.rows[0]!.interest).toBe(roundMoney((10000 * 0.156 * 31) / 360));
   });
 
   it('passes the maximum rate on', () => {
@@ -183,6 +209,14 @@ describe('panelState', () => {
     const state = panelState(defaultForm(TODAY, 'en-US'), 'en-US');
     expect(state.kind).toBe('loanIncomplete');
     expect(errorsOf(state)).toHaveLength(3);
+  });
+
+  it('is invalid, not incomplete, when a required date is empty', () => {
+    const state = panelState(filledForm({ dayCount: 'actual360', firstPaymentDate: '' }), 'en-US');
+    expect(state).toEqual({
+      kind: 'invalid',
+      errors: [{ field: 'firstPaymentDate', code: 'required' }],
+    });
   });
 
   it('is invalid when a field has a wrong value', () => {

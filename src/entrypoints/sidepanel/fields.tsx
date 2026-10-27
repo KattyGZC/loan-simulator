@@ -46,11 +46,14 @@ interface DateFieldProps {
   value: string;
   onInput: (value: string) => void;
   error: FieldError | undefined;
+  hint?: string;
 }
 
-export function DateField({ label, value, onInput, error }: DateFieldProps) {
+/** A labelled date input, with its error or hint below it. */
+export function DateField({ label, value, onInput, error, hint }: DateFieldProps) {
   const id = useId();
-  const errorId = `${id}-error`;
+  const noteId = `${id}-note`;
+  const note = error?.message ?? hint;
   return (
     <div class="field">
       <label for={id}>{label}</label>
@@ -59,12 +62,12 @@ export function DateField({ label, value, onInput, error }: DateFieldProps) {
         type="date"
         value={value}
         aria-invalid={error ? true : undefined}
-        aria-describedby={error ? errorId : undefined}
+        aria-describedby={note ? noteId : undefined}
         onInput={(event) => onInput(event.currentTarget.value)}
       />
-      {error && (
-        <p id={errorId} class="field-error">
-          {error.message}
+      {note && (
+        <p id={noteId} class={error ? 'field-error' : 'field-hint'}>
+          {note}
         </p>
       )}
     </div>

@@ -3,6 +3,7 @@ import {
   paymentDate,
   simulate,
   type AmortizationMethod,
+  type DayCount,
   type InsuranceBase,
   type InsuranceInput,
   type InsuranceUnit,
@@ -17,6 +18,7 @@ import type { FormatLocale } from '@/i18n/format';
 import { parseDecimal } from '@/i18n/parse-number';
 
 const DEFAULT_SOLCA_PERCENT = 0.5;
+const LOAN_FIELDS: readonly ValidationField[] = ['amount', 'termMonths', 'annualRate'];
 // paymentDate() counts payments from 1, so payment 2 falls one month after the date given.
 const ONE_MONTH_LATER = 2;
 
@@ -34,14 +36,17 @@ export interface LoanForm {
   otherCharges: string;
   solcaEnabled: boolean;
   solcaPercent: string;
+  dayCount: DayCount;
   /** ISO date (YYYY-MM-DD) from the date input, or empty. */
   firstPaymentDate: string;
+  /** ISO date, or empty. The engine only uses it with actual days. */
+  disbursementDate: string;
   maxRate: string;
 }
 
 /**
- * An empty form with the UI's defaults: SOLCA on at 0.5 % and the first payment one month
- * after `today` (an ISO date), as the README promises.
+ * An empty form with the UI's defaults: SOLCA on at 0.5 %, 30/360, the loan paid out `today`
+ * (an ISO date) and the first payment one month later, as the README promises.
  */
 export function defaultForm(today: string, locale: FormatLocale): LoanForm {
   return {
@@ -57,7 +62,9 @@ export function defaultForm(today: string, locale: FormatLocale): LoanForm {
     otherCharges: '',
     solcaEnabled: true,
     solcaPercent: new Intl.NumberFormat(locale).format(DEFAULT_SOLCA_PERCENT),
+    dayCount: 'thirty360',
     firstPaymentDate: paymentDate(today, ONE_MONTH_LATER),
+    disbursementDate: today,
     maxRate: '',
   };
 }
@@ -95,7 +102,9 @@ function readForm(form: LoanForm, locale: FormatLocale) {
     insurance,
     otherCharges: optional(form.otherCharges),
     solcaPercent: form.solcaEnabled ? optional(form.solcaPercent) : undefined,
+    dayCount: form.dayCount,
     firstPaymentDate: form.firstPaymentDate || undefined,
+    disbursementDate: form.disbursementDate || undefined,
     maxRate: optional(form.maxRate),
   };
   return { input, empty };
@@ -126,7 +135,9 @@ export function panelState(form: LoanForm, locale: FormatLocale): PanelState {
   const result = simulateForm(form, locale);
   if (result.ok) return { kind: 'simulated', simulation: result };
   const { errors } = result;
-  const loanIncomplete = errors.some((error) => error.code === 'required');
+  const loanIncomplete = errors.some(
+    (error) => error.code === 'required' && LOAN_FIELDS.includes(error.field),
+  );
   return { kind: loanIncomplete ? 'loanIncomplete' : 'invalid', errors };
 }
 
