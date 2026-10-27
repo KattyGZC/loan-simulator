@@ -1,11 +1,10 @@
-import type { InsuranceBase, ValidationField } from '@/core';
+import type { ValidationField } from '@/core';
 import { t } from '@/i18n/translate';
+import { INSURANCE_BASES } from './choices';
 import { DayCountField, InsuranceFields, MethodField, RateFields } from './common-fields';
 import type { FieldError } from './errors';
 import { CheckboxField, DateField, FieldGroup, NumberField, SelectField } from './fields';
 import type { LoanForm } from './form';
-
-const INSURANCE_BASES: readonly InsuranceBase[] = ['balance', 'originalAmount'];
 
 interface LoanFieldsProps {
   form: LoanForm;

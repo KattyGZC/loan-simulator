@@ -6,6 +6,7 @@ import {
   errorsOf,
   hasFixedPayment,
   panelState,
+  restoreLoanForm,
   simulateForm,
   visibleError,
   type LoanForm,
@@ -258,5 +259,43 @@ describe('visibleError', () => {
 
   it('shows nothing without an error', () => {
     expect(visibleError(undefined, '', true)).toBeUndefined();
+  });
+});
+
+describe('restoreLoanForm', () => {
+  const defaults = defaultForm(TODAY, 'en-US');
+
+  it('restores every field it saved', () => {
+    const saved = filledForm({
+      rateType: 'effective',
+      method: 'german',
+      insuranceRate: '0.05',
+      insuranceUnit: 'perMillePerMonth',
+      insuranceBase: 'originalAmount',
+      onTopOfInstallment: true,
+      solcaEnabled: false,
+      dayCount: 'actual360',
+      maxRate: '16.77',
+    });
+    expect(restoreLoanForm(JSON.parse(JSON.stringify(saved)), defaults)).toEqual(saved);
+  });
+
+  it('starts from the defaults without a draft', () => {
+    expect(restoreLoanForm(undefined, defaults)).toEqual(defaults);
+  });
+
+  it('fills a field the draft lacks with its default', () => {
+    expect(restoreLoanForm({ amount: '10000' }, defaults)).toEqual({
+      ...defaults,
+      amount: '10000',
+    });
+  });
+
+  it('drops a value the form cannot hold', () => {
+    const restored = restoreLoanForm(
+      { amount: 10000, method: 'american', solcaEnabled: 'yes' },
+      defaults,
+    );
+    expect(restored).toEqual(defaults);
   });
 });

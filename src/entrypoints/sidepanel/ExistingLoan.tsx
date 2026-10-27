@@ -1,7 +1,11 @@
 import { useId } from 'preact/hooks';
 import { t } from '@/i18n/translate';
 import { ExistingLoanFields } from './ExistingLoanFields';
-import { defaultExistingLoanForm, existingLoanState } from './existing-form';
+import {
+  defaultExistingLoanForm,
+  existingLoanState,
+  restoreExistingLoanForm,
+} from './existing-form';
 import { AppliedExtraPayment, Comparison } from './ExtraPaymentResults';
 import { counterpartRate } from './form';
 import { locale } from './locale';
@@ -10,9 +14,10 @@ import { useSimulation } from './useSimulation';
 import { Warnings } from './Warnings';
 
 /** An extra payment on a loan already running: the loan and the payment, then what it saves. */
-export function ExistingLoan({ today }: { today: string }) {
+export function ExistingLoan({ today, draft }: { today: string; draft: unknown }) {
   const { form, update, simulated, state, errors, errorOf } = useSimulation(
-    () => defaultExistingLoanForm(today),
+    'existingLoan',
+    () => restoreExistingLoanForm(draft, defaultExistingLoanForm(today)),
     existingLoanState,
   );
   const emptyTitleId = useId();

@@ -1,11 +1,10 @@
-import type { ExtraPaymentEffect, ValidationField } from '@/core';
+import type { ValidationField } from '@/core';
 import { t } from '@/i18n/translate';
+import { EFFECTS } from './choices';
 import { DayCountField, InsuranceFields, MethodField, RateFields } from './common-fields';
 import type { FieldError } from './errors';
 import type { ExistingLoanForm } from './existing-form';
 import { DateField, FieldGroup, NumberField, SelectField } from './fields';
-
-const EFFECTS: readonly ExtraPaymentEffect[] = ['reduceTerm', 'reducePayment'];
 
 interface ExistingLoanFieldsProps {
   form: ExistingLoanForm;

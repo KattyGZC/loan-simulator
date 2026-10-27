@@ -1,6 +1,6 @@
 import { useId } from 'preact/hooks';
 import { t } from '@/i18n/translate';
-import { counterpartRate, defaultForm, hasFixedPayment, panelState } from './form';
+import { counterpartRate, defaultForm, hasFixedPayment, panelState, restoreLoanForm } from './form';
 import { LoanFields } from './LoanFields';
 import { locale } from './locale';
 import { ScheduleTable } from './ScheduleTable';
@@ -9,9 +9,10 @@ import { useSimulation } from './useSimulation';
 import { Warnings } from './Warnings';
 
 /** The new-loan simulator: the loan's fields, then its summary and schedule. */
-export function NewLoan({ today }: { today: string }) {
+export function NewLoan({ today, draft }: { today: string; draft: unknown }) {
   const { form, update, simulated, state, errors, errorOf } = useSimulation(
-    () => defaultForm(today, locale),
+    'newLoan',
+    () => restoreLoanForm(draft, defaultForm(today, locale)),
     panelState,
   );
   const emptyTitleId = useId();

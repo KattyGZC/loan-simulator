@@ -24,7 +24,8 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 - Shows totals: interest, insurance, SOLCA and total paid.
 - Exports the schedule to CSV.
 - Interface in English and Spanish.
-- Saves scenarios to compare institutions (e.g. "Credit Union X – consumer" vs "Bank Y – consumer").
+- Keeps what you typed in each tab when you close the panel.
+- Saves new-loan scenarios and compares two of them side by side (e.g. "Credit Union X – consumer" vs "Bank Y – consumer").
 
 ## What it does NOT do
 
@@ -182,7 +183,7 @@ Everything else (rates, term, amortization methods, insurance and extra payments
 - **Chrome Extension Manifest V3**, with the UI in the **side panel** (`side_panel`).
 - **[WXT](https://wxt.dev/) + TypeScript.**
 - The calculation engine is a pure module with no Chrome dependencies, covered by unit tests.
-- Permissions: `storage` (save scenarios in the browser) and `sidePanel` (show the UI). No host permissions.
+- Permissions: `storage` (keep your forms and saved scenarios in the browser) and `sidePanel` (show the UI). No host permissions.
 - UI in **English and Spanish** via Chrome's i18n (`_locales`): it follows the browser language and falls back to English.
 
 ### Planned structure
@@ -195,7 +196,7 @@ loan-simulator/
 │   ├── entrypoints/
 │   │   ├── background.ts
 │   │   └── sidepanel/ # UI
-│   └── storage/       # saved scenarios
+│   └── storage/       # drafts of each tab's form, saved scenarios
 ├── public/
 │   └── _locales/      # UI strings: en/ and es/ messages.json
 ├── tests/             # engine tests against known cases, and i18n tests
@@ -227,7 +228,7 @@ CI (GitHub Actions) runs lint, format check, typecheck, tests and build on every
 
 ## Privacy
 
-The extension **does not collect, send or share any data**. Saved scenarios stay only in your browser's local storage.
+The extension **does not collect, send or share any data**. What you type and the scenarios you save stay only in your browser's local storage.
 
 ## Disclaimer
 

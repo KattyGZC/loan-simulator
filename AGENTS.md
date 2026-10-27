@@ -12,19 +12,21 @@ Read this before the first edit. It binds every author and every model (Claude, 
 | `public/_locales/{en,es}/messages.json` | Every UI string, in English and Spanish. English is the fallback. `MessageKey` (`src/i18n/translate.ts`) is the key list of the English file |
 | `src/entrypoints/background.ts` | Opens the side panel when the toolbar icon is clicked |
 | `src/entrypoints/sidepanel/` | The UI (Preact), two tabs: a new loan (`NewLoan.tsx`) and an extra payment on a loan you already have (`ExistingLoan.tsx`). `form.ts` and `existing-form.ts` hold the panel logic, unit-tested: typed form to engine input, and what the results area shows (`panelState`, `existingLoanState`). The components lay out and format; which error a field shows now is `visibleError()`, in `form.ts` |
+| `src/storage/` | What the panel keeps in `browser.storage.local`: each tab's draft (`drafts.ts`), stored as `{ schemaVersion, form }`. `storedFields()` reads stored data back without trusting it; each form's `restore…Form()` (`form.ts`, `existing-form.ts`) falls back to its default for a field that is missing or invalid. The option lists of each select are in `sidepanel/choices.ts` |
 | `tests/core/` | Unit tests of the engine, through `simulate()` or the module's export |
 | `tests/i18n/` | Tests of `src/i18n/`. `fake-i18n.ts` stands in for `chrome.i18n` over the real `messages.json` |
+| `tests/storage/` | Tests of `src/storage/`, over WXT's fake browser |
 | `tests/sidepanel/` | Tests of the side panel forms (`form.ts`, `existing-form.ts`) |
 | `tests/golden/` | Reference schedules copied from real simulators, with their source |
 | `wxt.config.ts` | Manifest: name, permissions (`storage`, `sidePanel`), side panel |
 
 ## Status
 
-Done: project setup (phase 0), the calculation engine (phase 1), tested against Cooperativa JEP, languages and formatting (phase 2), the side panel UI (phase 3), the day-count basis (30/360 or actual days/360), and an extra payment on a loan you already have (`simulateExistingLoan()`, second tab), both tested against a Produbanco statement.
+Done: project setup (phase 0), the calculation engine (phase 1), tested against Cooperativa JEP, languages and formatting (phase 2), the side panel UI (phase 3), the day-count basis (30/360 or actual days/360), and an extra payment on a loan you already have (`simulateExistingLoan()`, second tab), both tested against a Produbanco statement. Each tab keeps its form as a draft when the panel closes.
 
 Next, in order:
 
-1. **Saved scenarios and preferences** (`src/storage/`), with a `schemaVersion`. The institution and segment fields arrive here, as the scenario name.
+1. **Saved scenarios and preferences** (`src/storage/`), with a `schemaVersion`. Scenarios are for the new-loan simulator only, and two of them can be compared side by side. The institution and segment fields arrive here, as the scenario name.
 2. **CSV export and print view.**
 3. **Accessibility, dark theme, final icons.**
 4. **QA:** Playwright e2e and a manual check against 3 institutions.
