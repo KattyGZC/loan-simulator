@@ -4,11 +4,11 @@
 
 A Chrome extension (side panel) for simulating loans from **any bank or credit union**, using the data each institution publishes in its *transparency* section.
 
-Many official simulators break, ask for personal data, or only offer a few fixed terms. This extension does the math locally and generically: you enter the amount, rate, term and amortization method, and get the full payment schedule. You can also simulate **extra principal payments** and see how much you save.
+Many official simulators break, ask for personal data, or only offer a few fixed terms. This extension does the math locally and generically: you enter the amount, rate, term and amortization method, and get the full payment schedule. For a loan you already have, you can simulate an **extra principal payment** and see how much you save.
 
 > Built for Ecuador (USD, SOLCA contribution, Central Bank credit segments). Since almost all data is entered by the user, it works for other countries once the Ecuador-specific options are turned off.
 
-> **Status:** in development, not published yet. The calculation engine (`src/core/`) and the English and Spanish texts and number formats (`src/i18n/`) are done and tested, and the side panel simulates a new loan when loaded unpacked; it counts interest on 30/360 or actual days/360. Extra payments on a loan you already have, saved scenarios and CSV export are next. This README describes the planned extension.
+> **Status:** in development, not published yet. The calculation engine (`src/core/`) and the English and Spanish texts and number formats (`src/i18n/`) are done and tested, and the side panel, loaded unpacked, simulates a new loan and an extra payment on a loan you already have; it counts interest on 30/360 or actual days/360. Saved scenarios and CSV export are next. This README describes the planned extension.
 
 ---
 
@@ -18,7 +18,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 - Converts between **nominal** and **effective** annual rates: you enter one and it shows the other.
 - Adds **credit life insurance** (*seguro de desgravamen*) and other per-payment charges, if any.
 - Computes the **SOLCA contribution** (0.5%) and the amount you actually receive.
-- Simulates **one or more extra principal payments** and compares the result with the original loan:
+- On a loan you already have, simulates an **extra principal payment** on any date and compares the rest of the loan with and without it:
   - **Reduce payment:** keep the term and pay less each month.
   - **Reduce term:** keep the payment and finish earlier.
 - Shows totals: interest, insurance, SOLCA and total paid.
@@ -61,13 +61,21 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 | **Institution and segment** | Empty | Labels for saving the scenario (e.g. "JEP Credit Union – Consumer") |
 | **Segment maximum rate** | Empty | If set, the extension warns when the rate exceeds the legal maximum |
 
-### Extra principal payments (optional, one or more)
+### A loan you already have (second tab)
+
+Enter the loan as your latest statement or amortization table shows it.
 
 | Field | Description |
 |---|---|
-| **After payment #** | When the extra payment is made |
-| **Amount** | Value applied directly to principal |
-| **Effect** | `Reduce payment` or `Reduce term` |
+| **Balance owed** | Principal left after the last payment you made |
+| **Payments left** | Including the next one |
+| **Annual interest rate** and **method** | As for a new loan |
+| **Current payment** | French method only: principal and interest, plus the insurance if it is included, without other charges. It sets every payment but the last; the payments left only check it, and a notice shows when they do not match |
+| **Next payment date** | Every later due date falls on its day of the month |
+| **Credit life insurance**, **other charges**, **day count** | Optional, as for a new loan. The insurance is on the balance |
+| **Extra payment: date** | Today by default. From the due date of the last payment made up to the day before the last payment |
+| **Extra payment: amount** | What you pay. It must be more than the interest accrued up to its date |
+| **Extra payment: effect** | `Reduce term` (default) or `Reduce payment` |
 
 ---
 
@@ -77,7 +85,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 - **Net amount received:** amount − SOLCA.
 - **Totals:** interest, insurance, SOLCA and total paid.
 - **Amortization schedule:** #, date, total payment, principal, interest, insurance, other charges and balance.
-- **With extra payments:** side-by-side comparison (without vs. with), interest saved, and payments saved or the new payment.
+- **Extra payment on a loan you have:** how it splits into accrued interest and principal, the rest of the loan without vs. with it, what you save (interest, insurance and other charges), the payments saved or the new payment, and the schedule with the extra payment.
 
 ---
 
@@ -128,14 +136,18 @@ amount_received = P − SOLCA
 
 ### Extra principal payments
 
-After payment N, the extra payment is subtracted from the balance and the rest of the loan is recalculated:
+An extra payment made on a date between two due dates, inside the period of payment k:
+
+1. It first pays the interest accrued since the previous due date: the day's interest, `balance × APR / 360` rounded to the cent, times the days. With actual days these are calendar days; under 30/360 every period counts 30 days and the last day of a month counts as the 30th, so an extra payment on the 15th of a loan due on the 31st accrues 15 days, February included.
+2. The rest goes to principal, and first covers the principal payment k was going to repay. On its due date payment k repays whatever principal the extra payment left of it and charges the interest for the days left on the new balance (`balance × APR × days / 360`, rounded once, like a regular payment), plus the insurance and other charges. An extra payment smaller than payment k's principal therefore changes nothing after payment k; it only saves the interest of the days it was early.
+3. When it covers more than payment k's principal, the payments after k repay the new balance `S`:
 
 | | Reduce payment | Reduce term |
 |---|---|---|
-| **French** | New payment from the new balance and the remaining payments | Same payment; new number of payments: `n = −ln(1 − S·i / C) / ln(1 + i)` |
-| **German** | New fixed principal: `S / remaining payments` | Same fixed principal; the leftover payments are dropped |
+| **French** | New payment from `S` and the payments after k | Same payment; new number of payments: `n = −ln(1 − S·i / C) / ln(1 + i)` |
+| **German** | New fixed principal: `S / payments after k` | Same fixed principal; the leftover payments are dropped |
 
-An extra payment larger than the balance is reduced to the balance and pays the loan off. Extra payments due after the loan is already paid off are ignored. In both cases the extension shows a notice.
+In the schedule, payment k shows the extra payment inside it, as a bank statement does. An extra payment larger than what the loan owes is reduced to the balance plus the accrued interest and pays the loan off on its date, with a notice. This is how Produbanco applied an extra payment on a loan statement, and the engine matches that statement to the cent.
 
 ---
 
