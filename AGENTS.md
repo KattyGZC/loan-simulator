@@ -24,7 +24,7 @@ Done: project setup (phase 0), the calculation engine (phase 1), tested against 
 
 Next, in order:
 
-1. **Saved scenarios and preferences** (`src/storage/`), with a `schemaVersion`. The institution and segment fields arrive here, as the scenario name.
+1. **Drafts, saved scenarios and preferences** (`src/storage/`), with a `schemaVersion`. Both tabs keep their last form as a draft when the panel closes. Scenarios are for the new-loan simulator only, and two of them can be compared side by side. The institution and segment fields arrive here, as the scenario name.
 2. **CSV export and print view.**
 3. **Accessibility, dark theme, final icons.**
 4. **QA:** Playwright e2e and a manual check against 3 institutions.

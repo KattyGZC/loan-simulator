@@ -24,7 +24,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 - Shows totals: interest, insurance, SOLCA and total paid.
 - Exports the schedule to CSV.
 - Interface in English and Spanish.
-- Saves scenarios to compare institutions (e.g. "Credit Union X – consumer" vs "Bank Y – consumer").
+- Saves new-loan scenarios and compares two of them side by side (e.g. "Credit Union X – consumer" vs "Bank Y – consumer").
 
 ## What it does NOT do
 

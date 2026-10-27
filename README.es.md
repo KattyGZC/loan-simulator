@@ -24,7 +24,7 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
 - Muestra los totales: intereses, seguros, SOLCA y total pagado.
 - Exporta la tabla a CSV.
 - Interfaz en inglés y español.
-- Guarda escenarios para comparar entidades (por ejemplo, «Coop X – consumo» vs «Banco Y – consumo»).
+- Guarda escenarios de crédito nuevo y compara dos lado a lado (por ejemplo, «Coop X – consumo» vs «Banco Y – consumo»).
 
 ## Qué NO hace
 
