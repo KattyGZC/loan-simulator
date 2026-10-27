@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from 'preact/hooks';
+import { useMemo, useState } from 'preact/hooks';
 import type { FormatLocale } from '@/i18n/format';
 import { saveDraft, type DraftName } from '@/storage/drafts';
 import { fieldErrors } from './errors';
 import { errorsOf, type PanelState } from './form';
 import { locale } from './locale';
 import { useDebounced } from './useDebounced';
+import { useSaveOnChange } from './useSaveOnChange';
 
 const RECOMPUTE_DELAY_MS = 250;
 
@@ -21,9 +22,7 @@ export function useSimulation<Form extends object, Simulation>(
   const [form, setForm] = useState(initialForm);
   const update = (changes: Partial<Form>) => setForm((current) => ({ ...current, ...changes }));
   const simulated = useDebounced(form, RECOMPUTE_DELAY_MS);
-  useEffect(() => {
-    saveDraft(draft, simulated).catch((error: unknown) => console.error(error));
-  }, [draft, simulated]);
+  useSaveOnChange(simulated, (form) => saveDraft(draft, form));
   const state = useMemo(() => stateOf(simulated, locale), [stateOf, simulated]);
   const errors = errorsOf(state);
   const errorOf = useMemo(() => fieldErrors(errors), [errors]);

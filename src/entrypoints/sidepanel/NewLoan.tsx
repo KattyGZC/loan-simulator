@@ -1,15 +1,29 @@
 import { useId } from 'preact/hooks';
 import { t } from '@/i18n/translate';
-import { counterpartRate, defaultForm, hasFixedPayment, panelState, restoreLoanForm } from './form';
+import {
+  type LoanForm,
+  counterpartRate,
+  defaultForm,
+  hasFixedPayment,
+  panelState,
+  restoreLoanForm,
+} from './form';
 import { LoanFields } from './LoanFields';
 import { locale } from './locale';
+import { SaveScenario } from './SaveScenario';
 import { ScheduleTable } from './ScheduleTable';
 import { Summary } from './Summary';
 import { useSimulation } from './useSimulation';
 import { Warnings } from './Warnings';
 
-/** The new-loan simulator: the loan's fields, then its summary and schedule. */
-export function NewLoan({ today, draft }: { today: string; draft: unknown }) {
+interface NewLoanProps {
+  today: string;
+  draft: unknown;
+  onSaveScenario: (name: string, form: LoanForm) => void;
+}
+
+/** The new-loan simulator: the loan's fields, then its summary, saving it, and its schedule. */
+export function NewLoan({ today, draft, onSaveScenario }: NewLoanProps) {
   const { form, update, simulated, state, errors, errorOf } = useSimulation(
     'newLoan',
     () => restoreLoanForm(draft, defaultForm(today, locale)),
@@ -40,6 +54,18 @@ export function NewLoan({ today, draft }: { today: string; draft: unknown }) {
           <Summary
             summary={state.simulation.schedule.summary}
             fixedPayment={hasFixedPayment(simulated, state.simulation.schedule.summary)}
+          />
+          <SaveScenario
+            form={form}
+            update={update}
+            onSave={(name) =>
+              // The loan whose results are on screen, with the labels as typed this instant.
+              onSaveScenario(name, {
+                ...simulated,
+                institution: form.institution,
+                segment: form.segment,
+              })
+            }
           />
           <ScheduleTable schedule={state.simulation.schedule} title="section_schedule" />
         </div>
