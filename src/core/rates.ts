@@ -27,6 +27,13 @@ export function effectiveToNominal(effective: number): number {
   return 12 * ((1 + effective) ** (1 / 12) - 1);
 }
 
+const DAYS_PER_YEAR = 360;
+
+/** Interest rate for `days` actual days at a nominal annual rate (actual/360), as fractions. */
+export function actualDaysRate(nominal: number, days: number): number {
+  return (nominal * days) / DAYS_PER_YEAR;
+}
+
 /** Monthly rate used for payments: the nominal annual rate over 12 (30/360 basis), as fractions. */
 export function monthlyRate(nominal: number): number {
   return nominal / 12;

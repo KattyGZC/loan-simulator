@@ -5,6 +5,10 @@ export const MAX_TERM_MONTHS = 360;
 // Keeps amounts in a range where cents are exact in floating point.
 export const MAX_AMOUNT = 1e9;
 const MAX_PERCENT = 100;
+// A date input passes through years such as 0020 while the user types one, which would show a
+// first period centuries long for a moment; far-off years would date it past year 9999.
+const MIN_YEAR = 1900;
+const MAX_YEAR = 2100;
 
 type NumberRule =
   | { kind: 'nonNegative'; max?: number }
@@ -54,6 +58,46 @@ function optionalNumberError(
   return value === undefined ? undefined : numberError(field, value, rule);
 }
 
+function isLoanDate(value: string): boolean {
+  const year = Number(value.slice(0, 4));
+  return isIsoDate(value) && year >= MIN_YEAR && year <= MAX_YEAR;
+}
+
+function dateError(
+  field: ValidationField,
+  value: string | undefined,
+  required: boolean,
+): ValidationError | undefined {
+  if (value === undefined) return required ? { field, code: 'required' } : undefined;
+  return isLoanDate(value) ? undefined : { field, code: 'invalidDate' };
+}
+
+/**
+ * Actual days need both dates, and the first payment after the disbursement. Under 30/360 the
+ * first payment date only labels the schedule and the disbursement date is not used.
+ */
+function datesErrors(input: LoanInput): (ValidationError | undefined)[] {
+  if (input.dayCount !== 'actual360') {
+    return [dateError('firstPaymentDate', input.firstPaymentDate, false)];
+  }
+  const { firstPaymentDate: firstPayment, disbursementDate: disbursement } = input;
+  if (
+    firstPayment === undefined ||
+    disbursement === undefined ||
+    !isLoanDate(firstPayment) ||
+    !isLoanDate(disbursement)
+  ) {
+    return [
+      dateError('firstPaymentDate', firstPayment, true),
+      dateError('disbursementDate', disbursement, true),
+    ];
+  }
+  // ISO dates sort in calendar order as text.
+  return firstPayment > disbursement
+    ? []
+    : [{ field: 'firstPaymentDate', code: 'notAfterDisbursement' }];
+}
+
 const PERCENT: NumberRule = { kind: 'nonNegative', max: MAX_PERCENT };
 const TERM: NumberRule = { kind: 'wholeNumber', min: 1, max: MAX_TERM_MONTHS };
 
@@ -74,9 +118,7 @@ export function validate(input: LoanInput): ValidationError[] {
     input.insurance ? numberError('insurance.rate', input.insurance.rate, PERCENT) : undefined,
     optionalNumberError('otherCharges', input.otherCharges, { kind: 'nonNegative' }),
     optionalNumberError('solcaPercent', input.solcaPercent, PERCENT),
-    input.firstPaymentDate !== undefined && !isIsoDate(input.firstPaymentDate)
-      ? { field: 'firstPaymentDate', code: 'invalidDate' }
-      : undefined,
+    ...datesErrors(input),
     optionalNumberError('maxRate', input.maxRate, { kind: 'positive', max: MAX_PERCENT }),
     ...(input.extraPayments ?? []).flatMap((extra, index) => [
       afterPaymentError(
