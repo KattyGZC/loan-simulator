@@ -1,8 +1,8 @@
 // Reference cases from real Ecuadorian simulators. The accepted difference is ±$0.01 per
 // payment, accumulated over the loan for totals.
 //
-// Banco Guayaquil is not here: its simulator charges interest on actual days / 365, while
-// this engine uses 30/360. Actual-day bases are planned for after v1.
+// Banco Guayaquil is not here: its simulator charges interest on actual days / 365, and this
+// engine counts 30/360 or actual days / 360.
 //
 // JEP's insurance constant is not the one it publishes. The online simulator fits
 // 0.1258 % per month, and part of its PDF table fits 0.12582 % per month; both are about
@@ -12,6 +12,7 @@ import { describe, expect, it } from 'vitest';
 import { simulate } from '@/core/simulate';
 import { jepPublishedCases } from './jep-published';
 import { jepSimulatorCases } from './jep-simulator';
+import { produbancoAfterExtraPayment, produbancoOriginal, type ProdubancoRow } from './produbanco';
 
 const CENT = 0.01 + 1e-9;
 
@@ -56,4 +57,38 @@ describe('JEP published cost table (summaries)', () => {
       expect(Math.abs(summary.totalPaid - expected.total)).toBeLessThan(totalTolerance);
     },
   );
+});
+
+describe('Produbanco statement (actual days / 360, German)', () => {
+  function expectRows(loan: typeof produbancoOriginal, expected: ProdubancoRow[]) {
+    const result = simulate({
+      amount: loan.amount,
+      termMonths: loan.termMonths,
+      annualRate: 15.6,
+      rateType: 'nominal',
+      method: 'german',
+      dayCount: 'actual360',
+      disbursementDate: loan.disbursementDate,
+      firstPaymentDate: loan.firstPaymentDate,
+    });
+    if (!result.ok) throw new Error('invalid input');
+    const { rows } = result.base;
+    expect(rows).toHaveLength(loan.termMonths);
+    for (const [number, date, principal, interest, payment] of expected) {
+      expect(rows[number - 1], `row ${number}`).toMatchObject({
+        date,
+        principal,
+        interest,
+        payment,
+      });
+    }
+  }
+
+  it('matches payments 1–4 of the original loan to the cent', () => {
+    expectRows(produbancoOriginal, produbancoOriginal.rows);
+  });
+
+  it('matches every payment after the extra payment but the Carnival ones', () => {
+    expectRows(produbancoAfterExtraPayment, produbancoAfterExtraPayment.rows);
+  });
 });

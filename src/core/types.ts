@@ -6,6 +6,12 @@ export type RateType = 'nominal' | 'effective';
 export type InsuranceUnit = 'percentPerYear' | 'percentPerMonth' | 'perMillePerMonth';
 export type InsuranceBase = 'balance' | 'originalAmount';
 export type ExtraPaymentEffect = 'reducePayment' | 'reduceTerm';
+/**
+ * How interest counts time. `thirty360`: every month is 30 days of a 360-day year, so each
+ * payment charges the monthly rate. `actual360`: each payment charges the days since the
+ * previous due date (or the disbursement) over a 360-day year.
+ */
+export type DayCount = 'thirty360' | 'actual360';
 
 export interface InsuranceInput {
   rate: number;
@@ -38,8 +44,15 @@ export interface LoanInput {
   otherCharges?: number;
   /** SOLCA contribution in percent of the amount, deducted at disbursement. Omit or 0 to skip. */
   solcaPercent?: number;
-  /** ISO date (YYYY-MM-DD). Without it the schedule has no dates. */
+  /** Defaults to `thirty360`. */
+  dayCount?: DayCount;
+  /** ISO date (YYYY-MM-DD). Required with `actual360`; without it the schedule has no dates. */
   firstPaymentDate?: string;
+  /**
+   * ISO date the loan was paid out, which starts the first interest period. Required with
+   * `actual360` and ignored with `thirty360`.
+   */
+  disbursementDate?: string;
   /** Maximum effective annual rate for the segment, in percent. */
   maxRate?: number;
   extraPayments?: ExtraPayment[];
@@ -47,6 +60,7 @@ export interface LoanInput {
 
 export interface ScheduleRow {
   number: number;
+  /** Due date. With `actual360`, one that falls on a Saturday or Sunday moves to Monday. */
   date: string | null;
   /** principal + interest + insurance + otherCharges. Extra payments are not included. */
   payment: number;
@@ -105,7 +119,8 @@ export type ValidationCode =
   | 'outOfRange'
   | 'tooLarge'
   | 'noPaymentToPrepay'
-  | 'invalidDate';
+  | 'invalidDate'
+  | 'notAfterDisbursement';
 
 /** Path of an input field, e.g. `amount` or `extraPayments.1.afterPayment`. */
 export type ValidationField =
@@ -116,6 +131,7 @@ export type ValidationField =
   | 'otherCharges'
   | 'solcaPercent'
   | 'firstPaymentDate'
+  | 'disbursementDate'
   | 'maxRate'
   | `extraPayments.${number}.afterPayment`
   | `extraPayments.${number}.amount`;

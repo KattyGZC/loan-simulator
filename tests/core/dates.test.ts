@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isIsoDate, paymentDate } from '@/core/dates';
+import { daysBetween, isIsoDate, paymentDate, weekdayOnOrAfter } from '@/core/dates';
 
 describe('paymentDate', () => {
   it('returns the first payment date for payment 1', () => {
@@ -40,5 +40,39 @@ describe('isIsoDate', () => {
     expect(isIsoDate('2027-02-29')).toBe(false);
     expect(isIsoDate('2026-13-01')).toBe(false);
     expect(isIsoDate('22/10/2026')).toBe(false);
+  });
+});
+
+describe('daysBetween', () => {
+  it('counts calendar days, across months and leap days', () => {
+    expect(daysBetween('2025-07-09', '2025-08-18')).toBe(40);
+    expect(daysBetween('2028-02-28', '2028-03-01')).toBe(2);
+    expect(daysBetween('2026-11-27', '2026-11-27')).toBe(0);
+  });
+
+  it('is negative when the second date comes first', () => {
+    expect(daysBetween('2026-11-27', '2026-11-20')).toBe(-7);
+  });
+
+  it('throws on an invalid date', () => {
+    expect(() => daysBetween('2026-02-30', '2026-03-01')).toThrow('Invalid date: 2026-02-30');
+  });
+
+  it('keeps years before 100, which Date.UTC would read as 19xx', () => {
+    expect(daysBetween('0020-02-28', '0020-03-01')).toBe(2);
+    expect(weekdayOnOrAfter('0020-01-04')).toBe('0020-01-06');
+  });
+});
+
+describe('weekdayOnOrAfter', () => {
+  it('moves Saturday and Sunday to Monday', () => {
+    expect(weekdayOnOrAfter('2026-10-17')).toBe('2026-10-19');
+    expect(weekdayOnOrAfter('2026-05-17')).toBe('2026-05-18');
+  });
+
+  it('keeps a weekday, and crosses month and year ends', () => {
+    expect(weekdayOnOrAfter('2026-11-17')).toBe('2026-11-17');
+    expect(weekdayOnOrAfter('2027-01-31')).toBe('2027-02-01');
+    expect(weekdayOnOrAfter('2033-12-31')).toBe('2034-01-02');
   });
 });

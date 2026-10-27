@@ -1,5 +1,6 @@
 import type {
   AmortizationMethod,
+  DayCount,
   InsuranceBase,
   InsuranceUnit,
   RateType,
@@ -19,6 +20,7 @@ const INSURANCE_UNITS: readonly InsuranceUnit[] = [
   'perMillePerMonth',
 ];
 const INSURANCE_BASES: readonly InsuranceBase[] = ['balance', 'originalAmount'];
+const DAY_COUNTS: readonly DayCount[] = ['thirty360', 'actual360'];
 
 interface LoanFieldsProps {
   form: LoanForm;
@@ -30,6 +32,7 @@ interface LoanFieldsProps {
 
 /** The required fields, then the advanced options folded away. */
 export function LoanFields({ form, update, errorOf, counterpartRate }: LoanFieldsProps) {
+  const actualDays = form.dayCount === 'actual360';
   const rateHint =
     counterpartRate === null
       ? null
@@ -137,11 +140,26 @@ export function LoanFields({ form, update, errorOf, counterpartRate }: LoanField
             error={errorOf('solcaPercent')}
           />
         )}
+        <SelectField
+          label={t('field_dayCount')}
+          value={form.dayCount}
+          options={DAY_COUNTS.map((value) => ({ value, label: t(`dayCount_${value}`) }))}
+          onChange={(dayCount) => update({ dayCount })}
+        />
+        {actualDays && (
+          <DateField
+            label={t('field_disbursementDate')}
+            value={form.disbursementDate}
+            onInput={(disbursementDate) => update({ disbursementDate })}
+            error={errorOf('disbursementDate')}
+          />
+        )}
         <DateField
           label={t('field_firstPaymentDate')}
           value={form.firstPaymentDate}
           onInput={(firstPaymentDate) => update({ firstPaymentDate })}
           error={errorOf('firstPaymentDate')}
+          hint={actualDays ? t('hint_weekendDueDates') : undefined}
         />
         <NumberField
           label={t('field_maxRate')}

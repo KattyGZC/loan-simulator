@@ -1,4 +1,4 @@
-import { paymentDate } from './dates';
+import type { Calendar } from './calendar';
 import { roundMoney } from './money';
 import type {
   AmortizationMethod,
@@ -13,11 +13,10 @@ export interface ScheduleParams {
   amount: number;
   termMonths: number;
   method: AmortizationMethod;
-  /** Monthly interest rate as a fraction. */
-  monthlyRate: number;
+  /** Due dates and the interest each payment charges. */
+  calendar: Calendar;
   insurance: ScheduleInsurance;
   otherCharges: number;
-  firstPaymentDate?: string;
 }
 
 export interface ScheduleInsurance {
@@ -33,9 +32,11 @@ export interface ScheduleInsurance {
  * or the fixed principal (German).
  */
 interface Method {
-  installment(balance: number, payments: number): number;
+  /** The installment that repays `balance` with payments `first` to `last`. */
+  installment(balance: number, first: number, last: number): number;
   principal(installment: number, interest: number, insurance: number): number;
-  paymentsToRepay(balance: number, installment: number): number;
+  /** How many payments from `first` on repay `balance`, at most up to `last`. */
+  paymentsToRepay(balance: number, installment: number, first: number, last: number): number;
 }
 
 /** What is left to repay after a payment and its extra payments. */
@@ -63,30 +64,86 @@ function periodsToRepay(balance: number, rate: number, payment: number): number 
   return Math.ceil(periods - TERM_EPSILON);
 }
 
+/** Fixed payment that repays `balance` with payments `first` to `last`, each at its own rate. */
+function annuityOverPeriods(
+  balance: number,
+  rate: (paymentNumber: number) => number,
+  first: number,
+  last: number,
+): number {
+  // What 1 paid at the end of every period is worth today, period rates compounded.
+  let discount = 1;
+  let presentValue = 0;
+  for (let paymentNumber = first; paymentNumber <= last; paymentNumber++) {
+    discount /= 1 + rate(paymentNumber);
+    presentValue += discount;
+  }
+  return roundMoney(balance / presentValue);
+}
+
+/**
+ * Payments from `first` on that repay `balance` with a fixed `payment`, each period at its own
+ * rate. Never more than up to `last`, the payment the loan ended with before.
+ */
+function periodsToRepayOverPeriods(
+  balance: number,
+  rate: (paymentNumber: number) => number,
+  payment: number,
+  first: number,
+  last: number,
+): number {
+  let discount = 1;
+  let presentValue = 0;
+  let paymentNumber = first;
+  for (; paymentNumber < last; paymentNumber++) {
+    discount /= 1 + rate(paymentNumber);
+    presentValue += discount;
+    if (payment * presentValue >= balance - TERM_EPSILON) break;
+  }
+  return paymentNumber - first + 1;
+}
+
 /**
  * Fixed payment of principal + interest, plus the insurance when it is inside the payment.
  * Balance-based insurance then works like extra interest, and insurance on the original amount
  * is a fixed sum added to the annuity. Principal is whatever the payment leaves.
+ *
+ * Under 30/360 every period has the same rate and the annuity has a closed form. With actual
+ * days each period charges its own rate, so the payment is the one that repays the loan over
+ * those rates; a payment from the monthly rate would leave a large last payment.
  */
-function frenchMethod({ amount, monthlyRate, insurance }: ScheduleParams): Method {
+function frenchMethod({ amount, calendar, insurance }: ScheduleParams): Method {
   const insuranceInside = !insurance.onTopOfInstallment;
   const onBalance = insurance.base === 'balance';
-  const annuityRate =
-    insuranceInside && onBalance ? monthlyRate + insurance.monthlyRate : monthlyRate;
+  const insuranceAsInterest = insuranceInside && onBalance ? insurance.monthlyRate : 0;
   const fixedInsurance =
     insuranceInside && !onBalance ? roundMoney(amount * insurance.monthlyRate) : 0;
+  const principal: Method['principal'] = (installment, interest, insuranceCharge) =>
+    roundMoney(installment - (insuranceInside ? interest + insuranceCharge : interest));
+
+  if (calendar.fixedRate !== null) {
+    const annuityRate = calendar.fixedRate + insuranceAsInterest;
+    return {
+      installment: (balance, first, last) =>
+        roundMoney(annuity(balance, annuityRate, last - first + 1) + fixedInsurance),
+      principal,
+      paymentsToRepay: (balance, installment) =>
+        periodsToRepay(balance, annuityRate, installment - fixedInsurance),
+    };
+  }
+  const annuityRate = (paymentNumber: number) =>
+    calendar.periodRate(paymentNumber) + insuranceAsInterest;
   return {
-    installment: (balance, payments) =>
-      roundMoney(annuity(balance, annuityRate, payments) + fixedInsurance),
-    principal: (installment, interest, insuranceCharge) =>
-      roundMoney(installment - (insuranceInside ? interest + insuranceCharge : interest)),
-    paymentsToRepay: (balance, installment) =>
-      periodsToRepay(balance, annuityRate, installment - fixedInsurance),
+    installment: (balance, first, last) =>
+      roundMoney(annuityOverPeriods(balance, annuityRate, first, last) + fixedInsurance),
+    principal,
+    paymentsToRepay: (balance, installment, first, last) =>
+      periodsToRepayOverPeriods(balance, annuityRate, installment - fixedInsurance, first, last),
   };
 }
 
 const germanMethod: Method = {
-  installment: (balance, payments) => roundMoney(balance / payments),
+  installment: (balance, first, last) => roundMoney(balance / (last - first + 1)),
   principal: (installment) => installment,
   paymentsToRepay: (balance, installment) => Math.ceil(balance / installment - TERM_EPSILON),
 };
@@ -102,11 +159,13 @@ function reschedule(
   return effect === 'reducePayment'
     ? {
         ...outstanding,
-        installment: method.installment(balance, lastPaymentNumber - paymentNumber),
+        installment: method.installment(balance, paymentNumber + 1, lastPaymentNumber),
       }
     : {
         ...outstanding,
-        lastPaymentNumber: paymentNumber + method.paymentsToRepay(balance, installment),
+        lastPaymentNumber:
+          paymentNumber +
+          method.paymentsToRepay(balance, installment, paymentNumber + 1, lastPaymentNumber),
       };
 }
 
@@ -157,14 +216,14 @@ export function buildSchedule(
   const warnings: SimulationWarning[] = [];
   let outstanding: Outstanding = {
     balance: params.amount,
-    installment: method.installment(params.amount, params.termMonths),
+    installment: method.installment(params.amount, 1, params.termMonths),
     lastPaymentNumber: params.termMonths,
   };
 
   while (outstanding.balance > 0) {
     const paymentNumber = rows.length + 1;
     const { balance, installment, lastPaymentNumber } = outstanding;
-    const interest = roundMoney(balance * params.monthlyRate);
+    const interest = roundMoney(balance * params.calendar.periodRate(paymentNumber));
     const insuredAmount = params.insurance.base === 'balance' ? balance : params.amount;
     const insurance = roundMoney(insuredAmount * params.insurance.monthlyRate);
     const principal =
@@ -180,7 +239,7 @@ export function buildSchedule(
 
     rows.push({
       number: paymentNumber,
-      date: params.firstPaymentDate ? paymentDate(params.firstPaymentDate, paymentNumber) : null,
+      date: params.calendar.dueDate(paymentNumber),
       payment: roundMoney(principal + interest + insurance + params.otherCharges),
       principal,
       interest,

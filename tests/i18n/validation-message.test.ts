@@ -38,6 +38,7 @@ describe('validationMessage', () => {
       tooLarge: { field: 'amount', code: 'tooLarge', params: { max: 1e9 } },
       noPaymentToPrepay: { field: 'extraPayments.0.afterPayment', code: 'noPaymentToPrepay' },
       invalidDate: { field: 'firstPaymentDate', code: 'invalidDate' },
+      notAfterDisbursement: { field: 'firstPaymentDate', code: 'notAfterDisbursement' },
     } satisfies Record<ValidationCode, ValidationError>;
     const errors = Object.values(oneErrorPerCode);
     expect(errors.map((error) => validationMessage(error, format))).toEqual([
@@ -50,6 +51,7 @@ describe('validationMessage', () => {
       'Enter at most 1,000,000,000.',
       'A loan with a single payment has no payment to prepay.',
       'Enter a valid date.',
+      'The first payment must come after the disbursement.',
     ]);
   });
 });

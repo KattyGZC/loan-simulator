@@ -11,7 +11,7 @@ Read this before the first edit. It binds every author and every model (Claude, 
 | `src/i18n/` | UI text (`t()` over `chrome.i18n`), `Intl` formatting, and reading typed numbers |
 | `public/_locales/{en,es}/messages.json` | Every UI string, in English and Spanish. English is the fallback. `MessageKey` (`src/i18n/translate.ts`) is the key list of the English file |
 | `src/entrypoints/background.ts` | Opens the side panel when the toolbar icon is clicked |
-| `src/entrypoints/sidepanel/` | The UI (Preact). `form.ts` holds the panel logic, unit-tested: typed form to engine input, and what the results area shows (`panelState`). The components lay out and format; the only rule they keep is that a field shows its `required` error once the user leaves it |
+| `src/entrypoints/sidepanel/` | The UI (Preact). `form.ts` holds the panel logic, unit-tested: typed form to engine input, and what the results area shows (`panelState`). The components lay out and format; which error a field shows now is `visibleError()`, also in `form.ts` |
 | `tests/core/` | Unit tests of the engine, through `simulate()` or the module's export |
 | `tests/i18n/` | Tests of `src/i18n/`. `fake-i18n.ts` stands in for `chrome.i18n` over the real `messages.json` |
 | `tests/sidepanel/` | Tests of the side panel form (`form.ts`) |
@@ -20,17 +20,16 @@ Read this before the first edit. It binds every author and every model (Claude, 
 
 ## Status
 
-Done: project setup (phase 0), the calculation engine (phase 1), tested against Cooperativa JEP, languages and formatting (phase 2), and the side panel UI (phase 3).
+Done: project setup (phase 0), the calculation engine (phase 1), tested against Cooperativa JEP, languages and formatting (phase 2), the side panel UI (phase 3), and the day-count basis (30/360 or actual days/360), tested against a Produbanco statement.
 
 Next, in order:
 
-1. **Day-count basis.** 30/360 or actual days/360, chosen by the user in both modes, with due dates on a weekend moved to Monday. Produbanco counts actual days/360.
-2. **Extra payment on a loan you already have.** A second tab: remaining balance, rate, method, remaining payments, current payment (it rules; the remaining payments only check it under the French method), next due date, insurance and other charges, and one extra payment on any date. The extra payment first pays the interest accrued since the last due date. The extra payments of `simulate()` move here: the new-loan simulator has none.
-3. **Saved scenarios and preferences** (`src/storage/`), with a `schemaVersion`. The institution and segment fields arrive here, as the scenario name.
-4. **CSV export and print view.**
-5. **Accessibility, dark theme, final icons.**
-6. **QA:** Playwright e2e and a manual check against 3 institutions.
-7. **Chrome Web Store** listing, privacy page and release workflow.
+1. **Extra payment on a loan you already have.** A second tab: remaining balance, rate, method, remaining payments, current payment (it rules; the remaining payments only check it under the French method), next due date, insurance and other charges, and one extra payment on any date. The extra payment first pays the interest accrued since the last due date. The extra payments of `simulate()` move here: the new-loan simulator has none.
+2. **Saved scenarios and preferences** (`src/storage/`), with a `schemaVersion`. The institution and segment fields arrive here, as the scenario name.
+3. **CSV export and print view.**
+4. **Accessibility, dark theme, final icons.**
+5. **QA:** Playwright e2e and a manual check against 3 institutions.
+6. **Chrome Web Store** listing, privacy page and release workflow.
 
 After v1, not planned: total effective cost (IRR), non-monthly payments, grace periods, Firefox.
 
@@ -40,13 +39,13 @@ Do not reverse one of these in passing. If a change needs to, say so first.
 
 - **Generic engine.** The user enters every value. No rates, maximum rates or institutions are hardcoded: they change too often.
 - **Inputs as published.** `15.6` means 15.6 %, and the per-mille insurance unit means ‰. The engine converts to fractions; the UI passes what the user typed.
-- **30/360 basis.** Monthly rate = nominal annual rate / 12. Banco Guayaquil uses actual days / 365, so it is not a golden reference.
+- **Day count.** `thirty360` by default: every payment charges the monthly rate (nominal / 12). `actual360` charges `nominal × days / 360` from the previous due date, or from `disbursementDate` for the first payment, and needs both dates. Only there does a weekend due date move to Monday (`weekdayOnOrAfter`); holidays are not known. The German principal is always balance / payments. The French payment uses the closed annuity under 30/360 (`calendar.fixedRate`) and, with actual days, the annuity over each period's rate, also when an extra payment reschedules; a payment from nominal / 12 there left a last payment ~9× the others on 20 years. Dates must fall in 1900–2100. Banco Guayaquil uses actual days / 365, so it is not a golden reference.
 - **Rounding.** Every row value is rounded to cents, half away from zero, with `roundMoney`. The rounded balance carries over, and the last payment takes what is left so the balance ends at exactly 0.
 - **Insurance inside the French payment by default.** The annuity uses interest rate + insurance rate, as most credit unions do. `onTopOfInstallment` adds it on top instead.
 - **Extra payments.** One larger than the balance is clipped to the balance; one due after the loan ended is ignored. Both return a warning, not an error.
-- **No hidden defaults in the engine.** No SOLCA and no first-payment date unless the input sets them. "SOLCA on, 0.5 %" and "one month from today" belong to the UI. The engine never reads the clock.
-- **Errors are codes.** `validate()` returns `{ field, code }`, plus `params: { min, max }` for `outOfRange` and `params: { max }` for `tooLarge`. An extra payment on a one-payment loan is `noPaymentToPrepay`, whatever its value. The UI turns them into text with `validationMessage()`.
-- **Empty fields.** `LoanInput` has no empty number. The form (`form.ts`) passes `NaN` for an empty field so `validate()` still checks the others, then reports that field as `required`. A `required` error shows once the user leaves the field; the results show the empty state while amount, term or rate is missing.
+- **No hidden defaults in the engine.** No SOLCA, no dates and 30/360 unless the input says otherwise. "SOLCA on, 0.5 %", "paid out today" and "first payment one month from today" belong to the UI. The engine never reads the clock.
+- **Errors are codes.** `validate()` returns `{ field, code }`, plus `params: { min, max }` for `outOfRange` and `params: { max }` for `tooLarge`. An extra payment on a one-payment loan is `noPaymentToPrepay`, whatever its value. With actual days, a first payment on or before the disbursement is `notAfterDisbursement`. The UI turns them into text with `validationMessage()`.
+- **Empty fields.** `LoanInput` has no empty number. The form (`form.ts`) passes `NaN` for an empty field so `validate()` still checks the others, then reports that field as `required`. A `required` error shows only on an empty field the user has typed in and left at least once (`visibleError`): showing it on the first blur moved the page under the click that left the field; the results show the empty state while amount, term or rate is missing.
 - **Two languages.** English and Spanish via `chrome.i18n`, following the browser language, English as the fallback. Every string the user sees comes from `messages.json` through `t()`.
 - **Format locale.** Spanish formats as `es-EC` (`$1.234,56`, `31/01/2027`) and anything else as `en-US`. Region-less `es` and `es-419` would print `1234,56 US$` and `USD 1,234.56`. Currency is USD.
 - **Typed numbers.** `parseDecimal()` accepts `,` or `.` as the decimal separator. The only ambiguous case, one separator after 1–3 digits not starting with 0 (maybe space-grouped) and before exactly three (`10.000`, `1 000.000`), follows the locale's decimal separator. Spaces inside only group thousands. Empty text is `undefined` and unreadable text `NaN`, so `validate()` reports them.

@@ -8,7 +8,7 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
 
 > Pensada para Ecuador (USD, SOLCA, segmentos del BCE), pero como casi todos los datos los ingresa el usuario, sirve para otros países desactivando lo específico de Ecuador.
 
-> **Estado:** en desarrollo, aún no publicada. El motor de cálculo (`src/core/`) y los textos y formatos de número en inglés y español (`src/i18n/`) están terminados y probados, y el panel lateral ya simula un crédito nuevo cargando la extensión sin empaquetar; faltan los abonos a un crédito que ya tienes, los escenarios guardados y la exportación a CSV. Este README describe la extensión prevista.
+> **Estado:** en desarrollo, aún no publicada. El motor de cálculo (`src/core/`) y los textos y formatos de número en inglés y español (`src/i18n/`) están terminados y probados, y el panel lateral ya simula un crédito nuevo cargando la extensión sin empaquetar; cuenta el interés en 30/360 o en días reales/360. Faltan los abonos a un crédito que ya tienes, los escenarios guardados y la exportación a CSV. Este README describe la extensión prevista.
 
 ---
 
@@ -55,7 +55,9 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
 | **Seguro de desgravamen: en la cuota** | Sí | Solo sistema francés. `Sí`: la cuota fija ya incluye el seguro, así que la cuota total es la misma cada mes (lo usual en cooperativas). `No`: el seguro se suma encima, así que la cuota total cambia cada mes |
 | **Otros cargos por cuota** | $0 | Valor fijo mensual: otros seguros, cuota de socio, etc. |
 | **Contribución SOLCA** | Activada, 0,5 % | Se descuenta una sola vez al desembolsar. Desactívala si no aplica (por ejemplo, fuera de Ecuador o en créditos exentos) |
-| **Fecha del primer pago** | Un mes después de hoy | Solo sirve para poner fechas en la tabla |
+| **Base de días** | 30/360 | `30/360`: cada mes cuenta 30 días. `Días reales/360`: cada cuota cobra los días desde la anterior, como hace Produbanco |
+| **Fecha de desembolso** | Hoy | Solo con días reales: ahí empieza el primer periodo de interés |
+| **Fecha del primer pago** | Un mes después de hoy | Pone fechas en la tabla. Con días reales también fija los días de interés, y un vencimiento en sábado o domingo pasa al lunes |
 | **Entidad y segmento** | Vacío | Etiquetas para guardar el escenario (por ejemplo, «Coop JEP – Consumo») |
 | **Tasa máxima del segmento** | Vacío | Si la ingresas, la extensión avisa cuando la tasa supera el máximo legal |
 
@@ -81,7 +83,9 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
 
 ## Cómo se calcula
 
-Base comercial **30/360**: cada mes cuenta como 30 días de un año de 360. Cada valor de la tabla se redondea a 2 decimales (la mitad hacia arriba), el saldo redondeado pasa al mes siguiente y la última cuota se ajusta para que el saldo quede exactamente en $0. El motor está probado contra las tablas del simulador de la Cooperativa JEP y su tabla de costos publicada, con una diferencia máxima de $0,01 por cuota. Algunas entidades cuentan días reales (el simulador de Banco Guayaquil lo hace), así que sus cifras pueden diferir en centavos o algunos dólares.
+Base comercial **30/360** por defecto: cada mes cuenta como 30 días de un año de 360. Cada valor de la tabla se redondea a 2 decimales (la mitad hacia arriba), el saldo redondeado pasa al mes siguiente y la última cuota se ajusta para que el saldo quede exactamente en $0. El motor está probado contra las tablas del simulador de la Cooperativa JEP y su tabla de costos publicada, con una diferencia máxima de $0,01 por cuota.
+
+Con **días reales/360**, cada cuota cobra `saldo × TNA × días / 360`, donde `días` va desde el vencimiento anterior (o el desembolso, en la primera cuota) hasta este. Un vencimiento en sábado o domingo pasa al lunes y el interés se cuenta hasta ese lunes. Los feriados no se conocen, así que una cuota que el banco mueve por feriado puede diferir en un día de interés. El capital fijo del alemán sigue siendo `P / n`. La cuota fija del francés es la que paga el crédito en los periodos reales, `cuota = P / Σₖ Πⱼ≤ₖ 1/(1 + iⱼ)` con `iⱼ = TNA × díasⱼ / 360` (más la tasa mensual del seguro cuando el seguro es sobre el saldo y está dentro de la cuota), así que la última cuota queda cerca de las demás. Con tasas altas y plazos largos, un periodo de 31 días o más puede cobrar más interés que la cuota; ese mes la diferencia se suma al saldo. Un primer periodo largo (un desembolso meses antes del primer pago) se cobra en la primera cuota: en el sistema alemán esa cuota lo lleva entero; en el francés la cuota sigue fija y el interés que la excede se suma al saldo. El sistema alemán en esta base está probado al centavo contra la tabla de un crédito de Produbanco. El simulador de Banco Guayaquil cuenta días reales sobre 365, así que sus cifras pueden diferir en centavos o algunos dólares.
 
 ### Tasas
 

@@ -1,7 +1,8 @@
 import { buildSchedule, type ScheduleParams } from './amortization';
+import { loanCalendar } from './calendar';
 import { insuranceMonthlyRate } from './insurance';
 import { roundMoney } from './money';
-import { annualRates, monthlyRate, percentOf, percentToFraction } from './rates';
+import { annualRates, percentOf, percentToFraction } from './rates';
 import { compare, summarize, type LoanTerms } from './summary';
 import type { LoanInput, Schedule, SimulationResult, SimulationWarning } from './types';
 import { validate } from './validate';
@@ -12,18 +13,18 @@ export function simulate(input: LoanInput): SimulationResult {
 
   const { nominalRate, effectiveRate } = annualRates(input.annualRate, input.rateType);
 
+  const nominal = percentToFraction(nominalRate);
   const params: ScheduleParams = {
     amount: input.amount,
     termMonths: input.termMonths,
     method: input.method,
-    monthlyRate: monthlyRate(percentToFraction(nominalRate)),
+    calendar: loanCalendar(input, nominal),
     insurance: {
       monthlyRate: insuranceMonthlyRate(input.insurance),
       base: input.insurance?.base ?? 'balance',
       onTopOfInstallment: input.insurance?.onTopOfInstallment ?? false,
     },
     otherCharges: input.otherCharges ?? 0,
-    firstPaymentDate: input.firstPaymentDate,
   };
   const loan: LoanTerms = {
     amount: input.amount,

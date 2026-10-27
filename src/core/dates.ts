@@ -9,9 +9,19 @@ interface CalendarDate {
   day: number;
 }
 
+/**
+ * Midnight UTC of a calendar date. `month` is 1-based and may overflow, as with `Date.UTC`.
+ * Unlike `Date.UTC`, years 0–99 stay years 0–99 instead of turning into 1900–1999.
+ */
+function utcMidnight(year: number, month: number, day: number): Date {
+  const date = new Date(0);
+  date.setUTCFullYear(year, month - 1, day);
+  return date;
+}
+
 function daysInMonth(year: number, month: number): number {
-  // Day 0 of the next month is the last day of this one; month is 1-based.
-  return new Date(Date.UTC(year, month, 0)).getUTCDate();
+  // Day 0 of the next month is the last day of this one.
+  return utcMidnight(year, month + 1, 0).getUTCDate();
 }
 
 function parseIsoDate(value: string): CalendarDate | null {
@@ -26,6 +36,24 @@ function parseIsoDate(value: string): CalendarDate | null {
 function formatIsoDate({ year, month, day }: CalendarDate): string {
   const pad = (value: number, length: number) => String(value).padStart(length, '0');
   return `${pad(year, 4)}-${pad(month, 2)}-${pad(day, 2)}`;
+}
+
+const MS_PER_DAY = 86_400_000;
+const SATURDAY = 6;
+const SUNDAY = 0;
+
+function toUtc(isoDate: string): Date {
+  const date = parseIsoDate(isoDate);
+  if (!date) throw new Error(`Invalid date: ${isoDate}`);
+  return utcMidnight(date.year, date.month, date.day);
+}
+
+function fromUtc(date: Date): string {
+  return formatIsoDate({
+    year: date.getUTCFullYear(),
+    month: date.getUTCMonth() + 1,
+    day: date.getUTCDate(),
+  });
 }
 
 export function isIsoDate(value: string): boolean {
@@ -43,4 +71,17 @@ export function paymentDate(firstPaymentDate: string, paymentNumber: number): st
   const year = first.year + Math.floor(monthIndex / 12);
   const month = (monthIndex % 12) + 1;
   return formatIsoDate({ year, month, day: Math.min(first.day, daysInMonth(year, month)) });
+}
+
+/** Calendar days from `from` to `to`, both ISO dates. Negative when `to` comes first. */
+export function daysBetween(from: string, to: string): number {
+  return (toUtc(to).getTime() - toUtc(from).getTime()) / MS_PER_DAY;
+}
+
+/** `isoDate`, or the Monday after it when it falls on a Saturday or Sunday. */
+export function weekdayOnOrAfter(isoDate: string): string {
+  const date = toUtc(isoDate);
+  if (date.getUTCDay() === SATURDAY) date.setUTCDate(date.getUTCDate() + 2);
+  if (date.getUTCDay() === SUNDAY) date.setUTCDate(date.getUTCDate() + 1);
+  return fromUtc(date);
 }

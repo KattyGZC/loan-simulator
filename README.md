@@ -8,7 +8,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 
 > Built for Ecuador (USD, SOLCA contribution, Central Bank credit segments). Since almost all data is entered by the user, it works for other countries once the Ecuador-specific options are turned off.
 
-> **Status:** in development, not published yet. The calculation engine (`src/core/`) and the English and Spanish texts and number formats (`src/i18n/`) are done and tested, and the side panel simulates a new loan when loaded unpacked; extra payments on a loan you already have, saved scenarios and CSV export are next. This README describes the planned extension.
+> **Status:** in development, not published yet. The calculation engine (`src/core/`) and the English and Spanish texts and number formats (`src/i18n/`) are done and tested, and the side panel simulates a new loan when loaded unpacked; it counts interest on 30/360 or actual days/360. Extra payments on a loan you already have, saved scenarios and CSV export are next. This README describes the planned extension.
 
 ---
 
@@ -55,7 +55,9 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 | **Credit life insurance: in the payment** | Yes | French method only. `Yes`: the fixed payment already includes the insurance, so the total payment is the same every month (most credit unions). `No`: the insurance is added on top, so the total payment changes every month |
 | **Other charges per payment** | $0 | Fixed monthly amount: other insurance, membership fees, etc. |
 | **SOLCA contribution** | On, 0.5% | Deducted once at disbursement. Turn it off if it doesn't apply (e.g. outside Ecuador or on exempt loans) |
-| **First payment date** | One month from today | Only used to put dates in the schedule |
+| **Day count** | 30/360 | `30/360`: every month counts 30 days. `Actual days/360`: each payment charges the days since the previous one, as Produbanco does |
+| **Disbursement date** | Today | Actual days only: the first interest period starts here |
+| **First payment date** | One month from today | Puts dates in the schedule. With actual days it also sets the interest days, and a due date on a Saturday or Sunday moves to Monday |
 | **Institution and segment** | Empty | Labels for saving the scenario (e.g. "JEP Credit Union – Consumer") |
 | **Segment maximum rate** | Empty | If set, the extension warns when the rate exceeds the legal maximum |
 
@@ -81,7 +83,9 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 
 ## How it's calculated
 
-Commercial **30/360** day count: each month counts as 30 days of a 360-day year. Every value in the schedule is rounded to 2 decimals (half up), the rounded balance carries over to the next month, and the last payment is adjusted so the balance ends at exactly $0. The engine is tested against the schedules of Cooperativa JEP's simulator and its published cost table, within $0.01 per payment. Some institutions count actual days instead (Banco Guayaquil's simulator does), so their figures can differ by a few cents or dollars.
+Commercial **30/360** day count by default: each month counts as 30 days of a 360-day year. Every value in the schedule is rounded to 2 decimals (half up), the rounded balance carries over to the next month, and the last payment is adjusted so the balance ends at exactly $0. The engine is tested against the schedules of Cooperativa JEP's simulator and its published cost table, within $0.01 per payment.
+
+With **actual days/360**, each payment charges `balance × APR × days / 360`, where `days` runs from the previous due date (or the disbursement, for the first payment) to this one. A due date on a Saturday or Sunday moves to Monday and the interest counts up to that Monday. Holidays are not known, so a payment that a bank moves for a holiday can differ by a day of interest. The German fixed principal is `P / n` as always. The French fixed payment is the one that repays the loan over the real periods, `payment = P / Σₖ Πⱼ≤ₖ 1/(1 + iⱼ)` with `iⱼ = APR × daysⱼ / 360` (plus the monthly insurance rate when the insurance is on the balance and inside the payment), so the last payment stays close to the others. At high rates over long terms, a period of 31 days or more can charge more interest than the payment; that month the difference is added to the balance. A long first period (a disbursement months before the first payment) is charged on the first payment: under the German method that payment carries all of it; under the French method the payment stays fixed and the interest beyond it is added to the balance. The German method on this basis is tested against a Produbanco loan statement, to the cent. Banco Guayaquil's simulator counts actual days over 365, so its figures can differ by cents or a few dollars.
 
 ### Rates
 
