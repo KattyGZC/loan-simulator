@@ -3,9 +3,10 @@
 // insurance or other charges, disbursed 2025-07-09, due on the 17th. Interest counts actual
 // days / 360, and a due date on a weekend moves to Monday.
 //
-// The borrower paid $2,700.00 on 2025-11-24, between payments 4 and 5, so the published table
-// holds two loans for this engine: the original one up to payment 4, and from payment 6 on a
-// new German loan of the balance left (3,161.49 over 31 payments, counted from 2025-12-17).
+// The borrower paid $2,700.00 on 2025-11-24, between payments 4 and 5, to reduce the payment.
+// The published table holds it three ways for this engine: the original loan up to payment 4,
+// that extra payment on the loan as it stood after payment 4, and from payment 6 on a new
+// German loan of the balance left (3,161.49 over 31 payments, counted from 2025-12-17).
 
 /** [number, due date, principal, interest, payment] */
 export type ProdubancoRow = [number, string, number, number, number];
@@ -21,6 +22,21 @@ export const produbancoOriginal = {
     [3, '2025-10-17', 182.62, 80.72, 263.34],
     [4, '2025-11-17', 182.62, 80.95, 263.57],
   ] satisfies ProdubancoRow[],
+};
+
+/**
+ * The loan after payment 4, with the extra payment. Payment 5 holds it: of the $2,700, 17.71
+ * paid 7 days of interest (a day's interest, 2.53, times 7) and 2,682.29 went to principal.
+ * On 2025-12-17 payment 5 then charged 31.51 of interest for the 23 days since.
+ */
+export const produbancoExtraPayment = {
+  balance: 5843.78,
+  remainingPayments: 32,
+  nextPaymentDate: '2025-12-17',
+  extraPayment: { date: '2025-11-24', amount: 2700 },
+  accruedInterest: 17.71,
+  principal: 2682.29,
+  payment5: [5, '2025-12-17', 2682.29, 49.22, 2731.51] satisfies ProdubancoRow,
 };
 
 /**

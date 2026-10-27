@@ -1,26 +1,11 @@
-import type {
-  AmortizationMethod,
-  DayCount,
-  InsuranceBase,
-  InsuranceUnit,
-  RateType,
-  ValidationField,
-} from '@/core';
+import type { InsuranceBase, ValidationField } from '@/core';
 import { t } from '@/i18n/translate';
+import { DayCountField, InsuranceFields, MethodField, RateFields } from './common-fields';
 import type { FieldError } from './errors';
 import { CheckboxField, DateField, FieldGroup, NumberField, SelectField } from './fields';
 import type { LoanForm } from './form';
-import { format } from './locale';
 
-const RATE_TYPES: readonly RateType[] = ['nominal', 'effective'];
-const METHODS: readonly AmortizationMethod[] = ['french', 'german'];
-const INSURANCE_UNITS: readonly InsuranceUnit[] = [
-  'percentPerYear',
-  'percentPerMonth',
-  'perMillePerMonth',
-];
 const INSURANCE_BASES: readonly InsuranceBase[] = ['balance', 'originalAmount'];
-const DAY_COUNTS: readonly DayCount[] = ['thirty360', 'actual360'];
 
 interface LoanFieldsProps {
   form: LoanForm;
@@ -33,12 +18,6 @@ interface LoanFieldsProps {
 /** The required fields, then the advanced options folded away. */
 export function LoanFields({ form, update, errorOf, counterpartRate }: LoanFieldsProps) {
   const actualDays = form.dayCount === 'actual360';
-  const rateHint =
-    counterpartRate === null
-      ? null
-      : t(form.rateType === 'nominal' ? 'rateHint_effective' : 'rateHint_nominal', [
-          format.percent(counterpartRate),
-        ]);
   return (
     <>
       <FieldGroup legend={t('section_loan')}>
@@ -56,68 +35,30 @@ export function LoanFields({ form, update, errorOf, counterpartRate }: LoanField
           onInput={(termMonths) => update({ termMonths })}
           error={errorOf('termMonths')}
         />
-        <div class="row">
-          <NumberField
-            label={t('field_annualRate')}
-            inputMode="decimal"
-            value={form.annualRate}
-            onInput={(annualRate) => update({ annualRate })}
-            hint={rateHint}
-            error={errorOf('annualRate')}
-          />
-          <SelectField
-            label={t('field_rateType')}
-            value={form.rateType}
-            options={RATE_TYPES.map((value) => ({ value, label: t(`rateType_${value}`) }))}
-            onChange={(rateType) => update({ rateType })}
-          />
-        </div>
-        <SelectField
-          label={t('field_method')}
-          value={form.method}
-          options={METHODS.map((value) => ({ value, label: t(`method_${value}`) }))}
-          onChange={(method) => update({ method })}
+        <RateFields
+          annualRate={form.annualRate}
+          rateType={form.rateType}
+          onRateInput={(annualRate) => update({ annualRate })}
+          onRateTypeChange={(rateType) => update({ rateType })}
+          error={errorOf('annualRate')}
+          counterpartRate={counterpartRate}
         />
+        <MethodField value={form.method} onChange={(method) => update({ method })} />
       </FieldGroup>
 
       <details class="advanced">
         <summary>{t('section_advanced')}</summary>
-        <FieldGroup legend={t('group_insurance')}>
-          <NumberField
-            label={t('field_insuranceRate')}
-            inputMode="decimal"
-            value={form.insuranceRate}
-            onInput={(insuranceRate) => update({ insuranceRate })}
-            error={errorOf('insurance.rate')}
+        <InsuranceFields form={form} update={update} error={errorOf('insurance.rate')}>
+          <SelectField
+            label={t('field_insuranceBase')}
+            value={form.insuranceBase}
+            options={INSURANCE_BASES.map((value) => ({
+              value,
+              label: t(`insuranceBase_${value}`),
+            }))}
+            onChange={(insuranceBase) => update({ insuranceBase })}
           />
-          <div class="row">
-            <SelectField
-              label={t('field_insuranceUnit')}
-              value={form.insuranceUnit}
-              options={INSURANCE_UNITS.map((value) => ({
-                value,
-                label: t(`insuranceUnit_${value}`),
-              }))}
-              onChange={(insuranceUnit) => update({ insuranceUnit })}
-            />
-            <SelectField
-              label={t('field_insuranceBase')}
-              value={form.insuranceBase}
-              options={INSURANCE_BASES.map((value) => ({
-                value,
-                label: t(`insuranceBase_${value}`),
-              }))}
-              onChange={(insuranceBase) => update({ insuranceBase })}
-            />
-          </div>
-          {form.method === 'french' && (
-            <CheckboxField
-              label={t('field_insuranceInPayment')}
-              checked={!form.onTopOfInstallment}
-              onChange={(included) => update({ onTopOfInstallment: !included })}
-            />
-          )}
-        </FieldGroup>
+        </InsuranceFields>
 
         <NumberField
           label={t('field_otherCharges')}
@@ -140,12 +81,7 @@ export function LoanFields({ form, update, errorOf, counterpartRate }: LoanField
             error={errorOf('solcaPercent')}
           />
         )}
-        <SelectField
-          label={t('field_dayCount')}
-          value={form.dayCount}
-          options={DAY_COUNTS.map((value) => ({ value, label: t(`dayCount_${value}`) }))}
-          onChange={(dayCount) => update({ dayCount })}
-        />
+        <DayCountField value={form.dayCount} onChange={(dayCount) => update({ dayCount })} />
         {actualDays && (
           <DateField
             label={t('field_disbursementDate')}

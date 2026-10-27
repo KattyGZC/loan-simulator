@@ -4,11 +4,11 @@
 
 Extensión de Chrome (panel lateral) para simular préstamos de **cualquier banco o cooperativa**, con los datos que la propia entidad publica en su sección de *transparencia*.
 
-Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir plazos fijos. Esta extensión hace el cálculo de forma local y genérica: ingresas monto, tasa, plazo y sistema de amortización, y obtienes la tabla de pagos completa. Además puedes simular **abonos a capital** y ver cuánto ahorras.
+Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir plazos fijos. Esta extensión hace el cálculo de forma local y genérica: ingresas monto, tasa, plazo y sistema de amortización, y obtienes la tabla de pagos completa. Para un crédito que ya tienes, puedes simular un **abono a capital** y ver cuánto ahorras.
 
 > Pensada para Ecuador (USD, SOLCA, segmentos del BCE), pero como casi todos los datos los ingresa el usuario, sirve para otros países desactivando lo específico de Ecuador.
 
-> **Estado:** en desarrollo, aún no publicada. El motor de cálculo (`src/core/`) y los textos y formatos de número en inglés y español (`src/i18n/`) están terminados y probados, y el panel lateral ya simula un crédito nuevo cargando la extensión sin empaquetar; cuenta el interés en 30/360 o en días reales/360. Faltan los abonos a un crédito que ya tienes, los escenarios guardados y la exportación a CSV. Este README describe la extensión prevista.
+> **Estado:** en desarrollo, aún no publicada. El motor de cálculo (`src/core/`) y los textos y formatos de número en inglés y español (`src/i18n/`) están terminados y probados, y el panel lateral, cargando la extensión sin empaquetar, ya simula un crédito nuevo y un abono a un crédito que ya tienes; cuenta el interés en 30/360 o en días reales/360. Faltan los escenarios guardados y la exportación a CSV. Este README describe la extensión prevista.
 
 ---
 
@@ -18,7 +18,7 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
 - Convierte entre **tasa nominal** y **tasa efectiva** anual: ingresas una y muestra la otra.
 - Suma el **seguro de desgravamen** y otros cargos por cuota, si los tienes.
 - Calcula la **contribución SOLCA** (0,5 %) y el monto que realmente recibes.
-- Simula **uno o varios abonos a capital** y compara el resultado con el crédito original:
+- En un crédito que ya tienes, simula un **abono a capital** en cualquier fecha y compara el resto del crédito con y sin él:
   - **Reducir cuota:** mantienes el plazo y pagas menos cada mes.
   - **Reducir plazo:** mantienes la cuota y terminas antes.
 - Muestra los totales: intereses, seguros, SOLCA y total pagado.
@@ -61,13 +61,21 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
 | **Entidad y segmento** | Vacío | Etiquetas para guardar el escenario (por ejemplo, «Coop JEP – Consumo») |
 | **Tasa máxima del segmento** | Vacío | Si la ingresas, la extensión avisa cuando la tasa supera el máximo legal |
 
-### Abonos a capital (opcional, uno o varios)
+### Un crédito que ya tienes (segunda pestaña)
+
+Ingresa el crédito como aparece en tu último estado de cuenta o tabla de amortización.
 
 | Campo | Descripción |
 |---|---|
-| **Después de la cuota N.º** | En qué momento se hace el abono |
-| **Monto del abono** | Valor que va directo a capital |
-| **Efecto** | `Reducir cuota` o `Reducir plazo` |
+| **Saldo pendiente** | Capital que queda después de la última cuota que pagaste |
+| **Cuotas restantes** | Incluida la próxima |
+| **Tasa de interés anual** y **sistema** | Igual que para un crédito nuevo |
+| **Cuota actual** | Solo sistema francés: capital e interés, más el seguro si está incluido, sin otros cargos. Fija todas las cuotas menos la última; las cuotas restantes solo la comprueban, y un aviso indica cuando no coinciden |
+| **Fecha de la próxima cuota** | Los vencimientos siguientes caen en el mismo día del mes |
+| **Seguro de desgravamen**, **otros cargos**, **conteo de días** | Opcionales, igual que para un crédito nuevo. El seguro es sobre el saldo |
+| **Abono: fecha** | Hoy por defecto. Desde el vencimiento de la última cuota pagada hasta el día antes de la última cuota |
+| **Abono: monto** | Lo que pagas. Debe ser mayor que el interés acumulado hasta su fecha |
+| **Abono: efecto** | `Reducir plazo` (por defecto) o `Reducir cuota` |
 
 ---
 
@@ -77,7 +85,7 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
 - **Monto neto recibido:** monto − SOLCA.
 - **Totales:** intereses, seguros, SOLCA y total a pagar.
 - **Tabla de amortización:** n.º, fecha, cuota total, capital, interés, seguro, otros cargos y saldo.
-- **Con abonos:** comparación lado a lado (sin abono vs. con abono), interés ahorrado y cuotas menos o nueva cuota.
+- **Abono a un crédito que tienes:** cómo se reparte entre interés acumulado y capital, el resto del crédito sin vs. con abono, lo que ahorras (intereses, seguro y otros cargos), las cuotas que te ahorras o la nueva cuota, y la tabla con el abono.
 
 ---
 
@@ -128,14 +136,18 @@ monto_recibido = P − SOLCA
 
 ### Abonos a capital
 
-Después de pagar la cuota N, el abono se resta del saldo y se recalcula el resto del crédito:
+Un abono hecho en una fecha entre dos vencimientos, dentro del periodo de la cuota k:
+
+1. Primero paga el interés acumulado desde el vencimiento anterior: el interés de un día, `saldo × TNA / 360` redondeado al centavo, por los días. Con días reales son días de calendario; en 30/360 cada periodo cuenta 30 días y el último día del mes cuenta como el 30, así que un abono el 15 en un crédito que vence el 31 acumula 15 días, también en febrero.
+2. El resto va a capital, y primero cubre el capital que iba a pagar la cuota k. En su vencimiento, la cuota k paga el capital que el abono le dejó y cobra el interés de los días que faltan sobre el saldo nuevo (`saldo × TNA × días / 360`, redondeado una vez, como una cuota normal), más el seguro y los otros cargos. Por eso un abono menor que el capital de la cuota k no cambia nada después de esa cuota; solo ahorra el interés de los días que se adelantó.
+3. Cuando cubre más que el capital de la cuota k, las cuotas después de k pagan el saldo nuevo `S`:
 
 | | Reducir cuota | Reducir plazo |
 |---|---|---|
-| **Francés** | Nueva cuota con el saldo nuevo y las cuotas restantes | Misma cuota; nuevo número de cuotas: `n = −ln(1 − S·i / C) / ln(1 + i)` |
-| **Alemán** | Nuevo capital fijo: `S / cuotas restantes` | Mismo capital fijo; se eliminan las cuotas que sobran |
+| **Francés** | Nueva cuota con `S` y las cuotas después de k | Misma cuota; nuevo número de cuotas: `n = −ln(1 − S·i / C) / ln(1 + i)` |
+| **Alemán** | Nuevo capital fijo: `S / cuotas después de k` | Mismo capital fijo; se eliminan las cuotas que sobran |
 
-Un abono mayor al saldo se reduce al saldo y cancela el crédito. Los abonos que tocan después de que el crédito ya se pagó se ignoran. En ambos casos la extensión muestra un aviso.
+En la tabla, la cuota k muestra el abono dentro de ella, como un estado de cuenta. Un abono mayor a lo que se debe se reduce al saldo más el interés acumulado y cancela el crédito en su fecha, con un aviso. Así aplicó Produbanco un abono en un estado de cuenta, y el motor coincide con ese estado al centavo.
 
 ---
 

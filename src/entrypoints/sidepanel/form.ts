@@ -5,7 +5,7 @@ import {
   type AmortizationMethod,
   type DayCount,
   type InsuranceBase,
-  type InsuranceInput,
+  type InsuranceTerms,
   type InsuranceUnit,
   type LoanInput,
   type LoanSummary,
@@ -70,29 +70,100 @@ export function defaultForm(today: string, locale: FormatLocale): LoanForm {
   };
 }
 
+export interface FieldReader {
+  /** The required fields read so far that were empty. */
+  readonly empty: ReadonlySet<ValidationField>;
+  /** The number typed in `field`, or NaN when it is empty. */
+  required(field: ValidationField, text: string): number;
+  optional(text: string): number | undefined;
+  /** The ISO date of a date input; empty when the input is. */
+  requiredDate(field: ValidationField, isoDate: string): string;
+}
+
+/**
+ * Reads typed fields into engine input, remembering which required ones were left empty. The
+ * engine's inputs have no room for an empty number: NaN, or an empty date, keeps validation
+ * checking every other field, and `withEmptyFields()` reports that field as `required` after.
+ */
+export function fieldReader(locale: FormatLocale): FieldReader {
+  const empty = new Set<ValidationField>();
+  return {
+    empty,
+    required(field: ValidationField, text: string): number {
+      const value = parseDecimal(text, locale);
+      if (value !== undefined) return value;
+      empty.add(field);
+      return Number.NaN;
+    },
+    optional: (text: string) => parseDecimal(text, locale),
+    requiredDate(field: ValidationField, isoDate: string): string {
+      if (isoDate === '') empty.add(field);
+      return isoDate;
+    },
+  };
+}
+
+type Failure = { ok: false; errors: ValidationError[] };
+
+/** `result`, with the error of a field left empty reported as `required`. */
+export function withEmptyFields<T extends { ok: true }>(
+  result: T | Failure,
+  empty: ReadonlySet<ValidationField>,
+): T | Failure {
+  if (result.ok) return result;
+  const errors = result.errors.map((error): ValidationError =>
+    empty.has(error.field) ? { field: error.field, code: 'required' } : error,
+  );
+  return { ok: false, errors };
+}
+
+/** What the results area shows for a form. */
+export type PanelState<T> =
+  /** A field the results need is still empty. */
+  | { kind: 'loanIncomplete'; errors: ValidationError[] }
+  | { kind: 'invalid'; errors: ValidationError[] }
+  | { kind: 'simulated'; simulation: T };
+
+/** The panel state of a simulation: incomplete while one of `loanFields` is empty. */
+export function resultState<T extends { ok: true }>(
+  result: T | Failure,
+  loanFields: readonly ValidationField[],
+): PanelState<T> {
+  if (result.ok) return { kind: 'simulated', simulation: result };
+  const { errors } = result;
+  const loanIncomplete = errors.some(
+    (error) => error.code === 'required' && loanFields.includes(error.field),
+  );
+  return { kind: loanIncomplete ? 'loanIncomplete' : 'invalid', errors };
+}
+
+/** The errors each field shows: none once the form simulates. */
+export function errorsOf(state: PanelState<unknown>): readonly ValidationError[] {
+  return state.kind === 'simulated' ? [] : state.errors;
+}
+
+/**
+ * The insurance the form describes, or none while its rate is empty. It goes on top of the
+ * payment only under the French method; the German method has no fixed payment to go inside.
+ */
+export function readInsurance(
+  form: Pick<LoanForm, 'insuranceRate' | 'insuranceUnit' | 'onTopOfInstallment' | 'method'>,
+  reader: FieldReader,
+): InsuranceTerms | undefined {
+  const rate = reader.optional(form.insuranceRate);
+  if (rate === undefined) return undefined;
+  return {
+    rate,
+    unit: form.insuranceUnit,
+    onTopOfInstallment: form.method === 'french' && form.onTopOfInstallment,
+  };
+}
+
 /** Reads the form into the engine's input, remembering which fields were left empty. */
 function readForm(form: LoanForm, locale: FormatLocale) {
-  const empty = new Set<ValidationField>();
-  // LoanInput has no room for an empty number. NaN keeps validate() checking every other
-  // field, and the error on an empty field is reported as `required` afterwards.
-  const required = (field: ValidationField, text: string): number => {
-    const value = parseDecimal(text, locale);
-    if (value !== undefined) return value;
-    empty.add(field);
-    return Number.NaN;
-  };
-  const optional = (text: string) => parseDecimal(text, locale);
-
-  const insuranceRate = optional(form.insuranceRate);
-  const insurance: InsuranceInput | undefined =
-    insuranceRate === undefined
-      ? undefined
-      : {
-          rate: insuranceRate,
-          unit: form.insuranceUnit,
-          base: form.insuranceBase,
-          onTopOfInstallment: form.method === 'french' && form.onTopOfInstallment,
-        };
+  const reader = fieldReader(locale);
+  const { empty, required, optional } = reader;
+  const insurance = readInsurance(form, reader);
 
   const input: LoanInput = {
     amount: required('amount', form.amount),
@@ -100,7 +171,7 @@ function readForm(form: LoanForm, locale: FormatLocale) {
     annualRate: required('annualRate', form.annualRate),
     rateType: form.rateType,
     method: form.method,
-    insurance,
+    insurance: insurance && { ...insurance, base: form.insuranceBase },
     otherCharges: optional(form.otherCharges),
     solcaPercent: form.solcaEnabled ? optional(form.solcaPercent) : undefined,
     dayCount: form.dayCount,
@@ -114,37 +185,14 @@ function readForm(form: LoanForm, locale: FormatLocale) {
 /** Simulates the loan the form describes. Fields left empty fail as `required`. */
 export function simulateForm(form: LoanForm, locale: FormatLocale): SimulationResult {
   const { input, empty } = readForm(form, locale);
-  const result = simulate(input);
-  if (result.ok) return result;
-  const errors = result.errors.map((error): ValidationError =>
-    empty.has(error.field) ? { field: error.field, code: 'required' } : error,
-  );
-  return { ok: false, errors };
+  return withEmptyFields(simulate(input), empty);
 }
 
 type Simulation = Extract<SimulationResult, { ok: true }>;
 
-/** What the results area shows for the form. */
-export type PanelState =
-  /** Amount, term or rate is still empty. */
-  | { kind: 'loanIncomplete'; errors: ValidationError[] }
-  | { kind: 'invalid'; errors: ValidationError[] }
-  | { kind: 'simulated'; simulation: Simulation };
-
 /** Simulates the form for the panel. */
-export function panelState(form: LoanForm, locale: FormatLocale): PanelState {
-  const result = simulateForm(form, locale);
-  if (result.ok) return { kind: 'simulated', simulation: result };
-  const { errors } = result;
-  const loanIncomplete = errors.some(
-    (error) => error.code === 'required' && LOAN_FIELDS.includes(error.field),
-  );
-  return { kind: loanIncomplete ? 'loanIncomplete' : 'invalid', errors };
-}
-
-/** The errors each field shows: none once the form simulates. */
-export function errorsOf(state: PanelState): readonly ValidationError[] {
-  return state.kind === 'simulated' ? [] : state.errors;
+export function panelState(form: LoanForm, locale: FormatLocale): PanelState<Simulation> {
+  return resultState(simulateForm(form, locale), LOAN_FIELDS);
 }
 
 /**
@@ -163,7 +211,7 @@ export function hasFixedPayment(form: LoanForm, summary: LoanSummary): boolean {
  * nominal one, and the other way around. Null while the rate is empty or invalid.
  */
 export function counterpartRate(
-  form: LoanForm,
+  form: Pick<LoanForm, 'annualRate' | 'rateType'>,
   errors: readonly ValidationError[],
   locale: FormatLocale,
 ): number | null {

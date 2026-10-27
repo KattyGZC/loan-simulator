@@ -36,8 +36,13 @@ describe('validationMessage', () => {
       mustBeNonNegative: { field: 'otherCharges', code: 'mustBeNonNegative' },
       outOfRange: { field: 'termMonths', code: 'outOfRange', params: { min: 1, max: 360 } },
       tooLarge: { field: 'amount', code: 'tooLarge', params: { max: 1e9 } },
-      noPaymentToPrepay: { field: 'extraPayments.0.afterPayment', code: 'noPaymentToPrepay' },
+      tooSmall: { field: 'extraPayment.amount', code: 'tooSmall', params: { min: 17.71 } },
       invalidDate: { field: 'firstPaymentDate', code: 'invalidDate' },
+      dateOutOfRange: {
+        field: 'extraPayment.date',
+        code: 'dateOutOfRange',
+        params: { min: '2025-11-17', max: '2028-07-16' },
+      },
       notAfterDisbursement: { field: 'firstPaymentDate', code: 'notAfterDisbursement' },
     } satisfies Record<ValidationCode, ValidationError>;
     const errors = Object.values(oneErrorPerCode);
@@ -49,8 +54,9 @@ describe('validationMessage', () => {
       'Enter 0 or more.',
       'Enter a value from 1 to 360.',
       'Enter at most 1,000,000,000.',
-      'A loan with a single payment has no payment to prepay.',
+      'Enter more than $17.71.',
       'Enter a valid date.',
+      'Enter a date from 11/17/2025 to 07/16/2028.',
       'The first payment must come after the disbursement.',
     ]);
   });

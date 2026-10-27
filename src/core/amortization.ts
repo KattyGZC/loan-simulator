@@ -2,11 +2,12 @@ import type { Calendar } from './calendar';
 import { roundMoney } from './money';
 import type {
   AmortizationMethod,
+  AppliedExtraPayment,
+  ExistingLoanWarning,
   ExtraPayment,
   ExtraPaymentEffect,
   InsuranceBase,
   ScheduleRow,
-  SimulationWarning,
 } from './types';
 
 export interface ScheduleParams {
@@ -17,6 +18,21 @@ export interface ScheduleParams {
   calendar: Calendar;
   insurance: ScheduleInsurance;
   otherCharges: number;
+  /**
+   * French only: the fixed payment the lender set, used instead of the one computed from the
+   * term. The term still sets the last payment, which takes what is left.
+   */
+  installment?: number;
+}
+
+/**
+ * An extra payment in the period of payment `paymentNumber`, which ends on its due date, with
+ * the interest it pays first and the days of the period left after it.
+ */
+export interface ScheduledExtraPayment extends ExtraPayment {
+  paymentNumber: number;
+  accruedInterest: number;
+  remainingDays: number;
 }
 
 export interface ScheduleInsurance {
@@ -39,14 +55,12 @@ interface Method {
   paymentsToRepay(balance: number, installment: number, first: number, last: number): number;
 }
 
-/** What is left to repay after a payment and its extra payments. */
+/** What is left to repay after a payment. */
 interface Outstanding {
   balance: number;
   installment: number;
   lastPaymentNumber: number;
 }
-
-type NumberedExtraPayment = ExtraPayment & { index: number };
 
 // Guards against float noise when a remaining term is a whole number (e.g. 6.0000000001).
 const TERM_EPSILON = 1e-9;
@@ -154,103 +168,231 @@ function reschedule(
   paymentNumber: number,
   method: Method,
 ): Outstanding {
-  if (outstanding.balance === 0) return outstanding;
   const { balance, installment, lastPaymentNumber } = outstanding;
-  return effect === 'reducePayment'
-    ? {
-        ...outstanding,
-        installment: method.installment(balance, paymentNumber + 1, lastPaymentNumber),
-      }
-    : {
-        ...outstanding,
-        lastPaymentNumber:
-          paymentNumber +
-          method.paymentsToRepay(balance, installment, paymentNumber + 1, lastPaymentNumber),
-      };
+  if (effect === 'reducePayment') {
+    return {
+      ...outstanding,
+      installment: method.installment(balance, paymentNumber + 1, lastPaymentNumber),
+    };
+  }
+  const paymentsLeft = method.paymentsToRepay(
+    balance,
+    installment,
+    paymentNumber + 1,
+    lastPaymentNumber,
+  );
+  return {
+    ...outstanding,
+    lastPaymentNumber: Math.min(paymentNumber + paymentsLeft, lastPaymentNumber),
+  };
 }
 
-/** Applies the extra payments made right after `paymentNumber`, in order. */
-function applyExtraPayments(
-  outstanding: Outstanding,
-  due: readonly NumberedExtraPayment[],
+function methodOf(params: ScheduleParams): Method {
+  return params.method === 'french' ? frenchMethod(params) : germanMethod;
+}
+
+function initialOutstanding(params: ScheduleParams, method: Method): Outstanding {
+  return {
+    balance: params.amount,
+    installment: params.installment ?? method.installment(params.amount, 1, params.termMonths),
+    lastPaymentNumber: params.termMonths,
+  };
+}
+
+function insuranceCharge(params: ScheduleParams, balance: number): number {
+  const insuredAmount = params.insurance.base === 'balance' ? balance : params.amount;
+  return roundMoney(insuredAmount * params.insurance.monthlyRate);
+}
+
+/** Payment `paymentNumber`, which repays `principal` of `balance` and charges `interest`. */
+function paymentRow(
+  params: ScheduleParams,
   paymentNumber: number,
+  balance: number,
+  principal: number,
+  interest: number,
+): ScheduleRow {
+  const insurance = insuranceCharge(params, balance);
+  return {
+    number: paymentNumber,
+    date: params.calendar.dueDate(paymentNumber),
+    payment: roundMoney(principal + interest + insurance + params.otherCharges),
+    principal,
+    interest,
+    insurance,
+    otherCharges: params.otherCharges,
+    balance: roundMoney(balance - principal),
+  };
+}
+
+/** Payment `paymentNumber` as scheduled: the interest of its whole period on `outstanding`. */
+function scheduledPayment(
+  params: ScheduleParams,
   method: Method,
-): { outstanding: Outstanding; extraPaid: number; warnings: SimulationWarning[] } {
-  let current = outstanding;
-  let extraPaid = 0;
-  const warnings: SimulationWarning[] = [];
-  for (const extra of due) {
-    if (current.balance === 0) {
-      warnings.push({ code: 'extraPaymentIgnored', index: extra.index });
-      continue;
-    }
-    const applied = Math.min(extra.amount, current.balance);
-    if (applied < extra.amount) {
-      warnings.push({ code: 'extraPaymentClipped', index: extra.index, appliedAmount: applied });
-    }
-    extraPaid = roundMoney(extraPaid + applied);
-    const balance = roundMoney(current.balance - applied);
-    current = reschedule({ ...current, balance }, extra.effect, paymentNumber, method);
-  }
-  return { outstanding: current, extraPaid, warnings };
+  outstanding: Outstanding,
+  paymentNumber: number,
+): ScheduleRow {
+  const { balance, installment, lastPaymentNumber } = outstanding;
+  const interest = roundMoney(balance * params.calendar.periodRate(paymentNumber));
+  const insurance = insuranceCharge(params, balance);
+  const principal =
+    paymentNumber >= lastPaymentNumber
+      ? balance
+      : Math.min(method.principal(installment, interest, insurance), balance);
+  return paymentRow(params, paymentNumber, balance, principal, interest);
 }
 
 /**
- * Builds the payment schedule, applying each extra payment right after the payment it names.
+ * The scheduled payments from `firstPaymentNumber` on, until the balance is repaid or payment
+ * `stopBefore` is next.
+ */
+function repay(
+  params: ScheduleParams,
+  method: Method,
+  outstanding: Outstanding,
+  firstPaymentNumber: number,
+  stopBefore = Number.POSITIVE_INFINITY,
+): { rows: ScheduleRow[]; outstanding: Outstanding } {
+  const rows: ScheduleRow[] = [];
+  let current = outstanding;
+  let paymentNumber = firstPaymentNumber;
+  while (current.balance > 0 && paymentNumber < stopBefore) {
+    const row = scheduledPayment(params, method, current, paymentNumber);
+    rows.push(row);
+    current = { ...current, balance: row.balance };
+    paymentNumber++;
+  }
+  return { rows, outstanding: current };
+}
+
+/** The loan paid off on the extra payment's date: no insurance or charges after it. */
+function payoffRow(
+  paymentNumber: number,
+  date: string,
+  principal: number,
+  interest: number,
+): ScheduleRow {
+  return {
+    number: paymentNumber,
+    date,
+    payment: roundMoney(principal + interest),
+    principal,
+    interest,
+    insurance: 0,
+    otherCharges: 0,
+    balance: 0,
+  };
+}
+
+/** How much of an extra payment goes to principal: what is left after the accrued interest. */
+function applyExtraPayment(
+  extra: ScheduledExtraPayment,
+  balance: number,
+): { applied: Omit<AppliedExtraPayment, 'duePrincipal'>; warnings: ExistingLoanWarning[] } {
+  const offeredPrincipal = roundMoney(extra.amount - extra.accruedInterest);
+  const principal = Math.min(offeredPrincipal, balance);
+  const applied = {
+    date: extra.date,
+    paymentNumber: extra.paymentNumber,
+    amount: roundMoney(extra.accruedInterest + principal),
+    accruedInterest: extra.accruedInterest,
+    principal,
+    balance: roundMoney(balance - principal),
+  };
+  const warnings: ExistingLoanWarning[] =
+    offeredPrincipal > balance
+      ? [{ code: 'extraPaymentClipped', appliedAmount: applied.amount }]
+      : [];
+  return { applied, warnings };
+}
+
+interface PeriodWithExtraPayment {
+  row: ScheduleRow;
+  outstanding: Outstanding;
+  applied: AppliedExtraPayment;
+  warnings: ExistingLoanWarning[];
+}
+
+/**
+ * The period of the payment that holds the extra payment. The extra payment's principal covers
+ * this payment's scheduled principal first, so on the due date the payment repays only what the
+ * extra payment left of it, and charges the interest for the days after the extra payment.
+ * Principal beyond the scheduled one reduces the balance, and the payments after this one are
+ * rescheduled.
+ */
+function periodWithExtraPayment(
+  params: ScheduleParams,
+  method: Method,
+  outstanding: Outstanding,
+  extra: ScheduledExtraPayment,
+): PeriodWithExtraPayment {
+  const { paymentNumber } = extra;
+  const { balance } = outstanding;
+  const { applied, warnings } = applyExtraPayment(extra, balance);
+  if (applied.balance === 0) {
+    const row = payoffRow(paymentNumber, extra.date, applied.principal, applied.accruedInterest);
+    return {
+      row,
+      outstanding: { ...outstanding, balance: 0 },
+      applied: { ...applied, duePrincipal: 0 },
+      warnings,
+    };
+  }
+
+  const scheduled = scheduledPayment(params, method, outstanding, paymentNumber);
+  const duePrincipal = Math.max(roundMoney(scheduled.principal - applied.principal), 0);
+  const interestAfterExtra = roundMoney(
+    applied.balance * params.calendar.dailyRate * extra.remainingDays,
+  );
+  const row = paymentRow(
+    params,
+    paymentNumber,
+    balance,
+    roundMoney(applied.principal + duePrincipal),
+    roundMoney(applied.accruedInterest + interestAfterExtra),
+  );
+  const afterPayment = { ...outstanding, balance: row.balance };
+  const repaysMoreThanScheduled = applied.principal > scheduled.principal;
+  return {
+    row,
+    outstanding: repaysMoreThanScheduled
+      ? reschedule(afterPayment, extra.effect, paymentNumber, method)
+      : afterPayment,
+    applied: { ...applied, duePrincipal },
+    warnings,
+  };
+}
+
+/**
+ * Builds the payment schedule.
  *
  * Each value is rounded to cents and the rounded balance carries over to the next month.
  * The last payment takes whatever principal is left, so the balance ends at exactly 0.
- * An extra payment that reduces the payment recomputes the installment over the remaining
- * payments; one that reduces the term keeps it and moves the last payment earlier.
  */
-export function buildSchedule(
+export function buildSchedule(params: ScheduleParams): ScheduleRow[] {
+  const method = methodOf(params);
+  return repay(params, method, initialOutstanding(params, method), 1).rows;
+}
+
+/**
+ * Builds the payment schedule with an extra payment in the period it names. One that reduces
+ * the payment recomputes the installment over the payments after its own; one that reduces the
+ * term keeps it and moves the last payment earlier.
+ */
+export function buildScheduleWithExtraPayment(
   params: ScheduleParams,
-  extraPayments: readonly ExtraPayment[] = [],
-): { rows: ScheduleRow[]; warnings: SimulationWarning[] } {
-  const method = params.method === 'french' ? frenchMethod(params) : germanMethod;
-  const scheduled: NumberedExtraPayment[] = extraPayments
-    .map((extra, index) => ({ ...extra, index }))
-    .sort((a, b) => a.afterPayment - b.afterPayment);
-
-  const rows: ScheduleRow[] = [];
-  const warnings: SimulationWarning[] = [];
-  let outstanding: Outstanding = {
-    balance: params.amount,
-    installment: method.installment(params.amount, 1, params.termMonths),
-    lastPaymentNumber: params.termMonths,
-  };
-
-  while (outstanding.balance > 0) {
-    const paymentNumber = rows.length + 1;
-    const { balance, installment, lastPaymentNumber } = outstanding;
-    const interest = roundMoney(balance * params.calendar.periodRate(paymentNumber));
-    const insuredAmount = params.insurance.base === 'balance' ? balance : params.amount;
-    const insurance = roundMoney(insuredAmount * params.insurance.monthlyRate);
-    const principal =
-      paymentNumber >= lastPaymentNumber
-        ? balance
-        : Math.min(method.principal(installment, interest, insurance), balance);
-
-    const due = scheduled.filter((extra) => extra.afterPayment === paymentNumber);
-    const afterPayment = { ...outstanding, balance: roundMoney(balance - principal) };
-    const prepaid = applyExtraPayments(afterPayment, due, paymentNumber, method);
-    outstanding = prepaid.outstanding;
-    warnings.push(...prepaid.warnings);
-
-    rows.push({
-      number: paymentNumber,
-      date: params.calendar.dueDate(paymentNumber),
-      payment: roundMoney(principal + interest + insurance + params.otherCharges),
-      principal,
-      interest,
-      insurance,
-      otherCharges: params.otherCharges,
-      extraPayment: prepaid.extraPaid,
-      balance: outstanding.balance,
-    });
+  extra: ScheduledExtraPayment,
+): { rows: ScheduleRow[]; extraPayment: AppliedExtraPayment; warnings: ExistingLoanWarning[] } {
+  const method = methodOf(params);
+  const before = repay(params, method, initialOutstanding(params, method), 1, extra.paymentNumber);
+  if (before.rows.length !== extra.paymentNumber - 1) {
+    throw new Error(`The loan is repaid before payment ${extra.paymentNumber}.`);
   }
-
-  const dueAfterPayoff = scheduled.filter((extra) => extra.afterPayment > rows.length);
-  for (const { index } of dueAfterPayoff) warnings.push({ code: 'extraPaymentIgnored', index });
-  return { rows, warnings };
+  const period = periodWithExtraPayment(params, method, before.outstanding, extra);
+  const after = repay(params, method, period.outstanding, extra.paymentNumber + 1);
+  return {
+    rows: [...before.rows, period.row, ...after.rows],
+    extraPayment: period.applied,
+    warnings: period.warnings,
+  };
 }

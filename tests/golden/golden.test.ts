@@ -9,10 +9,16 @@
 // 1.5 × the published 1.0065 % per year. The cases use whichever constant the source fits.
 
 import { describe, expect, it } from 'vitest';
+import { simulateExistingLoan } from '@/core/existing-loan';
 import { simulate } from '@/core/simulate';
 import { jepPublishedCases } from './jep-published';
 import { jepSimulatorCases } from './jep-simulator';
-import { produbancoAfterExtraPayment, produbancoOriginal, type ProdubancoRow } from './produbanco';
+import {
+  produbancoAfterExtraPayment,
+  produbancoExtraPayment,
+  produbancoOriginal,
+  type ProdubancoRow,
+} from './produbanco';
 
 const CENT = 0.01 + 1e-9;
 
@@ -28,7 +34,7 @@ describe('JEP online simulator (full schedules)', () => {
     });
     if (!result.ok) throw new Error('invalid input');
 
-    const { rows } = result.base;
+    const { rows } = result.schedule;
     expect(rows).toHaveLength(golden.rows.length);
     golden.rows.forEach(([principal, interest, insurance, payment], index) => {
       const row = rows[index]!;
@@ -48,7 +54,7 @@ describe('JEP published cost table (summaries)', () => {
       const result = simulate({ ...golden, rateType: 'nominal' });
       if (!result.ok) throw new Error('invalid input');
 
-      const { summary } = result.base;
+      const { summary } = result.schedule;
       // A cent per payment, accumulated over the loan.
       const totalTolerance = CENT * golden.termMonths;
       expect(Math.abs(summary.firstPayment - expected.payment)).toBeLessThan(CENT);
@@ -72,7 +78,7 @@ describe('Produbanco statement (actual days / 360, German)', () => {
       firstPaymentDate: loan.firstPaymentDate,
     });
     if (!result.ok) throw new Error('invalid input');
-    const { rows } = result.base;
+    const { rows } = result.schedule;
     expect(rows).toHaveLength(loan.termMonths);
     for (const [number, date, principal, interest, payment] of expected) {
       expect(rows[number - 1], `row ${number}`).toMatchObject({
@@ -90,5 +96,38 @@ describe('Produbanco statement (actual days / 360, German)', () => {
 
   it('matches every payment after the extra payment but the Carnival ones', () => {
     expectRows(produbancoAfterExtraPayment, produbancoAfterExtraPayment.rows);
+  });
+
+  it('matches the extra payment on the loan after payment 4, and every payment after it', () => {
+    const golden = produbancoExtraPayment;
+    const result = simulateExistingLoan({
+      balance: golden.balance,
+      remainingPayments: golden.remainingPayments,
+      annualRate: 15.6,
+      rateType: 'nominal',
+      method: 'german',
+      nextPaymentDate: golden.nextPaymentDate,
+      dayCount: 'actual360',
+      extraPayment: { ...golden.extraPayment, effect: 'reducePayment' },
+    });
+    if (!result.ok) throw new Error('invalid input');
+    expect(result.extraPayment).toMatchObject({
+      accruedInterest: golden.accruedInterest,
+      principal: golden.principal,
+    });
+
+    const { rows } = result.withExtraPayment;
+    expect(rows).toHaveLength(golden.remainingPayments);
+    const [, date, principal, interest, payment] = golden.payment5;
+    expect(rows[0]).toMatchObject({ date, principal, interest, payment });
+    // Row 1 here is payment 5; produbancoAfterExtraPayment numbers payment 6 as 1.
+    for (const [number, date, principal, interest, payment] of produbancoAfterExtraPayment.rows) {
+      expect(rows[number], `payment ${number + 5}`).toMatchObject({
+        date,
+        principal,
+        interest,
+        payment,
+      });
+    }
   });
 });

@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { daysBetween, isIsoDate, paymentDate, weekdayOnOrAfter } from '@/core/dates';
+import {
+  addDays,
+  days360Between,
+  daysBetween,
+  isIsoDate,
+  paymentDate,
+  weekdayOnOrAfter,
+} from '@/core/dates';
 
 describe('paymentDate', () => {
   it('returns the first payment date for payment 1', () => {
@@ -10,6 +17,11 @@ describe('paymentDate', () => {
     expect(paymentDate('2026-11-15', 2)).toBe('2026-12-15');
     expect(paymentDate('2026-11-15', 3)).toBe('2027-01-15');
     expect(paymentDate('2026-11-15', 361)).toBe('2056-11-15');
+  });
+
+  it('returns the month before the first payment for payment 0, across a year end', () => {
+    expect(paymentDate('2027-01-15', 0)).toBe('2026-12-15');
+    expect(paymentDate('2027-03-31', 0)).toBe('2027-02-28');
   });
 
   it('clamps to the end of shorter months and goes back to the original day', () => {
@@ -74,5 +86,38 @@ describe('weekdayOnOrAfter', () => {
     expect(weekdayOnOrAfter('2026-11-17')).toBe('2026-11-17');
     expect(weekdayOnOrAfter('2027-01-31')).toBe('2027-02-01');
     expect(weekdayOnOrAfter('2033-12-31')).toBe('2034-01-02');
+  });
+});
+
+describe('days360Between', () => {
+  it('counts every month as 30 days', () => {
+    expect(days360Between('2027-01-15', '2027-02-15')).toBe(30);
+    expect(days360Between('2027-02-15', '2027-03-15')).toBe(30);
+    expect(days360Between('2026-12-15', '2027-01-05')).toBe(20);
+  });
+
+  it('counts the last day of a month as the 30th, February included', () => {
+    expect(days360Between('2027-01-31', '2027-02-28')).toBe(30);
+    expect(days360Between('2027-02-28', '2027-03-31')).toBe(30);
+    expect(days360Between('2027-02-28', '2027-03-01')).toBe(1);
+    expect(days360Between('2028-02-29', '2028-03-15')).toBe(15);
+  });
+
+  it('counts a 31st as the 30th', () => {
+    expect(days360Between('2027-01-31', '2027-03-01')).toBe(31);
+    expect(days360Between('2027-01-30', '2027-01-31')).toBe(0);
+  });
+
+  it('is negative when the second date comes first, and throws on an invalid date', () => {
+    expect(days360Between('2027-01-25', '2027-01-15')).toBe(-10);
+    expect(() => days360Between('2027-01-15', '2027-02-30')).toThrow('Invalid date: 2027-02-30');
+  });
+});
+
+describe('addDays', () => {
+  it('moves forward and back across month and year ends', () => {
+    expect(addDays('2027-12-15', -1)).toBe('2027-12-14');
+    expect(addDays('2027-01-01', -1)).toBe('2026-12-31');
+    expect(addDays('2028-02-28', 1)).toBe('2028-02-29');
   });
 });

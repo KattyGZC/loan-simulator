@@ -1,3 +1,4 @@
+import { useId } from 'preact/hooks';
 import type { LoanSummary } from '@/core';
 import { t, type MessageKey } from '@/i18n/translate';
 import { format } from './locale';
@@ -42,9 +43,10 @@ export function Summary({ summary, fixedPayment }: SummaryProps) {
     { label: 'summary_nominalRate', value: format.percent(summary.nominalRate) },
     { label: 'summary_effectiveRate', value: format.percent(summary.effectiveRate) },
   ];
+  const titleId = useId();
   return (
-    <section aria-labelledby="summary-title">
-      <h2 id="summary-title">{t('section_summary')}</h2>
+    <section aria-labelledby={titleId}>
+      <h2 id={titleId}>{t('section_summary')}</h2>
       <dl class="summary">
         {lines.map(({ label, value }) => (
           <div key={label}>

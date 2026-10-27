@@ -11,25 +11,24 @@ Read this before the first edit. It binds every author and every model (Claude, 
 | `src/i18n/` | UI text (`t()` over `chrome.i18n`), `Intl` formatting, and reading typed numbers |
 | `public/_locales/{en,es}/messages.json` | Every UI string, in English and Spanish. English is the fallback. `MessageKey` (`src/i18n/translate.ts`) is the key list of the English file |
 | `src/entrypoints/background.ts` | Opens the side panel when the toolbar icon is clicked |
-| `src/entrypoints/sidepanel/` | The UI (Preact). `form.ts` holds the panel logic, unit-tested: typed form to engine input, and what the results area shows (`panelState`). The components lay out and format; which error a field shows now is `visibleError()`, also in `form.ts` |
+| `src/entrypoints/sidepanel/` | The UI (Preact), two tabs: a new loan (`NewLoan.tsx`) and an extra payment on a loan you already have (`ExistingLoan.tsx`). `form.ts` and `existing-form.ts` hold the panel logic, unit-tested: typed form to engine input, and what the results area shows (`panelState`, `existingLoanState`). The components lay out and format; which error a field shows now is `visibleError()`, in `form.ts` |
 | `tests/core/` | Unit tests of the engine, through `simulate()` or the module's export |
 | `tests/i18n/` | Tests of `src/i18n/`. `fake-i18n.ts` stands in for `chrome.i18n` over the real `messages.json` |
-| `tests/sidepanel/` | Tests of the side panel form (`form.ts`) |
+| `tests/sidepanel/` | Tests of the side panel forms (`form.ts`, `existing-form.ts`) |
 | `tests/golden/` | Reference schedules copied from real simulators, with their source |
 | `wxt.config.ts` | Manifest: name, permissions (`storage`, `sidePanel`), side panel |
 
 ## Status
 
-Done: project setup (phase 0), the calculation engine (phase 1), tested against Cooperativa JEP, languages and formatting (phase 2), the side panel UI (phase 3), and the day-count basis (30/360 or actual days/360), tested against a Produbanco statement.
+Done: project setup (phase 0), the calculation engine (phase 1), tested against Cooperativa JEP, languages and formatting (phase 2), the side panel UI (phase 3), the day-count basis (30/360 or actual days/360), and an extra payment on a loan you already have (`simulateExistingLoan()`, second tab), both tested against a Produbanco statement.
 
 Next, in order:
 
-1. **Extra payment on a loan you already have.** A second tab: remaining balance, rate, method, remaining payments, current payment (it rules; the remaining payments only check it under the French method), next due date, insurance and other charges, and one extra payment on any date. The extra payment first pays the interest accrued since the last due date. The extra payments of `simulate()` move here: the new-loan simulator has none.
-2. **Saved scenarios and preferences** (`src/storage/`), with a `schemaVersion`. The institution and segment fields arrive here, as the scenario name.
-3. **CSV export and print view.**
-4. **Accessibility, dark theme, final icons.**
-5. **QA:** Playwright e2e and a manual check against 3 institutions.
-6. **Chrome Web Store** listing, privacy page and release workflow.
+1. **Saved scenarios and preferences** (`src/storage/`), with a `schemaVersion`. The institution and segment fields arrive here, as the scenario name.
+2. **CSV export and print view.**
+3. **Accessibility, dark theme, final icons.**
+4. **QA:** Playwright e2e and a manual check against 3 institutions.
+5. **Chrome Web Store** listing, privacy page and release workflow.
 
 After v1, not planned: total effective cost (IRR), non-monthly payments, grace periods, Firefox.
 
@@ -42,9 +41,9 @@ Do not reverse one of these in passing. If a change needs to, say so first.
 - **Day count.** `thirty360` by default: every payment charges the monthly rate (nominal / 12). `actual360` charges `nominal × days / 360` from the previous due date, or from `disbursementDate` for the first payment, and needs both dates. Only there does a weekend due date move to Monday (`weekdayOnOrAfter`); holidays are not known. The German principal is always balance / payments. The French payment uses the closed annuity under 30/360 (`calendar.fixedRate`) and, with actual days, the annuity over each period's rate, also when an extra payment reschedules; a payment from nominal / 12 there left a last payment ~9× the others on 20 years. Dates must fall in 1900–2100. Banco Guayaquil uses actual days / 365, so it is not a golden reference.
 - **Rounding.** Every row value is rounded to cents, half away from zero, with `roundMoney`. The rounded balance carries over, and the last payment takes what is left so the balance ends at exactly 0.
 - **Insurance inside the French payment by default.** The annuity uses interest rate + insurance rate, as most credit unions do. `onTopOfInstallment` adds it on top instead.
-- **Extra payments.** One larger than the balance is clipped to the balance; one due after the loan ended is ignored. Both return a warning, not an error.
+- **Extra payments only on a loan already running.** `simulate()` has none; `simulateExistingLoan()` takes one, on a date from the last due date paid up to the day before the last payment. It pays the interest accrued since that due date first (a day's interest rounded to cents, times the days, as Produbanco does), then the principal the payment it falls before was going to repay, then part of the balance. That payment repays on its due date only the principal the extra payment left and charges the interest for the days left; only an extra payment beyond its principal reschedules the payments after it, so an extra payment never costs more than none. Under 30/360 every period counts 30 days and a month's last day is the 30th (`days360Between`, `splitPeriod`). Its row holds the extra payment, as a statement does. Under French the current payment the user enters sets every payment but the last; the remaining payments only check it (`paymentDoesNotFitTerm`). Insurance on a running loan is on the balance. An extra payment above what the loan owes is clipped and pays it off on its date, with a warning.
 - **No hidden defaults in the engine.** No SOLCA, no dates and 30/360 unless the input says otherwise. "SOLCA on, 0.5 %", "paid out today" and "first payment one month from today" belong to the UI. The engine never reads the clock.
-- **Errors are codes.** `validate()` returns `{ field, code }`, plus `params: { min, max }` for `outOfRange` and `params: { max }` for `tooLarge`. An extra payment on a one-payment loan is `noPaymentToPrepay`, whatever its value. With actual days, a first payment on or before the disbursement is `notAfterDisbursement`. The UI turns them into text with `validationMessage()`.
+- **Errors are codes.** `validate()` and `validateExistingLoan()` return `{ field, code }`, plus `params: { min, max }` for `outOfRange`, `params: { max }` for `tooLarge`, `params: { min }` for `tooSmall` (a current payment or extra payment that would repay no principal) and ISO-date `params: { min, max }` for `dateOutOfRange` (an extra payment outside the loan). `simulateExistingLoan()` checks those last two after the field checks, because they depend on the schedule. With actual days, a first payment on or before the disbursement is `notAfterDisbursement`. The UI turns them into text with `validationMessage()`.
 - **Empty fields.** `LoanInput` has no empty number. The form (`form.ts`) passes `NaN` for an empty field so `validate()` still checks the others, then reports that field as `required`. A `required` error shows only on an empty field the user has typed in and left at least once (`visibleError`): showing it on the first blur moved the page under the click that left the field; the results show the empty state while amount, term or rate is missing.
 - **Two languages.** English and Spanish via `chrome.i18n`, following the browser language, English as the fallback. Every string the user sees comes from `messages.json` through `t()`.
 - **Format locale.** Spanish formats as `es-EC` (`$1.234,56`, `31/01/2027`) and anything else as `en-US`. Region-less `es` and `es-419` would print `1234,56 US$` and `USD 1,234.56`. Currency is USD.

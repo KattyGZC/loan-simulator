@@ -1,5 +1,5 @@
 import { isIsoDate } from './dates';
-import type { LoanInput, ValidationError, ValidationField } from './types';
+import type { ExistingLoanInput, LoanInput, ValidationError, ValidationField } from './types';
 
 export const MAX_TERM_MONTHS = 360;
 // Keeps amounts in a range where cents are exact in floating point.
@@ -35,19 +35,6 @@ function numberError(
   return rule.max !== undefined && value > rule.max
     ? { field, code: 'tooLarge', params: { max: rule.max } }
     : undefined;
-}
-
-function afterPaymentError(
-  field: ValidationField,
-  afterPayment: number,
-  lastPrepayablePayment: number,
-): ValidationError | undefined {
-  if (lastPrepayablePayment < 1) return { field, code: 'noPaymentToPrepay' };
-  return numberError(field, afterPayment, {
-    kind: 'wholeNumber',
-    min: 1,
-    max: lastPrepayablePayment,
-  });
 }
 
 function optionalNumberError(
@@ -100,34 +87,44 @@ function datesErrors(input: LoanInput): (ValidationError | undefined)[] {
 
 const PERCENT: NumberRule = { kind: 'nonNegative', max: MAX_PERCENT };
 const TERM: NumberRule = { kind: 'wholeNumber', min: 1, max: MAX_TERM_MONTHS };
+const AMOUNT: NumberRule = { kind: 'positive', max: MAX_AMOUNT };
 
 /**
  * Checks the input and returns one error per invalid field, in field order. Errors carry a
  * code and parameters, not text, so the UI can show them in the user's language.
  */
 export function validate(input: LoanInput): ValidationError[] {
-  const termError = numberError('termMonths', input.termMonths, TERM);
-  // An extra payment after the last payment has nothing left to prepay. With an invalid term,
-  // check against the longest one so the term error is not repeated on every extra payment.
-  const lastPrepayablePayment = (termError ? MAX_TERM_MONTHS : input.termMonths) - 1;
-
   const errors = [
-    numberError('amount', input.amount, { kind: 'positive', max: MAX_AMOUNT }),
-    termError,
+    numberError('amount', input.amount, AMOUNT),
+    numberError('termMonths', input.termMonths, TERM),
     numberError('annualRate', input.annualRate, PERCENT),
     input.insurance ? numberError('insurance.rate', input.insurance.rate, PERCENT) : undefined,
     optionalNumberError('otherCharges', input.otherCharges, { kind: 'nonNegative' }),
     optionalNumberError('solcaPercent', input.solcaPercent, PERCENT),
     ...datesErrors(input),
     optionalNumberError('maxRate', input.maxRate, { kind: 'positive', max: MAX_PERCENT }),
-    ...(input.extraPayments ?? []).flatMap((extra, index) => [
-      afterPaymentError(
-        `extraPayments.${index}.afterPayment`,
-        extra.afterPayment,
-        lastPrepayablePayment,
-      ),
-      numberError(`extraPayments.${index}.amount`, extra.amount, { kind: 'positive' }),
-    ]),
+  ] satisfies (ValidationError | undefined)[];
+  return errors.filter((error) => error !== undefined);
+}
+
+/**
+ * Checks each field of a loan already running on its own, like `validate()`. Whether the
+ * current payment repays anything and the extra payment falls inside the loan depend on the
+ * schedule, so `simulateExistingLoan()` checks them after this.
+ */
+export function validateExistingLoan(input: ExistingLoanInput): ValidationError[] {
+  const errors = [
+    numberError('balance', input.balance, AMOUNT),
+    numberError('remainingPayments', input.remainingPayments, TERM),
+    numberError('annualRate', input.annualRate, PERCENT),
+    input.method === 'french'
+      ? numberError('currentPayment', input.currentPayment, AMOUNT)
+      : undefined,
+    dateError('nextPaymentDate', input.nextPaymentDate, true),
+    input.insurance ? numberError('insurance.rate', input.insurance.rate, PERCENT) : undefined,
+    optionalNumberError('otherCharges', input.otherCharges, { kind: 'nonNegative' }),
+    dateError('extraPayment.date', input.extraPayment.date, true),
+    numberError('extraPayment.amount', input.extraPayment.amount, AMOUNT),
   ] satisfies (ValidationError | undefined)[];
   return errors.filter((error) => error !== undefined);
 }

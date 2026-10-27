@@ -34,7 +34,6 @@ describe('validate', () => {
         solcaPercent: 0.5,
         firstPaymentDate: '2026-11-22',
         maxRate: 17.3,
-        extraPayments: [{ afterPayment: 6, amount: 1000, effect: 'reduceTerm' }],
       }),
     ).toEqual([]);
   });
@@ -93,50 +92,6 @@ describe('validate', () => {
     expect(validate({ ...valid, insurance })).toEqual([
       { field: 'insurance.rate', code: 'mustBeNonNegative' },
     ]);
-  });
-
-  it('checks every extra payment, with its index in the field path', () => {
-    const errors = validate({
-      ...valid,
-      extraPayments: [
-        { afterPayment: 3, amount: 500, effect: 'reduceTerm' },
-        { afterPayment: 24, amount: 0, effect: 'reducePayment' },
-        { afterPayment: 1.5, amount: 100, effect: 'reduceTerm' },
-      ],
-    });
-    expect(errors).toEqual([
-      {
-        field: 'extraPayments.1.afterPayment',
-        code: 'outOfRange',
-        params: { min: 1, max: 23 },
-      },
-      { field: 'extraPayments.1.amount', code: 'mustBePositive' },
-      { field: 'extraPayments.2.afterPayment', code: 'mustBeInteger' },
-    ]);
-  });
-
-  it('allows no extra payments on a single-payment loan', () => {
-    const errors = validate({
-      ...valid,
-      termMonths: 1,
-      extraPayments: [
-        { afterPayment: 1, amount: 100, effect: 'reduceTerm' },
-        { afterPayment: Number.NaN, amount: 100, effect: 'reduceTerm' },
-      ],
-    });
-    expect(errors).toEqual([
-      { field: 'extraPayments.0.afterPayment', code: 'noPaymentToPrepay' },
-      { field: 'extraPayments.1.afterPayment', code: 'noPaymentToPrepay' },
-    ]);
-  });
-
-  it('does not repeat an invalid term on every extra payment', () => {
-    const errors = validate({
-      ...valid,
-      termMonths: 0,
-      extraPayments: [{ afterPayment: 3, amount: 100, effect: 'reduceTerm' }],
-    });
-    expect(errors.map((error) => error.field)).toEqual(['termMonths']);
   });
 
   it('reports every invalid field at once', () => {

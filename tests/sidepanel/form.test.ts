@@ -82,23 +82,25 @@ describe('simulateForm', () => {
 
   it('reads numbers with the locale separators', () => {
     const form = filledForm({ amount: '10.000', annualRate: '15,6' });
-    const { base } = okResult(simulateForm(form, 'es-EC'));
-    expect(base.summary).toMatchObject({ paymentCount: 12, nominalRate: 15.6, solca: 50 });
+    const { schedule } = okResult(simulateForm(form, 'es-EC'));
+    expect(schedule.summary).toMatchObject({ paymentCount: 12, nominalRate: 15.6, solca: 50 });
   });
 
   it('deducts SOLCA only while it is on', () => {
     const off = okResult(simulateForm(filledForm({ solcaEnabled: false }), 'en-US'));
-    expect(off.base.summary).toMatchObject({ solca: 0, amountReceived: 10000 });
+    expect(off.schedule.summary).toMatchObject({ solca: 0, amountReceived: 10000 });
   });
 
   it('has no insurance while its rate is empty, whatever its unit and base', () => {
     const form = filledForm({ insuranceUnit: 'perMillePerMonth', insuranceBase: 'originalAmount' });
-    expect(okResult(simulateForm(form, 'en-US')).base.summary.totalInsurance).toBe(0);
+    expect(okResult(simulateForm(form, 'en-US')).schedule.summary.totalInsurance).toBe(0);
   });
 
   it('adds insurance once its rate is entered', () => {
     const form = filledForm({ insuranceRate: '1' });
-    expect(okResult(simulateForm(form, 'en-US')).base.summary.totalInsurance).toBeGreaterThan(0);
+    expect(okResult(simulateForm(form, 'en-US')).schedule.summary.totalInsurance).toBeGreaterThan(
+      0,
+    );
   });
 
   it('ignores "insurance on top" under the German method', () => {
@@ -109,9 +111,9 @@ describe('simulateForm', () => {
 
   it('dates the schedule from the first payment date, and leaves it undated when empty', () => {
     const dated = okResult(simulateForm(filledForm(), 'en-US'));
-    expect(dated.base.rows[0]!.date).toBe('2026-11-27');
+    expect(dated.schedule.rows[0]!.date).toBe('2026-11-27');
     const undated = okResult(simulateForm(filledForm({ firstPaymentDate: '' }), 'en-US'));
-    expect(undated.base.rows[0]!.date).toBeNull();
+    expect(undated.schedule.rows[0]!.date).toBeNull();
   });
 
   it('uses the disbursement date only with actual days', () => {
@@ -128,9 +130,9 @@ describe('simulateForm', () => {
   });
 
   it('counts actual days from the default disbursement, today', () => {
-    const { base } = okResult(simulateForm(filledForm({ dayCount: 'actual360' }), 'en-US'));
+    const { schedule } = okResult(simulateForm(filledForm({ dayCount: 'actual360' }), 'en-US'));
     // 2026-10-27 → 2026-11-27 is 31 days.
-    expect(base.rows[0]!.interest).toBe(roundMoney((10000 * 0.156 * 31) / 360));
+    expect(schedule.rows[0]!.interest).toBe(roundMoney((10000 * 0.156 * 31) / 360));
   });
 
   it('passes the maximum rate on', () => {
@@ -142,7 +144,7 @@ describe('simulateForm', () => {
 describe('counterpartRate', () => {
   it('gives the effective rate of a nominal one, and the other way around', () => {
     const nominal = filledForm();
-    const { summary } = okResult(simulateForm(nominal, 'en-US')).base;
+    const { summary } = okResult(simulateForm(nominal, 'en-US')).schedule;
     expect(counterpartRate(nominal, errorsOf(panelState(nominal, 'en-US')), 'en-US')).toBe(
       summary.effectiveRate,
     );
@@ -176,7 +178,7 @@ describe('counterpartRate', () => {
 });
 
 describe('hasFixedPayment', () => {
-  const summaryOf = (form: LoanForm) => okResult(simulateForm(form, 'en-US')).base.summary;
+  const summaryOf = (form: LoanForm) => okResult(simulateForm(form, 'en-US')).schedule.summary;
 
   it('is fixed under the French method, with insurance inside the payment', () => {
     const form = filledForm({ insuranceRate: '1' });

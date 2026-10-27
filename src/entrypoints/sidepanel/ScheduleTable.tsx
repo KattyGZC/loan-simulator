@@ -1,4 +1,5 @@
-import type { Schedule, ScheduleRow } from '@/core';
+import { useId } from 'preact/hooks';
+import type { PaymentsSummary, ScheduleRow } from '@/core';
 import { t, type MessageKey } from '@/i18n/translate';
 import { format } from './locale';
 
@@ -20,8 +21,13 @@ const dateColumn: Column = {
   cell: (row) => (row.date ? format.date(row.date) : ''),
 };
 
+interface TableSchedule {
+  rows: readonly ScheduleRow[];
+  summary: PaymentsSummary;
+}
+
 /** The columns this schedule needs: date, insurance and other charges only if it has them. */
-function columnsFor({ rows, summary }: Schedule): Column[] {
+function columnsFor({ rows, summary }: TableSchedule): Column[] {
   return [
     ...shownIf(rows[0]?.date != null, dateColumn),
     moneyColumn('column_payment', (row) => row.payment),
@@ -39,14 +45,22 @@ function columnsFor({ rows, summary }: Schedule): Column[] {
   ];
 }
 
+interface ScheduleTableProps {
+  schedule: TableSchedule;
+  title: MessageKey;
+  /** The payment that holds an extra payment, marked in the table. */
+  extraPaymentNumber?: number;
+}
+
 /** One row per payment. It scrolls inside its own box, with the header and # column fixed. */
-export function ScheduleTable({ schedule }: { schedule: Schedule }) {
+export function ScheduleTable({ schedule, title, extraPaymentNumber }: ScheduleTableProps) {
   const columns = columnsFor(schedule);
+  const titleId = useId();
   return (
-    <section aria-labelledby="schedule-title">
-      <h2 id="schedule-title">{t('section_schedule')}</h2>
+    <section aria-labelledby={titleId}>
+      <h2 id={titleId}>{t(title)}</h2>
       {/* Focusable so keyboard users can scroll the table sideways. */}
-      <div class="table-scroll" role="region" tabIndex={0} aria-labelledby="schedule-title">
+      <div class="table-scroll" role="region" tabIndex={0} aria-labelledby={titleId}>
         <table class="schedule">
           <thead>
             <tr>
@@ -60,7 +74,10 @@ export function ScheduleTable({ schedule }: { schedule: Schedule }) {
           </thead>
           <tbody>
             {schedule.rows.map((row) => (
-              <tr key={row.number}>
+              <tr
+                key={row.number}
+                class={row.number === extraPaymentNumber ? 'extra-payment' : undefined}
+              >
                 <th scope="row">{row.number}</th>
                 {columns.map((column) => (
                   <td key={column.label}>{column.cell(row)}</td>
