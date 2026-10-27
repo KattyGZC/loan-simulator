@@ -41,5 +41,196 @@
   },
   "validation_invalidDate": {
     "message": "Ingresa una fecha válida."
+  },
+  "section_loan": {
+    "message": "Crédito"
+  },
+  "field_amount": {
+    "message": "Monto"
+  },
+  "field_termMonths": {
+    "message": "Plazo (meses)"
+  },
+  "field_annualRate": {
+    "message": "Tasa de interés anual (%)"
+  },
+  "field_rateType": {
+    "message": "Tipo de tasa"
+  },
+  "rateType_nominal": {
+    "message": "Nominal"
+  },
+  "rateType_effective": {
+    "message": "Efectiva"
+  },
+  "rateHint_effective": {
+    "message": "Tasa efectiva: $RATE$",
+    "placeholders": {
+      "rate": { "content": "$1", "example": "16.08%" }
+    }
+  },
+  "rateHint_nominal": {
+    "message": "Tasa nominal: $RATE$",
+    "placeholders": {
+      "rate": { "content": "$1", "example": "15.6%" }
+    }
+  },
+  "field_method": {
+    "message": "Sistema de amortización"
+  },
+  "method_french": {
+    "message": "Francés (cuota fija)"
+  },
+  "method_german": {
+    "message": "Alemán (capital fijo)"
+  },
+  "section_advanced": {
+    "message": "Opciones avanzadas"
+  },
+  "group_insurance": {
+    "message": "Seguro de desgravamen"
+  },
+  "field_insuranceRate": {
+    "message": "Tasa del seguro"
+  },
+  "field_insuranceUnit": {
+    "message": "Unidad"
+  },
+  "insuranceUnit_percentPerYear": {
+    "message": "% anual"
+  },
+  "insuranceUnit_percentPerMonth": {
+    "message": "% mensual"
+  },
+  "insuranceUnit_perMillePerMonth": {
+    "message": "‰ mensual"
+  },
+  "field_insuranceBase": {
+    "message": "Base"
+  },
+  "insuranceBase_balance": {
+    "message": "Saldo"
+  },
+  "insuranceBase_originalAmount": {
+    "message": "Monto original"
+  },
+  "field_insuranceInPayment": {
+    "message": "Incluido en la cuota fija"
+  },
+  "field_otherCharges": {
+    "message": "Otros cargos por cuota"
+  },
+  "field_solcaEnabled": {
+    "message": "Contribución SOLCA"
+  },
+  "field_solcaPercent": {
+    "message": "SOLCA (%)"
+  },
+  "field_firstPaymentDate": {
+    "message": "Fecha del primer pago"
+  },
+  "field_maxRate": {
+    "message": "Tasa máxima del segmento (efectiva, %)"
+  },
+  "section_summary": {
+    "message": "Resumen"
+  },
+  "summary_payment": {
+    "message": "Cuota mensual"
+  },
+  "summary_firstPayment": {
+    "message": "Primera cuota"
+  },
+  "summary_lastPayment": {
+    "message": "Última cuota"
+  },
+  "summary_paymentCount": {
+    "message": "Cuotas"
+  },
+  "summary_amountReceived": {
+    "message": "Monto recibido"
+  },
+  "summary_totalInterest": {
+    "message": "Total de intereses"
+  },
+  "summary_totalInsurance": {
+    "message": "Total de seguros"
+  },
+  "summary_totalOtherCharges": {
+    "message": "Total de otros cargos"
+  },
+  "summary_solca": {
+    "message": "SOLCA"
+  },
+  "summary_totalCost": {
+    "message": "Costo total"
+  },
+  "summary_totalPaid": {
+    "message": "Total pagado"
+  },
+  "summary_nominalRate": {
+    "message": "Tasa nominal"
+  },
+  "summary_effectiveRate": {
+    "message": "Tasa efectiva"
+  },
+  "section_schedule": {
+    "message": "Tabla de amortización"
+  },
+  "column_number": {
+    "message": "N.º"
+  },
+  "column_date": {
+    "message": "Fecha"
+  },
+  "column_payment": {
+    "message": "Cuota"
+  },
+  "column_principal": {
+    "message": "Capital"
+  },
+  "column_interest": {
+    "message": "Interés"
+  },
+  "column_insurance": {
+    "message": "Seguro"
+  },
+  "column_otherCharges": {
+    "message": "Otros"
+  },
+  "column_balance": {
+    "message": "Saldo"
+  },
+  "warning_rateAboveMaximum": {
+    "message": "La tasa efectiva ($RATE$) supera la máxima del segmento ($MAX$).",
+    "placeholders": {
+      "rate": { "content": "$1", "example": "16.08%" },
+      "max": { "content": "$2", "example": "15.5%" }
+    }
+  },
+  "warning_extraPaymentClipped": {
+    "message": "El abono $NUMBER$ es mayor que el saldo: solo se aplican $AMOUNT$, con lo que se cancela el crédito.",
+    "placeholders": {
+      "number": { "content": "$1", "example": "1" },
+      "amount": { "content": "$2", "example": "$1,234.56" }
+    }
+  },
+  "warning_extraPaymentIgnored": {
+    "message": "El abono $NUMBER$ es posterior a la cancelación del crédito, así que no se aplica.",
+    "placeholders": {
+      "number": { "content": "$1", "example": "2" }
+    }
+  },
+  "empty_title": {
+    "message": "Ingresa el monto, el plazo y la tasa"
+  },
+  "empty_body": {
+    "message": "La tasa, el seguro de desgravamen y otros cargos están en la sección Transparencia (o «Tasas y tarifas») del sitio web de la entidad."
+  },
+  "invalid_body": {
+    "message": "Corrige los campos marcados para ver los resultados."
+  },
+  "disclaimer": {
+    "message": "Solo es una estimación. La entidad fija la cuota real cuando aprueba el crédito."
   }
 }

@@ -41,5 +41,196 @@
   },
   "validation_invalidDate": {
     "message": "Enter a valid date."
+  },
+  "section_loan": {
+    "message": "Loan"
+  },
+  "field_amount": {
+    "message": "Amount"
+  },
+  "field_termMonths": {
+    "message": "Term (months)"
+  },
+  "field_annualRate": {
+    "message": "Annual interest rate (%)"
+  },
+  "field_rateType": {
+    "message": "Rate type"
+  },
+  "rateType_nominal": {
+    "message": "Nominal"
+  },
+  "rateType_effective": {
+    "message": "Effective"
+  },
+  "rateHint_effective": {
+    "message": "Effective rate: $RATE$",
+    "placeholders": {
+      "rate": { "content": "$1", "example": "16.08%" }
+    }
+  },
+  "rateHint_nominal": {
+    "message": "Nominal rate: $RATE$",
+    "placeholders": {
+      "rate": { "content": "$1", "example": "15.6%" }
+    }
+  },
+  "field_method": {
+    "message": "Amortization method"
+  },
+  "method_french": {
+    "message": "French (fixed payment)"
+  },
+  "method_german": {
+    "message": "German (fixed principal)"
+  },
+  "section_advanced": {
+    "message": "Advanced options"
+  },
+  "group_insurance": {
+    "message": "Credit life insurance"
+  },
+  "field_insuranceRate": {
+    "message": "Insurance rate"
+  },
+  "field_insuranceUnit": {
+    "message": "Unit"
+  },
+  "insuranceUnit_percentPerYear": {
+    "message": "% per year"
+  },
+  "insuranceUnit_percentPerMonth": {
+    "message": "% per month"
+  },
+  "insuranceUnit_perMillePerMonth": {
+    "message": "‰ per month"
+  },
+  "field_insuranceBase": {
+    "message": "Base"
+  },
+  "insuranceBase_balance": {
+    "message": "Balance"
+  },
+  "insuranceBase_originalAmount": {
+    "message": "Original amount"
+  },
+  "field_insuranceInPayment": {
+    "message": "Included in the fixed payment"
+  },
+  "field_otherCharges": {
+    "message": "Other charges per payment"
+  },
+  "field_solcaEnabled": {
+    "message": "SOLCA contribution"
+  },
+  "field_solcaPercent": {
+    "message": "SOLCA (%)"
+  },
+  "field_firstPaymentDate": {
+    "message": "First payment date"
+  },
+  "field_maxRate": {
+    "message": "Segment maximum rate (effective, %)"
+  },
+  "section_summary": {
+    "message": "Summary"
+  },
+  "summary_payment": {
+    "message": "Monthly payment"
+  },
+  "summary_firstPayment": {
+    "message": "First payment"
+  },
+  "summary_lastPayment": {
+    "message": "Last payment"
+  },
+  "summary_paymentCount": {
+    "message": "Payments"
+  },
+  "summary_amountReceived": {
+    "message": "Amount received"
+  },
+  "summary_totalInterest": {
+    "message": "Total interest"
+  },
+  "summary_totalInsurance": {
+    "message": "Total insurance"
+  },
+  "summary_totalOtherCharges": {
+    "message": "Total other charges"
+  },
+  "summary_solca": {
+    "message": "SOLCA"
+  },
+  "summary_totalCost": {
+    "message": "Total cost"
+  },
+  "summary_totalPaid": {
+    "message": "Total paid"
+  },
+  "summary_nominalRate": {
+    "message": "Nominal rate"
+  },
+  "summary_effectiveRate": {
+    "message": "Effective rate"
+  },
+  "section_schedule": {
+    "message": "Amortization schedule"
+  },
+  "column_number": {
+    "message": "#"
+  },
+  "column_date": {
+    "message": "Date"
+  },
+  "column_payment": {
+    "message": "Payment"
+  },
+  "column_principal": {
+    "message": "Principal"
+  },
+  "column_interest": {
+    "message": "Interest"
+  },
+  "column_insurance": {
+    "message": "Insurance"
+  },
+  "column_otherCharges": {
+    "message": "Other"
+  },
+  "column_balance": {
+    "message": "Balance"
+  },
+  "warning_rateAboveMaximum": {
+    "message": "The effective rate ($RATE$) is above the segment maximum ($MAX$).",
+    "placeholders": {
+      "rate": { "content": "$1", "example": "16.08%" },
+      "max": { "content": "$2", "example": "15.5%" }
+    }
+  },
+  "warning_extraPaymentClipped": {
+    "message": "Extra payment $NUMBER$ is larger than the balance: only $AMOUNT$ is applied, which pays off the loan.",
+    "placeholders": {
+      "number": { "content": "$1", "example": "1" },
+      "amount": { "content": "$2", "example": "$1,234.56" }
+    }
+  },
+  "warning_extraPaymentIgnored": {
+    "message": "Extra payment $NUMBER$ comes after the loan is paid off, so it is not applied.",
+    "placeholders": {
+      "number": { "content": "$1", "example": "2" }
+    }
+  },
+  "empty_title": {
+    "message": "Enter the amount, term and rate"
+  },
+  "empty_body": {
+    "message": "You will find the rate, the credit life insurance and other charges in the Transparency section (\"Transparencia\" or \"Tasas y tarifas\") of the institution's website."
+  },
+  "invalid_body": {
+    "message": "Fix the marked fields to see the results."
+  },
+  "disclaimer": {
+    "message": "Estimates only. The institution sets the actual payment when it approves the loan."
   }
 }
