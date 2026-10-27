@@ -1,0 +1,36 @@
+{
+  "extName": {
+    "message": "Loan Simulator"
+  },
+  "extDescription": {
+    "message": "Simulate loans from any bank or credit union, with extra principal payments."
+  },
+  "actionTitle": {
+    "message": "Open Loan Simulator"
+  },
+  "validation_required": {
+    "message": "Enter a value."
+  },
+  "validation_notANumber": {
+    "message": "Enter a number."
+  },
+  "validation_mustBeInteger": {
+    "message": "Enter a whole number."
+  },
+  "validation_mustBePositive": {
+    "message": "Enter a value greater than 0."
+  },
+  "validation_mustBeNonNegative": {
+    "message": "Enter 0 or more."
+  },
+  "validation_outOfRange": {
+    "message": "Enter a value from $MIN$ to $MAX$.",
+    "placeholders": {
+      "min": { "content": "$1", "example": "1" },
+      "max": { "content": "$2", "example": "360" }
+    }
+  },
+  "validation_invalidDate": {
+    "message": "Enter a valid date."
+  }
+}

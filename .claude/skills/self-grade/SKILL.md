@@ -37,6 +37,12 @@ git diff main...HEAD -U0 -- src tests | grep -E "^\+.*(//|/\*)"
 # Both READMEs changed together (when either did)
 git diff --name-only main...HEAD -- README.md README.es.md
 
+# Text written in components instead of t(): review every hit
+git grep -nE ">[^<{]*[A-Za-z]{2}[^<{]*<|(title|placeholder|aria-label|alt)=\"[^\"]*[A-Za-z]" -- 'src/**/*.tsx'
+
+# Keys added in one language and not the other: the messages test fails, but quote the diff
+git diff main...HEAD --stat -- public/_locales
+
 # References to the local, git-ignored notes: must print nothing
 git grep -niE "DECISIONS/|implementation plan|research\.md|golden-cases\.md" -- src tests README.md README.es.md
 ```
@@ -55,11 +61,12 @@ git grep -niE "DECISIONS/|implementation plan|research\.md|golden-cases\.md" -- 
 | Functions | One thing per function; no clever loop that hides a step | | |
 | Types | No `any`; no `as` except `as const`; unions instead of boolean or nullable pairs | | |
 | Constants | No magic numbers; closed sets are unions in `types.ts` | | |
+| UI text | Every visible string comes from `t()`; new keys exist in `en` and `es` | | |
 | Money | Only `roundMoney` rounds; percent ↔ fraction in one named place | | |
 | Comments | Each new comment is JSDoc on an export or a *why* that cannot be a name | | |
 | Tests | New behavior tested with an edge or negative case, in `tests/**/*.test.ts` | | |
 | Golden | Golden cases pass if the math changed; a new case records its source | | |
-| Coverage | `src/core/` ≥ 95 % (quote the summary) | | |
+| Coverage | `src/core/` and `src/i18n/` ≥ 95 % (quote the summary) | | |
 | Docs | Both READMEs updated together if behavior, formulas or defaults changed; "Status" updated if a phase closed | | |
 | Dead code | Nothing left unused: imports, exports, files, branches | | |
 | Git | On a feature branch; commits split by layer; commit plan shown before committing | | |

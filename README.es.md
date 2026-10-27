@@ -8,7 +8,7 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
 
 > Pensada para Ecuador (USD, SOLCA, segmentos del BCE), pero como casi todos los datos los ingresa el usuario, sirve para otros países desactivando lo específico de Ecuador.
 
-> **Estado:** en desarrollo, aún no publicada. El motor de cálculo (`src/core/`) está terminado y probado; faltan la interfaz del panel lateral, los idiomas, los escenarios guardados y la exportación a CSV. Este README describe la extensión prevista.
+> **Estado:** en desarrollo, aún no publicada. El motor de cálculo (`src/core/`) y los textos y formatos de número en inglés y español (`src/i18n/`) están terminados y probados; faltan la interfaz del panel lateral, los escenarios guardados y la exportación a CSV. Este README describe la extensión prevista.
 
 ---
 
@@ -175,13 +175,14 @@ El resto (tasas, plazo, sistemas de amortización, seguros y abonos) es igual en
 loan-simulator/
 ├── src/
 │   ├── core/          # motor de cálculo (tasas, francés, alemán, seguros, abonos)
+│   ├── i18n/          # textos de la interfaz, formatos de número y fecha, lectura de números
 │   ├── entrypoints/
 │   │   ├── background.ts
 │   │   └── sidepanel/ # interfaz
 │   └── storage/       # escenarios guardados
 ├── public/
 │   └── _locales/      # textos de la interfaz: en/ y es/ messages.json
-├── tests/             # tests del motor contra casos conocidos
+├── tests/             # tests del motor contra casos conocidos, y de i18n
 └── wxt.config.ts
 ```
 

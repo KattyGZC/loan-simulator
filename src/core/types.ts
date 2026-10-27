@@ -118,12 +118,9 @@ export type ValidationField =
   | `extraPayments.${number}.afterPayment`
   | `extraPayments.${number}.amount`;
 
-export interface ValidationError {
-  field: ValidationField;
-  code: ValidationCode;
-  /** Values for the message, e.g. `{ min: 1, max: 360 }` for `outOfRange`. */
-  params?: Record<string, number>;
-}
+export type ValidationError =
+  | { field: ValidationField; code: 'outOfRange'; params: { min: number; max: number } }
+  | { field: ValidationField; code: Exclude<ValidationCode, 'outOfRange'> };
 
 export type SimulationWarning =
   | { code: 'rateAboveMaximum'; effectiveRate: number; maxRate: number }

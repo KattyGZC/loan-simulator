@@ -6,4 +6,4 @@ Before planning or editing, read `AGENTS.md`. It binds. If code, a plan or an id
 - `README.md` / `README.es.md`: product contract (inputs, outputs, formulas). They change together.
 - `DECISIONS/`: local notes, git-ignored. Never reference them from code, tests or docs that are committed.
 
-Before presenting work, run the `self-grade` skill. For a review with fresh eyes (a branch, a PR or the whole repo), run `tech-audit`.
+At the end of every implementation, before any commit, run `self-grade` and `tech-audit`. Every applicable row must be **A** and the audit **SHIP**; fix and re-run until they are.
