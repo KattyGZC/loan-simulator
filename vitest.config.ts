@@ -13,6 +13,7 @@ export default defineConfig({
         'src/entrypoints/sidepanel/form.ts',
         'src/entrypoints/sidepanel/existing-form.ts',
         'src/entrypoints/sidepanel/saved-scenarios.ts',
+        'src/entrypoints/sidepanel/preferences.ts',
       ],
       exclude: ['src/core/index.ts', 'src/core/types.ts'],
       thresholds: { statements: 95, branches: 95, functions: 95, lines: 95 },

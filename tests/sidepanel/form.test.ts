@@ -55,6 +55,11 @@ describe('defaultForm', () => {
     expect(defaultForm('2027-01-31', 'en-US').firstPaymentDate).toBe('2027-02-28');
   });
 
+  it('sets SOLCA up as the preferences say', () => {
+    const preferences = { solcaEnabled: false, solcaPercent: '1' };
+    expect(defaultForm(TODAY, 'en-US', preferences)).toMatchObject(preferences);
+  });
+
   it('starts with the French method at a nominal rate', () => {
     expect(defaultForm(TODAY, 'en-US')).toMatchObject({
       method: 'french',
