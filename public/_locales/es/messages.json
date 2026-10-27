@@ -424,5 +424,26 @@
       "first": { "content": "$1", "example": "$466.08" },
       "last": { "content": "$2", "example": "$420.15" }
     }
+  },
+  "button_preferences": {
+    "message": "Preferencias"
+  },
+  "button_done": {
+    "message": "Listo"
+  },
+  "section_preferences": {
+    "message": "Preferencias"
+  },
+  "field_currency": {
+    "message": "Moneda"
+  },
+  "field_solcaByDefault": {
+    "message": "Contribución SOLCA activada en créditos nuevos"
+  },
+  "preferences_note": {
+    "message": "La moneda cambia todos los montos de inmediato. SOLCA prepara un crédito nuevo: el primero y cada vez que empiezas de nuevo. Los escenarios guardados conservan el suyo."
+  },
+  "button_startOver": {
+    "message": "Empezar de nuevo"
   }
 }
