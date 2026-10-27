@@ -8,6 +8,12 @@
   "actionTitle": {
     "message": "Abrir el Simulador de Créditos"
   },
+  "tab_newLoan": {
+    "message": "Crédito nuevo"
+  },
+  "tab_existingLoan": {
+    "message": "Crédito que ya tengo"
+  },
   "validation_required": {
     "message": "Ingresa un valor."
   },
@@ -36,11 +42,21 @@
       "max": { "content": "$1", "example": "100" }
     }
   },
-  "validation_noPaymentToPrepay": {
-    "message": "Un crédito de una sola cuota no admite abonos a capital."
+  "validation_tooSmall": {
+    "message": "Ingresa más de $MIN$.",
+    "placeholders": {
+      "min": { "content": "$1", "example": "17,71" }
+    }
   },
   "validation_invalidDate": {
     "message": "Ingresa una fecha válida."
+  },
+  "validation_dateOutOfRange": {
+    "message": "Ingresa una fecha del $MIN$ al $MAX$.",
+    "placeholders": {
+      "min": { "content": "$1", "example": "17/11/2025" },
+      "max": { "content": "$2", "example": "16/07/2028" }
+    }
   },
   "validation_notAfterDisbursement": {
     "message": "El primer pago debe ser posterior al desembolso."
@@ -150,6 +166,51 @@
   "field_maxRate": {
     "message": "Tasa máxima del segmento (efectiva, %)"
   },
+  "section_existingLoan": {
+    "message": "Tu crédito hoy"
+  },
+  "field_balance": {
+    "message": "Saldo pendiente"
+  },
+  "hint_balance": {
+    "message": "El capital que queda después de tu última cuota, como aparece en tu estado de cuenta."
+  },
+  "field_remainingPayments": {
+    "message": "Cuotas restantes"
+  },
+  "hint_remainingPayments": {
+    "message": "Incluida la próxima."
+  },
+  "field_currentPayment": {
+    "message": "Cuota actual"
+  },
+  "hint_currentPayment": {
+    "message": "Capital e interés, más el seguro si está incluido. Sin otros cargos."
+  },
+  "field_nextPaymentDate": {
+    "message": "Fecha de la próxima cuota"
+  },
+  "hint_existingInsurance": {
+    "message": "Sobre el saldo."
+  },
+  "section_extraPayment": {
+    "message": "Abono a capital"
+  },
+  "field_extraPaymentDate": {
+    "message": "Fecha"
+  },
+  "field_extraPaymentAmount": {
+    "message": "Monto"
+  },
+  "field_extraPaymentEffect": {
+    "message": "Efecto"
+  },
+  "effect_reduceTerm": {
+    "message": "Reducir plazo (misma cuota)"
+  },
+  "effect_reducePayment": {
+    "message": "Reducir cuota (mismo plazo)"
+  },
   "section_summary": {
     "message": "Resumen"
   },
@@ -219,6 +280,49 @@
   "column_balance": {
     "message": "Saldo"
   },
+  "section_appliedExtraPayment": {
+    "message": "Cómo se aplica el abono"
+  },
+  "applied_accruedInterest": {
+    "message": "Interés acumulado al $DATE$",
+    "placeholders": {
+      "date": { "content": "$1", "example": "24/11/2025" }
+    }
+  },
+  "applied_principal": {
+    "message": "A capital"
+  },
+  "applied_balance": {
+    "message": "Nuevo saldo"
+  },
+  "applied_note": {
+    "message": "También cubre el capital de la cuota $NUMBER$ ($DATE$), que entonces solo cobra interés.",
+    "placeholders": {
+      "number": { "content": "$1", "example": "1" },
+      "date": { "content": "$2", "example": "17/12/2025" }
+    }
+  },
+  "section_comparison": {
+    "message": "Sin abono vs. con abono"
+  },
+  "column_without": {
+    "message": "Sin abono"
+  },
+  "column_with": {
+    "message": "Con abono"
+  },
+  "saved_cost": {
+    "message": "Ahorras"
+  },
+  "saved_payments": {
+    "message": "Cuotas que te ahorras"
+  },
+  "saved_newPayment": {
+    "message": "Nueva cuota"
+  },
+  "section_scheduleWithExtraPayment": {
+    "message": "Tabla con el abono"
+  },
   "warning_rateAboveMaximum": {
     "message": "La tasa efectiva ($RATE$) supera la máxima del segmento ($MAX$).",
     "placeholders": {
@@ -227,16 +331,16 @@
     }
   },
   "warning_extraPaymentClipped": {
-    "message": "El abono $NUMBER$ es mayor que el saldo: solo se aplican $AMOUNT$, con lo que se cancela el crédito.",
+    "message": "El abono es mayor que lo que debes: solo se aplican $AMOUNT$, con lo que el crédito queda pagado.",
     "placeholders": {
-      "number": { "content": "$1", "example": "1" },
-      "amount": { "content": "$2", "example": "$1,234.56" }
+      "amount": { "content": "$1", "example": "$3.170,12" }
     }
   },
-  "warning_extraPaymentIgnored": {
-    "message": "El abono $NUMBER$ es posterior a la cancelación del crédito, así que no se aplica.",
+  "warning_paymentDoesNotFitTerm": {
+    "message": "Con esta cuota el crédito termina en la cuota $COUNT$, de $AMOUNT$. Revisa la cuota actual, la tasa y las cuotas restantes.",
     "placeholders": {
-      "number": { "content": "$1", "example": "2" }
+      "count": { "content": "$1", "example": "32" },
+      "amount": { "content": "$2", "example": "$412,80" }
     }
   },
   "empty_title": {
@@ -247,6 +351,12 @@
   },
   "invalid_body": {
     "message": "Corrige los campos marcados para ver los resultados."
+  },
+  "emptyExisting_title": {
+    "message": "Ingresa tu crédito como aparece en tu estado de cuenta"
+  },
+  "emptyExisting_body": {
+    "message": "Necesitas el saldo, las cuotas restantes, la tasa, la fecha de la próxima cuota y el abono. La tabla de amortización de tu entidad los tiene."
   },
   "disclaimer": {
     "message": "Solo es una estimación. La entidad fija la cuota real cuando aprueba el crédito."

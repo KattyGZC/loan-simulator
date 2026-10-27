@@ -8,6 +8,12 @@
   "actionTitle": {
     "message": "Open Loan Simulator"
   },
+  "tab_newLoan": {
+    "message": "New loan"
+  },
+  "tab_existingLoan": {
+    "message": "Loan I already have"
+  },
   "validation_required": {
     "message": "Enter a value."
   },
@@ -36,11 +42,21 @@
       "max": { "content": "$1", "example": "100" }
     }
   },
-  "validation_noPaymentToPrepay": {
-    "message": "A loan with a single payment has no payment to prepay."
+  "validation_tooSmall": {
+    "message": "Enter more than $MIN$.",
+    "placeholders": {
+      "min": { "content": "$1", "example": "17.71" }
+    }
   },
   "validation_invalidDate": {
     "message": "Enter a valid date."
+  },
+  "validation_dateOutOfRange": {
+    "message": "Enter a date from $MIN$ to $MAX$.",
+    "placeholders": {
+      "min": { "content": "$1", "example": "11/17/2025" },
+      "max": { "content": "$2", "example": "07/16/2028" }
+    }
   },
   "validation_notAfterDisbursement": {
     "message": "The first payment must come after the disbursement."
@@ -150,6 +166,51 @@
   "field_maxRate": {
     "message": "Segment maximum rate (effective, %)"
   },
+  "section_existingLoan": {
+    "message": "Your loan today"
+  },
+  "field_balance": {
+    "message": "Balance owed"
+  },
+  "hint_balance": {
+    "message": "Principal left after your last payment, as your statement shows it."
+  },
+  "field_remainingPayments": {
+    "message": "Payments left"
+  },
+  "hint_remainingPayments": {
+    "message": "Including the next one."
+  },
+  "field_currentPayment": {
+    "message": "Current payment"
+  },
+  "hint_currentPayment": {
+    "message": "Principal and interest, plus the insurance if it is included. Without other charges."
+  },
+  "field_nextPaymentDate": {
+    "message": "Next payment date"
+  },
+  "hint_existingInsurance": {
+    "message": "On the balance."
+  },
+  "section_extraPayment": {
+    "message": "Extra payment"
+  },
+  "field_extraPaymentDate": {
+    "message": "Date"
+  },
+  "field_extraPaymentAmount": {
+    "message": "Amount"
+  },
+  "field_extraPaymentEffect": {
+    "message": "Effect"
+  },
+  "effect_reduceTerm": {
+    "message": "Reduce term (same payment)"
+  },
+  "effect_reducePayment": {
+    "message": "Reduce payment (same term)"
+  },
   "section_summary": {
     "message": "Summary"
   },
@@ -219,6 +280,49 @@
   "column_balance": {
     "message": "Balance"
   },
+  "section_appliedExtraPayment": {
+    "message": "How the extra payment is applied"
+  },
+  "applied_accruedInterest": {
+    "message": "Interest accrued to $DATE$",
+    "placeholders": {
+      "date": { "content": "$1", "example": "11/24/2025" }
+    }
+  },
+  "applied_principal": {
+    "message": "To principal"
+  },
+  "applied_balance": {
+    "message": "New balance"
+  },
+  "applied_note": {
+    "message": "It also covers the principal of payment $NUMBER$ ($DATE$), which then charges only interest.",
+    "placeholders": {
+      "number": { "content": "$1", "example": "1" },
+      "date": { "content": "$2", "example": "12/17/2025" }
+    }
+  },
+  "section_comparison": {
+    "message": "Without vs. with the extra payment"
+  },
+  "column_without": {
+    "message": "Without"
+  },
+  "column_with": {
+    "message": "With"
+  },
+  "saved_cost": {
+    "message": "You save"
+  },
+  "saved_payments": {
+    "message": "Payments saved"
+  },
+  "saved_newPayment": {
+    "message": "New payment"
+  },
+  "section_scheduleWithExtraPayment": {
+    "message": "Schedule with the extra payment"
+  },
   "warning_rateAboveMaximum": {
     "message": "The effective rate ($RATE$) is above the segment maximum ($MAX$).",
     "placeholders": {
@@ -227,16 +331,16 @@
     }
   },
   "warning_extraPaymentClipped": {
-    "message": "Extra payment $NUMBER$ is larger than the balance: only $AMOUNT$ is applied, which pays off the loan.",
+    "message": "The extra payment is more than the loan owes: only $AMOUNT$ is applied, which pays it off.",
     "placeholders": {
-      "number": { "content": "$1", "example": "1" },
-      "amount": { "content": "$2", "example": "$1,234.56" }
+      "amount": { "content": "$1", "example": "$3,170.12" }
     }
   },
-  "warning_extraPaymentIgnored": {
-    "message": "Extra payment $NUMBER$ comes after the loan is paid off, so it is not applied.",
+  "warning_paymentDoesNotFitTerm": {
+    "message": "With this payment the loan ends with payment $COUNT$, of $AMOUNT$. Check the current payment, the rate and the payments left.",
     "placeholders": {
-      "number": { "content": "$1", "example": "2" }
+      "count": { "content": "$1", "example": "32" },
+      "amount": { "content": "$2", "example": "$412.80" }
     }
   },
   "empty_title": {
@@ -247,6 +351,12 @@
   },
   "invalid_body": {
     "message": "Fix the marked fields to see the results."
+  },
+  "emptyExisting_title": {
+    "message": "Enter your loan as your statement shows it"
+  },
+  "emptyExisting_body": {
+    "message": "You need the balance, the payments left, the rate, the next payment date and the extra payment. Your institution's amortization table has them."
   },
   "disclaimer": {
     "message": "Estimates only. The institution sets the actual payment when it approves the loan."
