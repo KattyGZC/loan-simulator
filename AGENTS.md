@@ -11,26 +11,28 @@ Read this before the first edit. It binds every author and every model (Claude, 
 | `src/i18n/` | UI text (`t()` over `chrome.i18n`), `Intl` formatting, and reading typed numbers |
 | `public/_locales/{en,es}/messages.json` | Every UI string, in English and Spanish. English is the fallback. `MessageKey` (`src/i18n/translate.ts`) is the key list of the English file |
 | `src/entrypoints/background.ts` | Opens the side panel when the toolbar icon is clicked |
-| `src/entrypoints/sidepanel/` | The UI (Preact). Only a placeholder today |
+| `src/entrypoints/sidepanel/` | The UI (Preact). `form.ts` holds the panel logic, unit-tested: typed form to engine input, and what the results area shows (`panelState`). The components lay out and format; the only rule they keep is that a field shows its `required` error once the user leaves it |
 | `tests/core/` | Unit tests of the engine, through `simulate()` or the module's export |
 | `tests/i18n/` | Tests of `src/i18n/`. `fake-i18n.ts` stands in for `chrome.i18n` over the real `messages.json` |
+| `tests/sidepanel/` | Tests of the side panel form (`form.ts`) |
 | `tests/golden/` | Reference schedules copied from real simulators, with their source |
 | `wxt.config.ts` | Manifest: name, permissions (`storage`, `sidePanel`), side panel |
 
 ## Status
 
-Done: project setup (phase 0), the calculation engine (phase 1), tested against Cooperativa JEP, and languages and formatting (phase 2).
+Done: project setup (phase 0), the calculation engine (phase 1), tested against Cooperativa JEP, languages and formatting (phase 2), and the side panel UI (phase 3).
 
 Next, in order:
 
-1. **Side panel UI.** Required fields, an "Advanced options" section, recompute while typing, summary, amortization table, extra-payment editor, comparison, max-rate warning, empty state.
-2. **Saved scenarios and preferences** (`src/storage/`), with a `schemaVersion`.
-3. **CSV export and print view.**
-4. **Accessibility, dark theme, final icons.**
-5. **QA:** Playwright e2e and a manual check against 3 institutions.
-6. **Chrome Web Store** listing, privacy page and release workflow.
+1. **Day-count basis.** 30/360 or actual days/360, chosen by the user in both modes, with due dates on a weekend moved to Monday. Produbanco counts actual days/360.
+2. **Extra payment on a loan you already have.** A second tab: remaining balance, rate, method, remaining payments, current payment (it rules; the remaining payments only check it under the French method), next due date, insurance and other charges, and one extra payment on any date. The extra payment first pays the interest accrued since the last due date. The extra payments of `simulate()` move here: the new-loan simulator has none.
+3. **Saved scenarios and preferences** (`src/storage/`), with a `schemaVersion`. The institution and segment fields arrive here, as the scenario name.
+4. **CSV export and print view.**
+5. **Accessibility, dark theme, final icons.**
+6. **QA:** Playwright e2e and a manual check against 3 institutions.
+7. **Chrome Web Store** listing, privacy page and release workflow.
 
-After v1, not planned: total effective cost (IRR), non-monthly payments, actual-day bases, grace periods, Firefox.
+After v1, not planned: total effective cost (IRR), non-monthly payments, grace periods, Firefox.
 
 ## Decisions the code relies on
 
@@ -44,6 +46,7 @@ Do not reverse one of these in passing. If a change needs to, say so first.
 - **Extra payments.** One larger than the balance is clipped to the balance; one due after the loan ended is ignored. Both return a warning, not an error.
 - **No hidden defaults in the engine.** No SOLCA and no first-payment date unless the input sets them. "SOLCA on, 0.5 %" and "one month from today" belong to the UI. The engine never reads the clock.
 - **Errors are codes.** `validate()` returns `{ field, code }`, plus `params: { min, max }` for `outOfRange` and `params: { max }` for `tooLarge`. An extra payment on a one-payment loan is `noPaymentToPrepay`, whatever its value. The UI turns them into text with `validationMessage()`.
+- **Empty fields.** `LoanInput` has no empty number. The form (`form.ts`) passes `NaN` for an empty field so `validate()` still checks the others, then reports that field as `required`. A `required` error shows once the user leaves the field; the results show the empty state while amount, term or rate is missing.
 - **Two languages.** English and Spanish via `chrome.i18n`, following the browser language, English as the fallback. Every string the user sees comes from `messages.json` through `t()`.
 - **Format locale.** Spanish formats as `es-EC` (`$1.234,56`, `31/01/2027`) and anything else as `en-US`. Region-less `es` and `es-419` would print `1234,56 US$` and `USD 1,234.56`. Currency is USD.
 - **Typed numbers.** `parseDecimal()` accepts `,` or `.` as the decimal separator. The only ambiguous case, one separator after 1–3 digits not starting with 0 (maybe space-grouped) and before exactly three (`10.000`, `1 000.000`), follows the locale's decimal separator. Spaces inside only group thousands. Empty text is `undefined` and unreadable text `NaN`, so `validate()` reports them.
@@ -95,7 +98,7 @@ Smallest change that solves the cause. Do not refactor nearby code in the same c
 - Test behavior through `simulate()` or the module's export, not private state.
 - Every new behavior has its edge or negative case: 0 %, one payment, the last payment, an extra payment that ends the loan, an invalid field.
 - When the engine's math changes, the golden cases in `tests/golden/` must still pass. A new reference case records its source, date and the constant that source actually uses.
-- Coverage of `src/core/` and `src/i18n/` stays at 95 % or more (`vitest.config.ts`, enforced in CI).
+- Coverage of `src/core/`, `src/i18n/` and the side panel form stays at 95 % or more (`vitest.config.ts`, enforced in CI).
 - Tests live in `tests/**/*.test.ts`. A file outside that glob never runs.
 
 ## Docs

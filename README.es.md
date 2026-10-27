@@ -8,7 +8,7 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
 
 > Pensada para Ecuador (USD, SOLCA, segmentos del BCE), pero como casi todos los datos los ingresa el usuario, sirve para otros países desactivando lo específico de Ecuador.
 
-> **Estado:** en desarrollo, aún no publicada. El motor de cálculo (`src/core/`) y los textos y formatos de número en inglés y español (`src/i18n/`) están terminados y probados; faltan la interfaz del panel lateral, los escenarios guardados y la exportación a CSV. Este README describe la extensión prevista.
+> **Estado:** en desarrollo, aún no publicada. El motor de cálculo (`src/core/`) y los textos y formatos de número en inglés y español (`src/i18n/`) están terminados y probados, y el panel lateral ya simula un crédito nuevo cargando la extensión sin empaquetar; faltan los abonos a un crédito que ya tienes, los escenarios guardados y la exportación a CSV. Este README describe la extensión prevista.
 
 ---
 
@@ -71,7 +71,7 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
 
 ## Resultados
 
-- **Cuota mensual.** En el sistema francés es una sola; en el alemán se muestran la primera y la última.
+- **Cuota mensual.** En el sistema francés es una sola; en el alemán, o cuando el seguro sobre el saldo se suma aparte a la cuota francesa, se muestran la primera y la última.
 - **Monto neto recibido:** monto − SOLCA.
 - **Totales:** intereses, seguros, SOLCA y total a pagar.
 - **Tabla de amortización:** n.º, fecha, cuota total, capital, interés, seguro, otros cargos y saldo.
