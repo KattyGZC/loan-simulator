@@ -3,7 +3,6 @@ import { t } from '@/i18n/translate';
 import {
   type LoanForm,
   counterpartRate,
-  defaultForm,
   hasFixedPayment,
   panelState,
   restoreLoanForm,
@@ -17,22 +16,29 @@ import { useSimulation } from './useSimulation';
 import { Warnings } from './Warnings';
 
 interface NewLoanProps {
-  today: string;
   draft: unknown;
+  /** The empty form, for every field the draft lacks. */
+  defaults: LoanForm;
   onSaveScenario: (name: string, form: LoanForm) => void;
+  onStartOver: () => void;
 }
 
 /** The new-loan simulator: the loan's fields, then its summary, saving it, and its schedule. */
-export function NewLoan({ today, draft, onSaveScenario }: NewLoanProps) {
+export function NewLoan({ draft, defaults, onSaveScenario, onStartOver }: NewLoanProps) {
   const { form, update, simulated, state, errors, errorOf } = useSimulation(
     'newLoan',
-    () => restoreLoanForm(draft, defaultForm(today, locale)),
+    () => restoreLoanForm(draft, defaults),
     panelState,
   );
   const emptyTitleId = useId();
 
   return (
     <>
+      <div class="actions tab-actions">
+        <button type="button" class="button" onClick={onStartOver}>
+          {t('button_startOver')}
+        </button>
+      </div>
       <form class="loan-form" onSubmit={(event) => event.preventDefault()} noValidate>
         <LoanFields
           form={form}
