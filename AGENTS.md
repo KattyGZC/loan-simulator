@@ -12,7 +12,7 @@ Read this before the first edit. It binds every author and every model (Claude, 
 | `public/_locales/{en,es}/messages.json` | Every UI string, in English and Spanish. English is the fallback. `MessageKey` (`src/i18n/translate.ts`) is the key list of the English file |
 | `src/entrypoints/background.ts` | Opens the side panel when the toolbar icon is clicked |
 | `src/entrypoints/sidepanel/` | The UI (Preact), two tabs: a new loan (`NewLoan.tsx`) and an extra payment on a loan you already have (`ExistingLoan.tsx`). `form.ts` and `existing-form.ts` hold the panel logic, unit-tested: typed form to engine input, and what the results area shows (`panelState`, `existingLoanState`). The components lay out and format; which error a field shows now is `visibleError()`, in `form.ts` |
-| `src/storage/` | What the panel keeps in `browser.storage.local`: each tab's draft (`drafts.ts`), stored as `{ schemaVersion, form }`. `storedFields()` reads stored data back without trusting it; each form's `restore…Form()` (`form.ts`, `existing-form.ts`) falls back to its default for a field that is missing or invalid. The option lists of each select are in `sidepanel/choices.ts` |
+| `src/storage/` | What the panel keeps in `browser.storage.local`, each as `{ schemaVersion, data }` (`versioned.ts`): each tab's draft (`drafts.ts`) and the saved scenarios (`scenarios.ts`). `storedFields()` reads stored data back without trusting it; each form's `restore…Form()` (`form.ts`, `existing-form.ts`) and `restoreScenarios()` (`saved-scenarios.ts`) fall back to the default for a field that is missing or invalid. The option lists of each select are in `sidepanel/choices.ts` |
 | `tests/core/` | Unit tests of the engine, through `simulate()` or the module's export |
 | `tests/i18n/` | Tests of `src/i18n/`. `fake-i18n.ts` stands in for `chrome.i18n` over the real `messages.json` |
 | `tests/storage/` | Tests of `src/storage/`, over WXT's fake browser |
@@ -22,11 +22,11 @@ Read this before the first edit. It binds every author and every model (Claude, 
 
 ## Status
 
-Done: project setup (phase 0), the calculation engine (phase 1), tested against Cooperativa JEP, languages and formatting (phase 2), the side panel UI (phase 3), the day-count basis (30/360 or actual days/360), and an extra payment on a loan you already have (`simulateExistingLoan()`, second tab), both tested against a Produbanco statement. Each tab keeps its form as a draft when the panel closes.
+Done: project setup (phase 0), the calculation engine (phase 1), tested against Cooperativa JEP, languages and formatting (phase 2), the side panel UI (phase 3), the day-count basis (30/360 or actual days/360), and an extra payment on a loan you already have (`simulateExistingLoan()`, second tab), both tested against a Produbanco statement. Each tab keeps its form as a draft when the panel closes. New-loan scenarios are saved, opened, renamed, deleted and compared two at a time in a third tab (`Scenarios.tsx`, logic in `saved-scenarios.ts`).
 
 Next, in order:
 
-1. **Saved scenarios and preferences** (`src/storage/`), with a `schemaVersion`. Scenarios are for the new-loan simulator only, and two of them can be compared side by side. The institution and segment fields arrive here, as the scenario name.
+1. **Preferences** (`src/storage/`): currency symbol, SOLCA on by default and its percent.
 2. **CSV export and print view.**
 3. **Accessibility, dark theme, final icons.**
 4. **QA:** Playwright e2e and a manual check against 3 institutions.
@@ -98,7 +98,7 @@ Smallest change that solves the cause. Do not refactor nearby code in the same c
 - Test behavior through `simulate()` or the module's export, not private state.
 - Every new behavior has its edge or negative case: 0 %, one payment, the last payment, an extra payment that ends the loan, an invalid field.
 - When the engine's math changes, the golden cases in `tests/golden/` must still pass. A new reference case records its source, date and the constant that source actually uses.
-- Coverage of `src/core/`, `src/i18n/` and the side panel form stays at 95 % or more (`vitest.config.ts`, enforced in CI).
+- Coverage of `src/core/`, `src/i18n/` and the side panel logic stays at 95 % or more (`vitest.config.ts`, enforced in CI).
 - Tests live in `tests/**/*.test.ts`. A file outside that glob never runs.
 
 ## Docs

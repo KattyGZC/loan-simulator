@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { fakeBrowser } from 'wxt/testing/fake-browser';
-import { loadDraft, loadDrafts, saveDraft, SCHEMA_VERSION } from '@/storage/drafts';
+import { loadDraft, loadDrafts, saveDraft } from '@/storage/drafts';
+import { SCHEMA_VERSION } from '@/storage/versioned';
 
 beforeEach(() => fakeBrowser.reset());
 
@@ -32,13 +33,13 @@ describe('drafts', () => {
   it('stores the schema version with the form', async () => {
     await saveDraft('newLoan', { amount: '10000' });
     expect(await browser.storage.local.get('draft.newLoan')).toEqual({
-      'draft.newLoan': { schemaVersion: SCHEMA_VERSION, form: { amount: '10000' } },
+      'draft.newLoan': { schemaVersion: SCHEMA_VERSION, data: { amount: '10000' } },
     });
   });
 
   it('ignores a draft from a schema version it does not know', async () => {
     await browser.storage.local.set({
-      'draft.newLoan': { schemaVersion: SCHEMA_VERSION + 1, form: { amount: '10000' } },
+      'draft.newLoan': { schemaVersion: SCHEMA_VERSION + 1, data: { amount: '10000' } },
     });
     expect(await loadDraft('newLoan')).toBeUndefined();
   });

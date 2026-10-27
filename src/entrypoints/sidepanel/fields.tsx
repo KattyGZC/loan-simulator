@@ -96,6 +96,37 @@ export function DateField({ label, value, onInput, error, hint }: DateFieldProps
   );
 }
 
+interface TextFieldProps {
+  label: string;
+  value: string;
+  onInput: (value: string) => void;
+  hint?: string;
+}
+
+/** A labelled text input for free text, with an optional hint below it. */
+export function TextField({ label, value, onInput, hint }: TextFieldProps) {
+  const id = useId();
+  const noteId = `${id}-note`;
+  return (
+    <div class="field">
+      <label for={id}>{label}</label>
+      <input
+        id={id}
+        type="text"
+        autoComplete="off"
+        value={value}
+        aria-describedby={hint ? noteId : undefined}
+        onInput={(event) => onInput(event.currentTarget.value)}
+      />
+      {hint && (
+        <p id={noteId} class="field-hint">
+          {hint}
+        </p>
+      )}
+    </div>
+  );
+}
+
 interface SelectFieldProps<T extends string> {
   label: string;
   value: T;
@@ -134,15 +165,17 @@ export function SelectField<T extends string>({
 interface CheckboxFieldProps {
   label: string;
   checked: boolean;
+  disabled?: boolean;
   onChange: (checked: boolean) => void;
 }
 
-export function CheckboxField({ label, checked, onChange }: CheckboxFieldProps) {
+export function CheckboxField({ label, checked, disabled, onChange }: CheckboxFieldProps) {
   return (
     <label class="checkbox">
       <input
         type="checkbox"
         checked={checked}
+        disabled={disabled}
         onChange={(event) => onChange(event.currentTarget.checked)}
       />
       {label}

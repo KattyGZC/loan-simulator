@@ -276,6 +276,8 @@ describe('restoreLoanForm', () => {
       solcaEnabled: false,
       dayCount: 'actual360',
       maxRate: '16.77',
+      institution: 'JEP',
+      segment: 'Consumo',
     });
     expect(restoreLoanForm(JSON.parse(JSON.stringify(saved)), defaults)).toEqual(saved);
   });

@@ -1,19 +1,24 @@
 import { render } from 'preact';
 import { t, uiLanguage } from '@/i18n/translate';
-import { loadDrafts, type Drafts } from '@/storage/drafts';
-import { App } from './App';
+import { loadDrafts } from '@/storage/drafts';
+import { loadScenarios } from '@/storage/scenarios';
+import { App, type StoredState } from './App';
 import './style.css';
 
 const root = document.getElementById('app');
 if (!root) throw new Error('The side panel page has no #app element to render into.');
 document.documentElement.lang = uiLanguage();
 document.title = t('extName');
-// The drafts load before the first render, so the panel never shows the empty form first.
-// When they cannot be read, the panel opens empty rather than not at all.
-const noDrafts: Drafts = { newLoan: undefined, existingLoan: undefined };
-loadDrafts()
+// What was stored loads before the first render, so the panel never shows the empty form
+// first. When it cannot be read, the panel opens empty rather than not at all.
+const nothingStored: StoredState = {
+  drafts: { newLoan: undefined, existingLoan: undefined },
+  scenarios: undefined,
+};
+Promise.all([loadDrafts(), loadScenarios()])
+  .then(([drafts, scenarios]): StoredState => ({ drafts, scenarios }))
   .catch((error: unknown) => {
     console.error(error);
-    return noDrafts;
+    return nothingStored;
   })
-  .then((drafts) => render(<App drafts={drafts} />, root));
+  .then((stored) => render(<App stored={stored} />, root));

@@ -8,7 +8,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 
 > Built for Ecuador (USD, SOLCA contribution, Central Bank credit segments). Since almost all data is entered by the user, it works for other countries once the Ecuador-specific options are turned off.
 
-> **Status:** in development, not published yet. The calculation engine (`src/core/`) and the English and Spanish texts and number formats (`src/i18n/`) are done and tested, and the side panel, loaded unpacked, simulates a new loan and an extra payment on a loan you already have; it counts interest on 30/360 or actual days/360. Saved scenarios and CSV export are next. This README describes the planned extension.
+> **Status:** in development, not published yet. The calculation engine (`src/core/`) and the English and Spanish texts and number formats (`src/i18n/`) are done and tested, and the side panel, loaded unpacked, simulates a new loan and an extra payment on a loan you already have; it counts interest on 30/360 or actual days/360, and saves new-loan scenarios to compare two side by side. Preferences and CSV export are next. This README describes the planned extension.
 
 ---
 
@@ -59,7 +59,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 | **Day count** | 30/360 | `30/360`: every month counts 30 days. `Actual days/360`: each payment charges the days since the previous one, as Produbanco does |
 | **Disbursement date** | Today | Actual days only: the first interest period starts here |
 | **First payment date** | One month from today | Puts dates in the schedule. With actual days it also sets the interest days, and a due date on a Saturday or Sunday moves to Monday |
-| **Institution and segment** | Empty | Labels for saving the scenario (e.g. "JEP Credit Union – Consumer") |
+| **Institution and segment** | Empty | Under "Save this scenario", once the loan simulates. Labels only: they suggest the scenario's name (e.g. "JEP Credit Union – Consumer") |
 | **Segment maximum rate** | Empty | If set, the extension warns when the rate exceeds the legal maximum |
 
 ### A loan you already have (second tab)
@@ -78,6 +78,16 @@ Enter the loan as your latest statement or amortization table shows it.
 | **Extra payment: amount** | What you pay. It must be more than the interest accrued up to its date |
 | **Extra payment: effect** | `Reduce term` (default) or `Reduce payment` |
 
+### Saved scenarios (third tab)
+
+Once a new loan simulates, **Save this scenario** saves it under a name: "Institution – Segment" unless you change it. The **Scenarios** tab lists them:
+
+- **Open** loads the scenario back into the New loan tab.
+- **Rename** and **Delete** act on that scenario only.
+- Check **two** to compare them side by side: payment, number of payments, effective rate, total interest, total cost and total paid.
+
+Scenarios are for new loans only. They stay in the browser, as the forms do.
+
 ---
 
 ## Outputs
@@ -86,6 +96,7 @@ Enter the loan as your latest statement or amortization table shows it.
 - **Net amount received:** amount − SOLCA.
 - **Totals:** interest, insurance, SOLCA and total paid.
 - **Amortization schedule:** #, date, total payment, principal, interest, insurance, other charges and balance.
+- **Two saved scenarios side by side:** payment (first and last when it changes), payments, effective rate, total interest, total cost and total paid.
 - **Extra payment on a loan you have:** how it splits into accrued interest and principal, the rest of the loan without vs. with it, what you save (interest, insurance and other charges), the payments saved or the new payment, and the schedule with the extra payment.
 
 ---
