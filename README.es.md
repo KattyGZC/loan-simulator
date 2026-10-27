@@ -8,7 +8,7 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
 
 > Pensada para Ecuador (USD, SOLCA, segmentos del BCE), pero como casi todos los datos los ingresa el usuario, sirve para otros países desactivando lo específico de Ecuador.
 
-> **Estado:** en desarrollo, aún no publicada. El motor de cálculo (`src/core/`) y los textos y formatos de número en inglés y español (`src/i18n/`) están terminados y probados, y el panel lateral, cargando la extensión sin empaquetar, ya simula un crédito nuevo y un abono a un crédito que ya tienes; cuenta el interés en 30/360 o en días reales/360, y guarda escenarios de crédito nuevo para comparar dos lado a lado. Faltan las preferencias y la exportación a CSV. Este README describe la extensión prevista.
+> **Estado:** en desarrollo, aún no publicada. El motor de cálculo (`src/core/`) y los textos y formatos de número en inglés y español (`src/i18n/`) están terminados y probados, y el panel lateral, cargando la extensión sin empaquetar, ya simula un crédito nuevo y un abono a un crédito que ya tienes; cuenta el interés en 30/360 o en días reales/360, guarda escenarios de crédito nuevo para comparar dos lado a lado y conserva tus preferencias (moneda y SOLCA). Falta la exportación a CSV. Este README describe la extensión prevista.
 
 ---
 
@@ -24,7 +24,7 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
 - Muestra los totales: intereses, seguros, SOLCA y total pagado.
 - Exporta la tabla a CSV.
 - Interfaz en inglés y español.
-- Conserva lo que escribiste en cada pestaña al cerrar el panel.
+- Conserva lo que escribiste en cada pestaña al cerrar el panel. **Empezar de nuevo** vacía el formulario de crédito nuevo.
 - Guarda escenarios de crédito nuevo y compara dos lado a lado (por ejemplo, «Coop X – consumo» vs «Banco Y – consumo»).
 
 ## Qué NO hace
@@ -55,7 +55,7 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
 | **Seguro de desgravamen: base** | Saldo | `Saldo`: baja con el tiempo (lo más común). `Monto original`: fijo todo el crédito |
 | **Seguro de desgravamen: en la cuota** | Sí | Solo sistema francés. `Sí`: la cuota fija ya incluye el seguro, así que la cuota total es la misma cada mes (lo usual en cooperativas). `No`: el seguro se suma encima, así que la cuota total cambia cada mes |
 | **Otros cargos por cuota** | $0 | Valor fijo mensual: otros seguros, cuota de socio, etc. |
-| **Contribución SOLCA** | Activada, 0,5 % | Se descuenta una sola vez al desembolsar. Desactívala si no aplica (por ejemplo, fuera de Ecuador o en créditos exentos) |
+| **Contribución SOLCA** | Activada, 0,5 % (ver Preferencias) | Se descuenta una sola vez al desembolsar. Desactívala si no aplica (por ejemplo, fuera de Ecuador o en créditos exentos) |
 | **Base de días** | 30/360 | `30/360`: cada mes cuenta 30 días. `Días reales/360`: cada cuota cobra los días desde la anterior, como hace Produbanco |
 | **Fecha de desembolso** | Hoy | Solo con días reales: ahí empieza el primer periodo de interés |
 | **Fecha del primer pago** | Un mes después de hoy | Pone fechas en la tabla. Con días reales también fija los días de interés, y un vencimiento en sábado o domingo pasa al lunes |
@@ -77,6 +77,15 @@ Ingresa el crédito como aparece en tu último estado de cuenta o tabla de amort
 | **Abono: fecha** | Hoy por defecto. Desde el vencimiento de la última cuota pagada hasta el día antes de la última cuota |
 | **Abono: monto** | Lo que pagas. Debe ser mayor que el interés acumulado hasta su fecha |
 | **Abono: efecto** | `Reducir plazo` (por defecto) o `Reducir cuota` |
+
+### Preferencias
+
+El botón **Preferencias**, junto al título, las abre; **Listo** vuelve a las pestañas.
+
+| Preferencia | Por defecto | Descripción |
+|---|---|---|
+| **Moneda** | USD | Todos los montos se muestran en ella, siempre con 2 decimales: USD, EUR, MXN, GTQ, HNL, NIO, CRC, DOP, COP, PEN, BOB, ARS, UYU o BRL. Solo cambia cómo se escriben los montos; no convierte nada. Las monedas sin centavos (CLP, PYG) no se ofrecen, porque todos los montos se redondean a centavos |
+| **SOLCA activada en créditos nuevos** y su **porcentaje** | Activada, 0,5 % | Cómo empiezan los campos de SOLCA de un crédito nuevo: el primero y cada vez que pulsas **Empezar de nuevo**. El crédito que estás simulando y los escenarios guardados conservan los suyos |
 
 ### Escenarios guardados (tercera pestaña)
 
@@ -181,8 +190,8 @@ Los segmentos de crédito más comunes en Ecuador son: consumo, microcrédito (m
 
 Solo hay tres cosas específicas de Ecuador, y todas se pueden desactivar o cambiar:
 
-1. **Moneda:** USD por defecto. Se puede cambiar el símbolo.
-2. **SOLCA:** se desactiva.
+1. **Moneda:** USD por defecto. Se elige otra en Preferencias.
+2. **SOLCA:** se desactiva, en un crédito o en todos los nuevos (Preferencias).
 3. **Tasa máxima del segmento:** es opcional.
 
 El resto (tasas, plazo, sistemas de amortización, seguros y abonos) es igual en cualquier país.

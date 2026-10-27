@@ -8,7 +8,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 
 > Built for Ecuador (USD, SOLCA contribution, Central Bank credit segments). Since almost all data is entered by the user, it works for other countries once the Ecuador-specific options are turned off.
 
-> **Status:** in development, not published yet. The calculation engine (`src/core/`) and the English and Spanish texts and number formats (`src/i18n/`) are done and tested, and the side panel, loaded unpacked, simulates a new loan and an extra payment on a loan you already have; it counts interest on 30/360 or actual days/360, and saves new-loan scenarios to compare two side by side. Preferences and CSV export are next. This README describes the planned extension.
+> **Status:** in development, not published yet. The calculation engine (`src/core/`) and the English and Spanish texts and number formats (`src/i18n/`) are done and tested, and the side panel, loaded unpacked, simulates a new loan and an extra payment on a loan you already have; it counts interest on 30/360 or actual days/360, saves new-loan scenarios to compare two side by side, and keeps your preferences (currency and SOLCA). CSV export is next. This README describes the planned extension.
 
 ---
 
@@ -24,7 +24,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 - Shows totals: interest, insurance, SOLCA and total paid.
 - Exports the schedule to CSV.
 - Interface in English and Spanish.
-- Keeps what you typed in each tab when you close the panel.
+- Keeps what you typed in each tab when you close the panel. **Start over** empties the new-loan form.
 - Saves new-loan scenarios and compares two of them side by side (e.g. "Credit Union X – consumer" vs "Bank Y – consumer").
 
 ## What it does NOT do
@@ -55,7 +55,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 | **Credit life insurance: base** | Balance | `Balance`: decreases over time (most common). `Original amount`: fixed for the whole loan |
 | **Credit life insurance: in the payment** | Yes | French method only. `Yes`: the fixed payment already includes the insurance, so the total payment is the same every month (most credit unions). `No`: the insurance is added on top, so the total payment changes every month |
 | **Other charges per payment** | $0 | Fixed monthly amount: other insurance, membership fees, etc. |
-| **SOLCA contribution** | On, 0.5% | Deducted once at disbursement. Turn it off if it doesn't apply (e.g. outside Ecuador or on exempt loans) |
+| **SOLCA contribution** | On, 0.5% (see Preferences) | Deducted once at disbursement. Turn it off if it doesn't apply (e.g. outside Ecuador or on exempt loans) |
 | **Day count** | 30/360 | `30/360`: every month counts 30 days. `Actual days/360`: each payment charges the days since the previous one, as Produbanco does |
 | **Disbursement date** | Today | Actual days only: the first interest period starts here |
 | **First payment date** | One month from today | Puts dates in the schedule. With actual days it also sets the interest days, and a due date on a Saturday or Sunday moves to Monday |
@@ -77,6 +77,15 @@ Enter the loan as your latest statement or amortization table shows it.
 | **Extra payment: date** | Today by default. From the due date of the last payment made up to the day before the last payment |
 | **Extra payment: amount** | What you pay. It must be more than the interest accrued up to its date |
 | **Extra payment: effect** | `Reduce term` (default) or `Reduce payment` |
+
+### Preferences
+
+The **Preferences** button next to the title opens them; **Done** goes back to the tabs.
+
+| Preference | Default | Description |
+|---|---|---|
+| **Currency** | USD | Every amount shows in it, always with 2 decimals: USD, EUR, MXN, GTQ, HNL, NIO, CRC, DOP, COP, PEN, BOB, ARS, UYU or BRL. It only changes how amounts are written; nothing is converted. Currencies without cents (CLP, PYG) are not offered, because every amount is rounded to cents |
+| **SOLCA on for new loans** and its **percent** | On, 0.5% | How the SOLCA fields of a new loan start: the first one, and each time you press **Start over**. The loan you are simulating and the saved scenarios keep their own |
 
 ### Saved scenarios (third tab)
 
@@ -181,8 +190,8 @@ The most common credit segments in Ecuador are: consumer, microcredit (retail, s
 
 Only three things are specific to Ecuador, and all of them can be turned off or changed:
 
-1. **Currency:** USD by default. The symbol can be changed.
-2. **SOLCA:** can be turned off.
+1. **Currency:** USD by default. Pick another one in Preferences.
+2. **SOLCA:** can be turned off, for one loan or for every new one (Preferences).
 3. **Segment maximum rate:** optional.
 
 Everything else (rates, term, amortization methods, insurance and extra payments) works the same in any country.

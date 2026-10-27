@@ -19,8 +19,8 @@ import { parseDecimal } from '@/i18n/parse-number';
 import { storedFields } from '@/storage/stored-fields';
 import { DAY_COUNTS, INSURANCE_BASES, INSURANCE_UNITS, METHODS, RATE_TYPES } from './choices';
 import type { FieldError } from './errors';
+import { defaultPreferences, type Preferences } from './preferences';
 
-const DEFAULT_SOLCA_PERCENT = 0.5;
 const LOAN_FIELDS: readonly ValidationField[] = ['amount', 'termMonths', 'annualRate'];
 // paymentDate() counts payments from 1, so payment 2 falls one month after the date given.
 const ONE_MONTH_LATER = 2;
@@ -51,10 +51,15 @@ export interface LoanForm {
 }
 
 /**
- * An empty form with the UI's defaults: SOLCA on at 0.5 %, 30/360, the loan paid out `today`
+ * An empty form with the UI's defaults: SOLCA as the user's `preferences` say (on at 0.5 %
+ * unless they changed it), 30/360, the loan paid out `today`
  * (an ISO date) and the first payment one month later, as the README promises.
  */
-export function defaultForm(today: string, locale: FormatLocale): LoanForm {
+export function defaultForm(
+  today: string,
+  locale: FormatLocale,
+  preferences: Pick<Preferences, 'solcaEnabled' | 'solcaPercent'> = defaultPreferences(locale),
+): LoanForm {
   return {
     amount: '',
     termMonths: '',
@@ -66,8 +71,8 @@ export function defaultForm(today: string, locale: FormatLocale): LoanForm {
     insuranceBase: 'balance',
     onTopOfInstallment: false,
     otherCharges: '',
-    solcaEnabled: true,
-    solcaPercent: new Intl.NumberFormat(locale).format(DEFAULT_SOLCA_PERCENT),
+    solcaEnabled: preferences.solcaEnabled,
+    solcaPercent: preferences.solcaPercent,
     dayCount: 'thirty360',
     firstPaymentDate: paymentDate(today, ONE_MONTH_LATER),
     disbursementDate: today,

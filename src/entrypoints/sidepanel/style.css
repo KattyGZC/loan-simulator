@@ -57,6 +57,35 @@ h1 {
   margin: 16px 0 4px;
 }
 
+.title-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.title-bar .button {
+  margin-top: 12px;
+}
+
+.tabs[hidden] {
+  display: none;
+}
+
+.preferences {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+.preferences h2 {
+  margin: 0;
+}
+
+.tab-actions {
+  justify-content: flex-end;
+}
+
 h2 {
   font-size: 15px;
   margin: 0 0 8px;

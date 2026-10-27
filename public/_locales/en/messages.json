@@ -424,5 +424,26 @@
       "first": { "content": "$1", "example": "$466.08" },
       "last": { "content": "$2", "example": "$420.15" }
     }
+  },
+  "button_preferences": {
+    "message": "Preferences"
+  },
+  "button_done": {
+    "message": "Done"
+  },
+  "section_preferences": {
+    "message": "Preferences"
+  },
+  "field_currency": {
+    "message": "Currency"
+  },
+  "field_solcaByDefault": {
+    "message": "SOLCA contribution on for new loans"
+  },
+  "preferences_note": {
+    "message": "The currency changes every amount at once. SOLCA sets up a new loan: the first one, and each time you start over. Saved scenarios keep their own."
+  },
+  "button_startOver": {
+    "message": "Start over"
   }
 }

@@ -1,6 +1,7 @@
 import { render } from 'preact';
 import { t, uiLanguage } from '@/i18n/translate';
 import { loadDrafts } from '@/storage/drafts';
+import { loadPreferences } from '@/storage/preferences';
 import { loadScenarios } from '@/storage/scenarios';
 import { App, type StoredState } from './App';
 import './style.css';
@@ -14,9 +15,10 @@ document.title = t('extName');
 const nothingStored: StoredState = {
   drafts: { newLoan: undefined, existingLoan: undefined },
   scenarios: undefined,
+  preferences: undefined,
 };
-Promise.all([loadDrafts(), loadScenarios()])
-  .then(([drafts, scenarios]): StoredState => ({ drafts, scenarios }))
+Promise.all([loadDrafts(), loadScenarios(), loadPreferences()])
+  .then(([drafts, scenarios, preferences]): StoredState => ({ drafts, scenarios, preferences }))
   .catch((error: unknown) => {
     console.error(error);
     return nothingStored;

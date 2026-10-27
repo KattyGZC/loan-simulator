@@ -12,7 +12,7 @@ Read this before the first edit. It binds every author and every model (Claude, 
 | `public/_locales/{en,es}/messages.json` | Every UI string, in English and Spanish. English is the fallback. `MessageKey` (`src/i18n/translate.ts`) is the key list of the English file |
 | `src/entrypoints/background.ts` | Opens the side panel when the toolbar icon is clicked |
 | `src/entrypoints/sidepanel/` | The UI (Preact), two tabs: a new loan (`NewLoan.tsx`) and an extra payment on a loan you already have (`ExistingLoan.tsx`). `form.ts` and `existing-form.ts` hold the panel logic, unit-tested: typed form to engine input, and what the results area shows (`panelState`, `existingLoanState`). The components lay out and format; which error a field shows now is `visibleError()`, in `form.ts` |
-| `src/storage/` | What the panel keeps in `browser.storage.local`, each as `{ schemaVersion, data }` (`versioned.ts`): each tab's draft (`drafts.ts`) and the saved scenarios (`scenarios.ts`). `storedFields()` reads stored data back without trusting it; each form's `restore…Form()` (`form.ts`, `existing-form.ts`) and `restoreScenarios()` (`saved-scenarios.ts`) fall back to the default for a field that is missing or invalid. The option lists of each select are in `sidepanel/choices.ts` |
+| `src/storage/` | What the panel keeps in `browser.storage.local`, each as `{ schemaVersion, data }` (`versioned.ts`): each tab's draft (`drafts.ts`), the saved scenarios (`scenarios.ts`) and the preferences (`preferences.ts`). `storedFields()` reads stored data back without trusting it; each form's `restore…Form()` (`form.ts`, `existing-form.ts`), `restoreScenarios()` (`saved-scenarios.ts`) and `restorePreferences()` (`sidepanel/preferences.ts`) fall back to the default for a field that is missing or invalid. The option lists of each select are in `sidepanel/choices.ts` |
 | `tests/core/` | Unit tests of the engine, through `simulate()` or the module's export |
 | `tests/i18n/` | Tests of `src/i18n/`. `fake-i18n.ts` stands in for `chrome.i18n` over the real `messages.json` |
 | `tests/storage/` | Tests of `src/storage/`, over WXT's fake browser |
@@ -22,15 +22,14 @@ Read this before the first edit. It binds every author and every model (Claude, 
 
 ## Status
 
-Done: project setup (phase 0), the calculation engine (phase 1), tested against Cooperativa JEP, languages and formatting (phase 2), the side panel UI (phase 3), the day-count basis (30/360 or actual days/360), and an extra payment on a loan you already have (`simulateExistingLoan()`, second tab), both tested against a Produbanco statement. Each tab keeps its form as a draft when the panel closes. New-loan scenarios are saved, opened, renamed, deleted and compared two at a time in a third tab (`Scenarios.tsx`, logic in `saved-scenarios.ts`).
+Done: project setup (phase 0), the calculation engine (phase 1), tested against Cooperativa JEP, languages and formatting (phase 2), the side panel UI (phase 3), the day-count basis (30/360 or actual days/360), and an extra payment on a loan you already have (`simulateExistingLoan()`, second tab), both tested against a Produbanco statement. Each tab keeps its form as a draft when the panel closes. New-loan scenarios are saved, opened, renamed, deleted and compared two at a time in a third tab (`Scenarios.tsx`, logic in `saved-scenarios.ts`). Preferences (currency, and how SOLCA starts on a new loan) open from a header button (phase 4 done).
 
 Next, in order:
 
-1. **Preferences** (`src/storage/`): currency symbol, SOLCA on by default and its percent.
-2. **CSV export and print view.**
-3. **Accessibility, dark theme, final icons.**
-4. **QA:** Playwright e2e and a manual check against 3 institutions.
-5. **Chrome Web Store** listing, privacy page and release workflow.
+1. **CSV export and print view.**
+2. **Accessibility, dark theme, final icons.**
+3. **QA:** Playwright e2e and a manual check against 3 institutions.
+4. **Chrome Web Store** listing, privacy page and release workflow.
 
 After v1, not planned: total effective cost (IRR), non-monthly payments, grace periods, Firefox.
 
@@ -44,11 +43,11 @@ Do not reverse one of these in passing. If a change needs to, say so first.
 - **Rounding.** Every row value is rounded to cents, half away from zero, with `roundMoney`. The rounded balance carries over, and the last payment takes what is left so the balance ends at exactly 0.
 - **Insurance inside the French payment by default.** The annuity uses interest rate + insurance rate, as most credit unions do. `onTopOfInstallment` adds it on top instead.
 - **Extra payments only on a loan already running.** `simulate()` has none; `simulateExistingLoan()` takes one, on a date from the last due date paid up to the day before the last payment. It pays the interest accrued since that due date first (a day's interest rounded to cents, times the days, as Produbanco does), then the principal the payment it falls before was going to repay, then part of the balance. That payment repays on its due date only the principal the extra payment left and charges the interest for the days left; only an extra payment beyond its principal reschedules the payments after it, so an extra payment never costs more than none. Under 30/360 every period counts 30 days and a month's last day is the 30th (`days360Between`, `splitPeriod`). Its row holds the extra payment, as a statement does. Under French the current payment the user enters sets every payment but the last; the remaining payments only check it (`paymentDoesNotFitTerm`). Insurance on a running loan is on the balance. An extra payment above what the loan owes is clipped and pays it off on its date, with a warning.
-- **No hidden defaults in the engine.** No SOLCA, no dates and 30/360 unless the input says otherwise. "SOLCA on, 0.5 %", "paid out today" and "first payment one month from today" belong to the UI. The engine never reads the clock.
+- **No hidden defaults in the engine.** No SOLCA, no dates and 30/360 unless the input says otherwise. "SOLCA on, 0.5 %" (the user's preference, `defaultPreferences()`), "paid out today" and "first payment one month from today" belong to the UI. The engine never reads the clock.
 - **Errors are codes.** `validate()` and `validateExistingLoan()` return `{ field, code }`, plus `params: { min, max }` for `outOfRange`, `params: { max }` for `tooLarge`, `params: { min }` for `tooSmall` (a current payment or extra payment that would repay no principal) and ISO-date `params: { min, max }` for `dateOutOfRange` (an extra payment outside the loan). `simulateExistingLoan()` checks those last two after the field checks, because they depend on the schedule. With actual days, a first payment on or before the disbursement is `notAfterDisbursement`. The UI turns them into text with `validationMessage()`.
 - **Empty fields.** `LoanInput` has no empty number. The form (`form.ts`) passes `NaN` for an empty field so `validate()` still checks the others, then reports that field as `required`. A `required` error shows only on an empty field the user has typed in and left at least once (`visibleError`): showing it on the first blur moved the page under the click that left the field; the results show the empty state while amount, term or rate is missing.
 - **Two languages.** English and Spanish via `chrome.i18n`, following the browser language, English as the fallback. Every string the user sees comes from `messages.json` through `t()`.
-- **Format locale.** Spanish formats as `es-EC` (`$1.234,56`, `31/01/2027`) and anything else as `en-US`. Region-less `es` and `es-419` would print `1234,56 US$` and `USD 1,234.56`. Currency is USD.
+- **Format locale.** Spanish formats as `es-EC` (`$1.234,56`, `31/01/2027`) and anything else as `en-US`. Region-less `es` and `es-419` would print `1234,56 US$` and `USD 1,234.56`. Currency is the user's preference, USD by default, from `CURRENCIES` (`src/i18n/format.ts`): only currencies with cents, always shown with 2 decimals, because the engine rounds to cents. It changes how amounts are written, never their value. The panel's `format` (`sidepanel/locale.ts`) follows it through `showAmountsIn()`, which `App` calls as it renders.
 - **Typed numbers.** `parseDecimal()` accepts `,` or `.` as the decimal separator. The only ambiguous case, one separator after 1–3 digits not starting with 0 (maybe space-grouped) and before exactly three (`10.000`, `1 000.000`), follows the locale's decimal separator. Spaces inside only group thousands. Empty text is `undefined` and unreadable text `NaN`, so `validate()` reports them.
 - **Privacy.** Permissions are `storage` and `sidePanel` only. No host permissions, no network calls.
 

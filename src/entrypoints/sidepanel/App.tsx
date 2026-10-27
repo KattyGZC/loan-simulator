@@ -1,12 +1,16 @@
 import { useId, useState } from 'preact/hooks';
 import { t, type MessageKey } from '@/i18n/translate';
 import { saveDraft, type Drafts } from '@/storage/drafts';
+import { savePreferences } from '@/storage/preferences';
 import { ExistingLoan } from './ExistingLoan';
-import { defaultForm } from './form';
-import { locale } from './locale';
+import { defaultForm, type LoanForm } from './form';
+import { locale, showAmountsIn } from './locale';
 import { NewLoan } from './NewLoan';
+import { defaultPreferences, restorePreferences } from './preferences';
+import { PreferencesForm } from './PreferencesForm';
 import { restoreScenarios, type Scenario } from './saved-scenarios';
 import { Scenarios } from './Scenarios';
+import { useSaveOnChange } from './useSaveOnChange';
 import { useScenarios } from './useScenarios';
 
 type Tab = 'newLoan' | 'existingLoan' | 'scenarios';
@@ -20,6 +24,7 @@ const TABS: readonly { tab: Tab; label: MessageKey }[] = [
 export interface StoredState {
   drafts: Drafts;
   scenarios: unknown;
+  preferences: unknown;
 }
 
 /** Today in the user's time zone, as an ISO date. */
@@ -30,33 +35,46 @@ function today(): string {
 }
 
 /**
- * Two simulators and the saved scenarios, in tabs. The tabs stay mounted, so each simulator
- * keeps what was typed in it, and each starts from its draft: what it held when the panel last
- * closed.
+ * Two simulators and the saved scenarios, in tabs, and the preferences behind a header button.
+ * The tabs stay mounted, so each simulator keeps what was typed in it, and each starts from its
+ * draft: what it held when the panel last closed.
  */
 export function App({ stored }: { stored: StoredState }) {
   const [selected, setSelected] = useState<Tab>('newLoan');
+  const [showingPreferences, setShowingPreferences] = useState(false);
   const [todayDate] = useState(today);
-  const { scenarios, add, rename, remove } = useScenarios(() =>
-    restoreScenarios(stored.scenarios, defaultForm(todayDate, locale)),
+  const [preferences, setPreferences] = useState(() =>
+    restorePreferences(stored.preferences, defaultPreferences(locale)),
   );
-  // Opening a scenario mounts the new-loan tab again (a new key), starting from its form. A tab
-  // saves its draft only when the form changes, so the scenario becomes the draft here.
-  const [newLoan, setNewLoan] = useState({ draft: stored.drafts.newLoan, opened: 0 });
-  const openScenario = (scenario: Scenario) => {
-    setNewLoan((current) => ({ draft: scenario.form, opened: current.opened + 1 }));
-    setSelected('newLoan');
-    saveDraft('newLoan', scenario.form).catch((error: unknown) => console.error(error));
+  useSaveOnChange(preferences, savePreferences);
+  showAmountsIn(preferences.currency);
+  const newLoanDefaults = defaultForm(todayDate, locale, preferences);
+
+  const { scenarios, add, rename, remove } = useScenarios(() =>
+    restoreScenarios(stored.scenarios, newLoanDefaults),
+  );
+  // Restarting mounts the new-loan tab again (a new key), from `form`. A tab saves its draft
+  // only when the form changes, so `form` becomes the draft here.
+  const [newLoan, setNewLoan] = useState({ draft: stored.drafts.newLoan, restarts: 0 });
+  const restartNewLoan = (form: LoanForm) => {
+    setNewLoan((current) => ({ draft: form, restarts: current.restarts + 1 }));
+    saveDraft('newLoan', form).catch((error: unknown) => console.error(error));
   };
+  const openScenario = (scenario: Scenario) => {
+    restartNewLoan(scenario.form);
+    setSelected('newLoan');
+  };
+
   const content = (tab: Tab) => {
     switch (tab) {
       case 'newLoan':
         return (
           <NewLoan
-            key={newLoan.opened}
-            today={todayDate}
+            key={newLoan.restarts}
             draft={newLoan.draft}
+            defaults={newLoanDefaults}
             onSaveScenario={add}
+            onStartOver={() => restartNewLoan(newLoanDefaults)}
           />
         );
       case 'existingLoan':
@@ -79,8 +97,18 @@ export function App({ stored }: { stored: StoredState }) {
   return (
     <>
       <header>
-        <h1>{t('extName')}</h1>
-        <div class="tabs" role="tablist">
+        <div class="title-bar">
+          <h1>{t('extName')}</h1>
+          <button
+            type="button"
+            class="button"
+            aria-expanded={showingPreferences}
+            onClick={() => setShowingPreferences(!showingPreferences)}
+          >
+            {t(showingPreferences ? 'button_done' : 'button_preferences')}
+          </button>
+        </div>
+        <div class="tabs" role="tablist" hidden={showingPreferences}>
           {TABS.map(({ tab, label }) => (
             <button
               key={tab}
@@ -97,6 +125,9 @@ export function App({ stored }: { stored: StoredState }) {
         </div>
       </header>
       <main>
+        {showingPreferences && (
+          <PreferencesForm preferences={preferences} onChange={setPreferences} />
+        )}
         {TABS.map(({ tab }) => (
           <div
             key={tab}
@@ -104,7 +135,7 @@ export function App({ stored }: { stored: StoredState }) {
             class="tab-panel"
             role="tabpanel"
             aria-labelledby={tabId(tab)}
-            hidden={selected !== tab}
+            hidden={showingPreferences || selected !== tab}
           >
             {content(tab)}
           </div>
