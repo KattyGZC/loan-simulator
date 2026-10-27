@@ -1,5 +1,12 @@
 import { roundMoney } from './money';
-import type { Comparison, LoanSummary, Schedule, ScheduleRow } from './types';
+import type {
+  AppliedExtraPayment,
+  Comparison,
+  LoanSummary,
+  PaymentsSummary,
+  RemainingSchedule,
+  ScheduleRow,
+} from './types';
 
 type AmountKey = Exclude<keyof ScheduleRow, 'number' | 'date'>;
 
@@ -16,41 +23,55 @@ export function total(rows: readonly ScheduleRow[], key: AmountKey): number {
   return roundMoney(rows.reduce((sum, row) => sum + row[key], 0));
 }
 
-export function summarize(rows: readonly ScheduleRow[], loan: LoanTerms): LoanSummary {
-  const totalInterest = total(rows, 'interest');
-  const totalInsurance = total(rows, 'insurance');
-  const totalOtherCharges = total(rows, 'otherCharges');
-  const totalExtraPayments = total(rows, 'extraPayment');
+export function summarizePayments(rows: readonly ScheduleRow[]): PaymentsSummary {
   return {
-    nominalRate: loan.nominalRate,
-    effectiveRate: loan.effectiveRate,
     paymentCount: rows.length,
     firstPayment: rows[0]?.payment ?? 0,
     lastPayment: rows.at(-1)?.payment ?? 0,
-    totalInterest,
-    totalInsurance,
-    totalOtherCharges,
-    totalExtraPayments,
-    solca: loan.solca,
-    amountReceived: roundMoney(loan.amount - loan.solca),
-    totalPaid: roundMoney(total(rows, 'payment') + totalExtraPayments),
-    totalCost: roundMoney(totalInterest + totalInsurance + totalOtherCharges + loan.solca),
+    totalInterest: total(rows, 'interest'),
+    totalInsurance: total(rows, 'insurance'),
+    totalOtherCharges: total(rows, 'otherCharges'),
+    totalPaid: total(rows, 'payment'),
   };
 }
 
-export function compare(base: Schedule, withExtraPayments: Schedule): Comparison {
-  const { rows } = withExtraPayments;
-  const lastExtra = rows.findLastIndex((row) => row.extraPayment > 0);
+export function summarize(rows: readonly ScheduleRow[], loan: LoanTerms): LoanSummary {
+  const payments = summarizePayments(rows);
   return {
-    interestSaved: roundMoney(base.summary.totalInterest - withExtraPayments.summary.totalInterest),
-    insuranceSaved: roundMoney(
-      base.summary.totalInsurance - withExtraPayments.summary.totalInsurance,
+    ...payments,
+    nominalRate: loan.nominalRate,
+    effectiveRate: loan.effectiveRate,
+    solca: loan.solca,
+    amountReceived: roundMoney(loan.amount - loan.solca),
+    totalCost: roundMoney(
+      payments.totalInterest + payments.totalInsurance + payments.totalOtherCharges + loan.solca,
     ),
-    otherChargesSaved: roundMoney(
-      base.summary.totalOtherCharges - withExtraPayments.summary.totalOtherCharges,
-    ),
-    totalCostSaved: roundMoney(base.summary.totalCost - withExtraPayments.summary.totalCost),
-    paymentsSaved: base.rows.length - rows.length,
-    newPayment: lastExtra === -1 ? null : (rows[lastExtra + 1]?.payment ?? null),
+  };
+}
+
+/**
+ * What `extraPayment` saves: `withExtraPayment` against `withoutExtraPayment`.
+ */
+export function compare(
+  withoutExtraPayment: RemainingSchedule,
+  withExtraPayment: RemainingSchedule,
+  extraPayment: Pick<AppliedExtraPayment, 'paymentNumber' | 'duePrincipal'>,
+): Comparison {
+  // Only an extra payment that covered its payment's principal reschedules the payments after
+  // it. Rows are numbered from 1, so this index is the payment after the extra payment's.
+  const rescheduled = extraPayment.duePrincipal === 0;
+  const nextPayment = withExtraPayment.rows[extraPayment.paymentNumber]?.payment ?? null;
+  const before = withoutExtraPayment.summary;
+  const after = withExtraPayment.summary;
+  const interestSaved = roundMoney(before.totalInterest - after.totalInterest);
+  const insuranceSaved = roundMoney(before.totalInsurance - after.totalInsurance);
+  const otherChargesSaved = roundMoney(before.totalOtherCharges - after.totalOtherCharges);
+  return {
+    interestSaved,
+    insuranceSaved,
+    otherChargesSaved,
+    totalCostSaved: roundMoney(interestSaved + insuranceSaved + otherChargesSaved),
+    paymentsSaved: withoutExtraPayment.rows.length - withExtraPayment.rows.length,
+    newPayment: rescheduled ? nextPayment : null,
   };
 }

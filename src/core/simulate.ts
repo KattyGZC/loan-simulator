@@ -3,8 +3,8 @@ import { loanCalendar } from './calendar';
 import { insuranceMonthlyRate } from './insurance';
 import { roundMoney } from './money';
 import { annualRates, percentOf, percentToFraction } from './rates';
-import { compare, summarize, type LoanTerms } from './summary';
-import type { LoanInput, Schedule, SimulationResult, SimulationWarning } from './types';
+import { summarize, type LoanTerms } from './summary';
+import type { LoanInput, SimulationResult, SimulationWarning } from './types';
 import { validate } from './validate';
 
 export function simulate(input: LoanInput): SimulationResult {
@@ -38,17 +38,6 @@ export function simulate(input: LoanInput): SimulationResult {
     warnings.push({ code: 'rateAboveMaximum', effectiveRate, maxRate: input.maxRate });
   }
 
-  const baseRows = buildSchedule(params).rows;
-  const base: Schedule = { rows: baseRows, summary: summarize(baseRows, loan) };
-
-  const extraPayments = input.extraPayments ?? [];
-  if (extraPayments.length === 0) {
-    return { ok: true, base, withExtraPayments: null, warnings };
-  }
-
-  const extra = buildSchedule(params, extraPayments);
-  warnings.push(...extra.warnings);
-  const schedule: Schedule = { rows: extra.rows, summary: summarize(extra.rows, loan) };
-  const comparison = compare(base, schedule);
-  return { ok: true, base, withExtraPayments: { schedule, comparison }, warnings };
+  const rows = buildSchedule(params);
+  return { ok: true, schedule: { rows, summary: summarize(rows, loan) }, warnings };
 }

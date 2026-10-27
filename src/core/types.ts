@@ -25,13 +25,6 @@ export interface InsuranceInput {
   onTopOfInstallment?: boolean;
 }
 
-export interface ExtraPayment {
-  /** The extra payment is made right after this payment number. */
-  afterPayment: number;
-  amount: number;
-  effect: ExtraPaymentEffect;
-}
-
 export interface LoanInput {
   amount: number;
   termMonths: number;
@@ -55,42 +48,96 @@ export interface LoanInput {
   disbursementDate?: string;
   /** Maximum effective annual rate for the segment, in percent. */
   maxRate?: number;
-  extraPayments?: ExtraPayment[];
 }
 
+/** Credit life insurance without its base. */
+export type InsuranceTerms = Omit<InsuranceInput, 'base'>;
+
+/** An extra principal payment on a loan already running. */
+export interface ExtraPayment {
+  /** ISO date it is paid, from the previous due date up to the day before the last payment. */
+  date: string;
+  /** What the borrower pays: the interest accrued up to `date` first, the rest to principal. */
+  amount: number;
+  effect: ExtraPaymentEffect;
+}
+
+/**
+ * The method of a loan already running. Under the French method the lender's fixed payment is
+ * part of the loan: with the insurance when it is inside the payment, without other charges. It
+ * sets every payment but the last; the remaining payments only check it. The German fixed
+ * principal is the balance over the remaining payments.
+ */
+export type ExistingLoanMethod =
+  { method: 'french'; currentPayment: number } | { method: 'german' };
+
+/**
+ * A loan already running, as its latest statement shows it, and one extra payment on it.
+ * Payments are numbered from the next one.
+ */
+export type ExistingLoanInput = ExistingLoanMethod & ExistingLoanTerms;
+
+export interface ExistingLoanTerms {
+  /** Principal still owed after the last payment made. */
+  balance: number;
+  /** Payments left, the next one included. */
+  remainingPayments: number;
+  /** Annual rate in percent; `rateType` says whether it is nominal or effective. */
+  annualRate: number;
+  rateType: RateType;
+  /** ISO date the next payment is due. Every later due date falls on its day of the month. */
+  nextPaymentDate: string;
+  /** Defaults to `thirty360`. */
+  dayCount?: DayCount;
+  /** Always on the balance. */
+  insurance?: InsuranceTerms;
+  /** Fixed amount added to every payment. */
+  otherCharges?: number;
+  extraPayment: ExtraPayment;
+}
+
+/**
+ * One payment. The payment whose period holds an extra payment includes it, as a lender's
+ * statement does: its principal and interest are what the extra payment paid plus what is paid
+ * on the due date.
+ */
 export interface ScheduleRow {
   number: number;
-  /** Due date. With `actual360`, one that falls on a Saturday or Sunday moves to Monday. */
+  /**
+   * Due date. With `actual360`, one that falls on a Saturday or Sunday moves to Monday. When an
+   * extra payment pays the loan off, the date of that extra payment.
+   */
   date: string | null;
-  /** principal + interest + insurance + otherCharges. Extra payments are not included. */
+  /** principal + interest + insurance + otherCharges. */
   payment: number;
   principal: number;
   interest: number;
   insurance: number;
   otherCharges: number;
-  /** Extra principal paid right after this payment. */
-  extraPayment: number;
-  /** Balance after this payment and its extra payment. */
+  /** Balance after this payment. */
   balance: number;
 }
 
-export interface LoanSummary {
-  /** Nominal annual rate, in percent. */
-  nominalRate: number;
-  /** Effective annual rate, in percent. */
-  effectiveRate: number;
+/** Totals of a schedule. */
+export interface PaymentsSummary {
   paymentCount: number;
   firstPayment: number;
   lastPayment: number;
   totalInterest: number;
   totalInsurance: number;
   totalOtherCharges: number;
-  totalExtraPayments: number;
+  /** Every payment, extra payments included. */
+  totalPaid: number;
+}
+
+export interface LoanSummary extends PaymentsSummary {
+  /** Nominal annual rate, in percent. */
+  nominalRate: number;
+  /** Effective annual rate, in percent. */
+  effectiveRate: number;
   solca: number;
   /** amount − SOLCA. */
   amountReceived: number;
-  /** Every payment plus every extra payment. */
-  totalPaid: number;
   /** interest + insurance + other charges + SOLCA. */
   totalCost: number;
 }
@@ -100,13 +147,43 @@ export interface Schedule {
   summary: LoanSummary;
 }
 
+/** The rest of a loan already running, from its next payment. */
+export interface RemainingSchedule {
+  rows: ScheduleRow[];
+  summary: PaymentsSummary;
+}
+
+/** How an extra payment was applied. */
+export interface AppliedExtraPayment {
+  date: string;
+  /** The payment whose period it falls in; its row includes it. */
+  paymentNumber: number;
+  /** accruedInterest + principal: the amount entered, or less if it was more than the loan. */
+  amount: number;
+  /** Interest from the previous due date up to `date`. */
+  accruedInterest: number;
+  principal: number;
+  /** Balance right after it. */
+  balance: number;
+  /**
+   * Principal its payment still repays on the due date: 0 when the extra payment covered all
+   * of that payment's principal, which then charges only interest.
+   */
+  duePrincipal: number;
+}
+
+/** What an extra payment saves, against the same loan without it. */
 export interface Comparison {
   interestSaved: number;
   insuranceSaved: number;
   otherChargesSaved: number;
+  /** interestSaved + insuranceSaved + otherChargesSaved. */
   totalCostSaved: number;
   paymentsSaved: number;
-  /** First payment after the last extra payment, or null if the loan ended with it. */
+  /**
+   * First payment after the one that holds the extra payment, or null when the loan ended with
+   * it or the extra payment was too small to reschedule the payments after it.
+   */
   newPayment: number | null;
 }
 
@@ -118,11 +195,12 @@ export type ValidationCode =
   | 'mustBeNonNegative'
   | 'outOfRange'
   | 'tooLarge'
-  | 'noPaymentToPrepay'
+  | 'tooSmall'
   | 'invalidDate'
+  | 'dateOutOfRange'
   | 'notAfterDisbursement';
 
-/** Path of an input field, e.g. `amount` or `extraPayments.1.afterPayment`. */
+/** Path of an input field, e.g. `amount` or `extraPayment.date`. */
 export type ValidationField =
   | 'amount'
   | 'termMonths'
@@ -133,38 +211,54 @@ export type ValidationField =
   | 'firstPaymentDate'
   | 'disbursementDate'
   | 'maxRate'
-  | `extraPayments.${number}.afterPayment`
-  | `extraPayments.${number}.amount`;
+  | 'balance'
+  | 'remainingPayments'
+  | 'currentPayment'
+  | 'nextPaymentDate'
+  | 'extraPayment.date'
+  | 'extraPayment.amount';
 
 /**
  * `outOfRange` bounds a whole number on both sides; `tooLarge` caps an amount or a percentage
- * that already has its lower bound. `noPaymentToPrepay` marks an extra payment on a loan with a
- * single payment, where no value is valid.
+ * that already has its lower bound. `tooSmall` asks for an amount above `min`, what it must
+ * cover before it repays any principal. `dateOutOfRange` bounds a date, both ISO dates included.
  */
 export type ValidationError =
   | { field: ValidationField; code: 'outOfRange'; params: { min: number; max: number } }
   | { field: ValidationField; code: 'tooLarge'; params: { max: number } }
-  | { field: ValidationField; code: Exclude<ValidationCode, 'outOfRange' | 'tooLarge'> };
+  | { field: ValidationField; code: 'tooSmall'; params: { min: number } }
+  | { field: ValidationField; code: 'dateOutOfRange'; params: { min: string; max: string } }
+  | {
+      field: ValidationField;
+      code: Exclude<ValidationCode, 'outOfRange' | 'tooLarge' | 'tooSmall' | 'dateOutOfRange'>;
+    };
 
-export type SimulationWarning =
-  | { code: 'rateAboveMaximum'; effectiveRate: number; maxRate: number }
-  /** The extra payment was larger than the balance; only the balance was applied. */
-  | { code: 'extraPaymentClipped'; index: number; appliedAmount: number }
-  /** The loan was already paid off when this extra payment was due. */
-  | { code: 'extraPaymentIgnored'; index: number };
-
-/** The schedule with the extra payments applied, compared with the base schedule. */
-export interface WithExtraPayments {
-  schedule: Schedule;
-  comparison: Comparison;
-}
+export type SimulationWarning = {
+  code: 'rateAboveMaximum';
+  effectiveRate: number;
+  maxRate: number;
+};
 
 export type SimulationResult =
+  | { ok: true; schedule: Schedule; warnings: SimulationWarning[] }
+  | { ok: false; errors: ValidationError[] };
+
+export type ExistingLoanWarning =
+  /** The extra payment was more than the loan owed; only `appliedAmount` was applied. */
+  | { code: 'extraPaymentClipped'; appliedAmount: number }
+  /**
+   * French method: the current payment does not repay the balance in the remaining payments.
+   * Without the extra payment the loan ends with payment `paymentCount`, of `lastPayment`.
+   */
+  | { code: 'paymentDoesNotFitTerm'; paymentCount: number; lastPayment: number };
+
+export type ExistingLoanResult =
   | {
       ok: true;
-      base: Schedule;
-      /** Null when there are no extra payments. */
-      withExtraPayments: WithExtraPayments | null;
-      warnings: SimulationWarning[];
+      withoutExtraPayment: RemainingSchedule;
+      withExtraPayment: RemainingSchedule;
+      extraPayment: AppliedExtraPayment;
+      comparison: Comparison;
+      warnings: ExistingLoanWarning[];
     }
   | { ok: false; errors: ValidationError[] };

@@ -60,22 +60,51 @@ export function isIsoDate(value: string): boolean {
   return parseIsoDate(value) !== null;
 }
 
+const MONTHS_PER_YEAR = 12;
+
 /**
- * Date of payment `paymentNumber` (1-based), one month apart from the first payment. When the
- * month is shorter, it falls on its last day (Jan 31 → Feb 28 → Mar 31).
+ * Date of payment `paymentNumber` (1-based), one month apart from the first payment; 0 is the
+ * month before the first. When the month is shorter, it falls on its last day
+ * (Jan 31 → Feb 28 → Mar 31).
  */
 export function paymentDate(firstPaymentDate: string, paymentNumber: number): string {
   const first = parseIsoDate(firstPaymentDate);
   if (!first) throw new Error(`Invalid first payment date: ${firstPaymentDate}`);
   const monthIndex = first.month - 1 + (paymentNumber - 1);
-  const year = first.year + Math.floor(monthIndex / 12);
-  const month = (monthIndex % 12) + 1;
+  const year = first.year + Math.floor(monthIndex / MONTHS_PER_YEAR);
+  const month = (((monthIndex % MONTHS_PER_YEAR) + MONTHS_PER_YEAR) % MONTHS_PER_YEAR) + 1;
   return formatIsoDate({ year, month, day: Math.min(first.day, daysInMonth(year, month)) });
 }
 
 /** Calendar days from `from` to `to`, both ISO dates. Negative when `to` comes first. */
 export function daysBetween(from: string, to: string): number {
   return (toUtc(to).getTime() - toUtc(from).getTime()) / MS_PER_DAY;
+}
+
+export const DAYS_PER_30_360_MONTH = 30;
+
+/**
+ * Days from `from` to `to` counting every month as 30 days: the last day of a month, February
+ * included, counts as the 30th, so a month-end due date is always 30 days after the previous
+ * one. Negative when `to` comes first.
+ */
+export function days360Between(from: string, to: string): number {
+  const start = parseIsoDate(from);
+  const end = parseIsoDate(to);
+  if (!start || !end) throw new Error(`Invalid date: ${start ? to : from}`);
+  const dayNumber = ({ year, month, day }: CalendarDate) => {
+    const isMonthEnd = day === daysInMonth(year, month);
+    const day360 = isMonthEnd ? DAYS_PER_30_360_MONTH : Math.min(day, DAYS_PER_30_360_MONTH);
+    return (year * MONTHS_PER_YEAR + month) * DAYS_PER_30_360_MONTH + day360;
+  };
+  return dayNumber(end) - dayNumber(start);
+}
+
+/** The ISO date `days` days after `isoDate`, or before it when `days` is negative. */
+export function addDays(isoDate: string, days: number): string {
+  const date = toUtc(isoDate);
+  date.setUTCDate(date.getUTCDate() + days);
+  return fromUtc(date);
 }
 
 /** `isoDate`, or the Monday after it when it falls on a Saturday or Sunday. */
