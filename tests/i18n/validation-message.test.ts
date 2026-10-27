@@ -20,14 +20,14 @@ describe('validationMessage', () => {
       rateType: 'nominal',
       method: 'french',
     });
-    expect(validationMessage(error!, createFormat('es-EC'))).toBe(
+    expect(validationMessage(error!, createFormat('es-EC', 'USD'))).toBe(
       'Ingresa como máximo 1.000.000.000.',
     );
   });
 
   it('has a message for every validation code', () => {
     useLocale('en');
-    const format = createFormat('en-US');
+    const format = createFormat('en-US', 'USD');
     const oneErrorPerCode = {
       required: { field: 'amount', code: 'required' },
       notANumber: { field: 'amount', code: 'notANumber' },
