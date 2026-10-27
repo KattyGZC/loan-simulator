@@ -1,5 +1,6 @@
 import { useId, useState } from 'preact/hooks';
 import { t, type MessageKey } from '@/i18n/translate';
+import type { Drafts } from '@/storage/drafts';
 import { ExistingLoan } from './ExistingLoan';
 import { NewLoan } from './NewLoan';
 
@@ -16,8 +17,11 @@ function today(): string {
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }
 
-/** Two simulators in tabs. Both stay mounted, so each keeps what was typed in it. */
-export function App() {
+/**
+ * Two simulators in tabs. Both stay mounted, so each keeps what was typed in it, and each
+ * starts from its draft: what it held when the panel last closed.
+ */
+export function App({ drafts }: { drafts: Drafts }) {
   const [selected, setSelected] = useState<Tab>('newLoan');
   const [todayDate] = useState(today);
   const idPrefix = useId();
@@ -54,7 +58,11 @@ export function App() {
             aria-labelledby={tabId(tab)}
             hidden={selected !== tab}
           >
-            {tab === 'newLoan' ? <NewLoan today={todayDate} /> : <ExistingLoan today={todayDate} />}
+            {tab === 'newLoan' ? (
+              <NewLoan today={todayDate} draft={drafts.newLoan} />
+            ) : (
+              <ExistingLoan today={todayDate} draft={drafts.existingLoan} />
+            )}
           </div>
         ))}
       </main>

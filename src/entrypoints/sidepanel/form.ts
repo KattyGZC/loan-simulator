@@ -16,6 +16,8 @@ import {
 } from '@/core';
 import type { FormatLocale } from '@/i18n/format';
 import { parseDecimal } from '@/i18n/parse-number';
+import { storedFields } from '@/storage/stored-fields';
+import { DAY_COUNTS, INSURANCE_BASES, INSURANCE_UNITS, METHODS, RATE_TYPES } from './choices';
 import type { FieldError } from './errors';
 
 const DEFAULT_SOLCA_PERCENT = 0.5;
@@ -67,6 +69,29 @@ export function defaultForm(today: string, locale: FormatLocale): LoanForm {
     firstPaymentDate: paymentDate(today, ONE_MONTH_LATER),
     disbursementDate: today,
     maxRate: '',
+  };
+}
+
+/** The form saved as a draft, with `defaults` for every field it lacks or cannot hold. */
+export function restoreLoanForm(stored: unknown, defaults: LoanForm): LoanForm {
+  const { text, flag, oneOf } = storedFields(stored);
+  return {
+    amount: text('amount', defaults.amount),
+    termMonths: text('termMonths', defaults.termMonths),
+    annualRate: text('annualRate', defaults.annualRate),
+    rateType: oneOf('rateType', RATE_TYPES, defaults.rateType),
+    method: oneOf('method', METHODS, defaults.method),
+    insuranceRate: text('insuranceRate', defaults.insuranceRate),
+    insuranceUnit: oneOf('insuranceUnit', INSURANCE_UNITS, defaults.insuranceUnit),
+    insuranceBase: oneOf('insuranceBase', INSURANCE_BASES, defaults.insuranceBase),
+    onTopOfInstallment: flag('onTopOfInstallment', defaults.onTopOfInstallment),
+    otherCharges: text('otherCharges', defaults.otherCharges),
+    solcaEnabled: flag('solcaEnabled', defaults.solcaEnabled),
+    solcaPercent: text('solcaPercent', defaults.solcaPercent),
+    dayCount: oneOf('dayCount', DAY_COUNTS, defaults.dayCount),
+    firstPaymentDate: text('firstPaymentDate', defaults.firstPaymentDate),
+    disbursementDate: text('disbursementDate', defaults.disbursementDate),
+    maxRate: text('maxRate', defaults.maxRate),
   };
 }
 

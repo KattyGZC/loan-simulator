@@ -11,6 +11,8 @@ import {
   type ValidationField,
 } from '@/core';
 import type { FormatLocale } from '@/i18n/format';
+import { storedFields } from '@/storage/stored-fields';
+import { DAY_COUNTS, EFFECTS, INSURANCE_UNITS, METHODS, RATE_TYPES } from './choices';
 import { fieldReader, readInsurance, resultState, withEmptyFields, type PanelState } from './form';
 
 /** The "loan I already have" form: numbers as typed, choices as the engine names them. */
@@ -53,6 +55,31 @@ export function defaultExistingLoanForm(today: string): ExistingLoanForm {
     extraPaymentDate: today,
     extraPaymentAmount: '',
     extraPaymentEffect: 'reduceTerm',
+  };
+}
+
+/** The form saved as a draft, with `defaults` for every field it lacks or cannot hold. */
+export function restoreExistingLoanForm(
+  stored: unknown,
+  defaults: ExistingLoanForm,
+): ExistingLoanForm {
+  const { text, flag, oneOf } = storedFields(stored);
+  return {
+    balance: text('balance', defaults.balance),
+    remainingPayments: text('remainingPayments', defaults.remainingPayments),
+    annualRate: text('annualRate', defaults.annualRate),
+    rateType: oneOf('rateType', RATE_TYPES, defaults.rateType),
+    method: oneOf('method', METHODS, defaults.method),
+    currentPayment: text('currentPayment', defaults.currentPayment),
+    nextPaymentDate: text('nextPaymentDate', defaults.nextPaymentDate),
+    dayCount: oneOf('dayCount', DAY_COUNTS, defaults.dayCount),
+    insuranceRate: text('insuranceRate', defaults.insuranceRate),
+    insuranceUnit: oneOf('insuranceUnit', INSURANCE_UNITS, defaults.insuranceUnit),
+    onTopOfInstallment: flag('onTopOfInstallment', defaults.onTopOfInstallment),
+    otherCharges: text('otherCharges', defaults.otherCharges),
+    extraPaymentDate: text('extraPaymentDate', defaults.extraPaymentDate),
+    extraPaymentAmount: text('extraPaymentAmount', defaults.extraPaymentAmount),
+    extraPaymentEffect: oneOf('extraPaymentEffect', EFFECTS, defaults.extraPaymentEffect),
   };
 }
 
