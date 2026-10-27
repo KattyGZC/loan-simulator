@@ -9,6 +9,7 @@ export default defineConfig({
       include: [
         'src/core/**',
         'src/i18n/**',
+        'src/storage/**',
         'src/entrypoints/sidepanel/form.ts',
         'src/entrypoints/sidepanel/existing-form.ts',
       ],
