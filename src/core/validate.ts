@@ -28,7 +28,22 @@ function numberError(
   }
   if (rule.kind === 'positive' && value <= 0) return { field, code: 'mustBePositive' };
   if (value < 0) return { field, code: 'mustBeNonNegative' };
-  return rule.max !== undefined && value > rule.max ? outOfRange(field, 0, rule.max) : undefined;
+  return rule.max !== undefined && value > rule.max
+    ? { field, code: 'tooLarge', params: { max: rule.max } }
+    : undefined;
+}
+
+function afterPaymentError(
+  field: ValidationField,
+  afterPayment: number,
+  lastPrepayablePayment: number,
+): ValidationError | undefined {
+  if (lastPrepayablePayment < 1) return { field, code: 'noPaymentToPrepay' };
+  return numberError(field, afterPayment, {
+    kind: 'wholeNumber',
+    min: 1,
+    max: lastPrepayablePayment,
+  });
 }
 
 function optionalNumberError(
@@ -51,7 +66,6 @@ export function validate(input: LoanInput): ValidationError[] {
   // An extra payment after the last payment has nothing left to prepay. With an invalid term,
   // check against the longest one so the term error is not repeated on every extra payment.
   const lastPrepayablePayment = (termError ? MAX_TERM_MONTHS : input.termMonths) - 1;
-  const afterPayment: NumberRule = { kind: 'wholeNumber', min: 1, max: lastPrepayablePayment };
 
   const errors = [
     numberError('amount', input.amount, { kind: 'positive', max: MAX_AMOUNT }),
@@ -65,7 +79,11 @@ export function validate(input: LoanInput): ValidationError[] {
       : undefined,
     optionalNumberError('maxRate', input.maxRate, { kind: 'positive', max: MAX_PERCENT }),
     ...(input.extraPayments ?? []).flatMap((extra, index) => [
-      numberError(`extraPayments.${index}.afterPayment`, extra.afterPayment, afterPayment),
+      afterPaymentError(
+        `extraPayments.${index}.afterPayment`,
+        extra.afterPayment,
+        lastPrepayablePayment,
+      ),
       numberError(`extraPayments.${index}.amount`, extra.amount, { kind: 'positive' }),
     ]),
   ] satisfies (ValidationError | undefined)[];
