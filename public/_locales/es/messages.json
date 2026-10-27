@@ -360,5 +360,69 @@
   },
   "disclaimer": {
     "message": "Solo es una estimación. La entidad fija la cuota real cuando aprueba el crédito."
+  },
+  "tab_scenarios": {
+    "message": "Escenarios"
+  },
+  "section_saveScenario": {
+    "message": "Guardar este escenario"
+  },
+  "field_institution": {
+    "message": "Entidad"
+  },
+  "field_segment": {
+    "message": "Segmento"
+  },
+  "field_scenarioName": {
+    "message": "Nombre del escenario"
+  },
+  "hint_scenarioName": {
+    "message": "Entidad – segmento, si no lo cambias."
+  },
+  "button_saveScenario": {
+    "message": "Guardar escenario"
+  },
+  "scenario_saved": {
+    "message": "Guardado. Lo encuentras en la pestaña Escenarios."
+  },
+  "section_savedScenarios": {
+    "message": "Escenarios guardados"
+  },
+  "scenarios_compareHint": {
+    "message": "Marca dos para compararlos lado a lado."
+  },
+  "scenarios_emptyTitle": {
+    "message": "Aún no hay escenarios guardados"
+  },
+  "scenarios_emptyBody": {
+    "message": "Simula un crédito en la pestaña Crédito nuevo y guárdalo para compararlo aquí con otro."
+  },
+  "button_open": {
+    "message": "Abrir"
+  },
+  "button_rename": {
+    "message": "Renombrar"
+  },
+  "button_delete": {
+    "message": "Eliminar"
+  },
+  "button_saveName": {
+    "message": "Guardar"
+  },
+  "button_cancel": {
+    "message": "Cancelar"
+  },
+  "section_scenarioComparison": {
+    "message": "Lado a lado"
+  },
+  "scenario_cannotSimulate": {
+    "message": "No se puede simular"
+  },
+  "paymentRange": {
+    "message": "$FIRST$ a $LAST$",
+    "placeholders": {
+      "first": { "content": "$1", "example": "$466.08" },
+      "last": { "content": "$2", "example": "$420.15" }
+    }
   }
 }

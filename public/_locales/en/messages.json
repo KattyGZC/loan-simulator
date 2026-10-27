@@ -360,5 +360,69 @@
   },
   "disclaimer": {
     "message": "Estimates only. The institution sets the actual payment when it approves the loan."
+  },
+  "tab_scenarios": {
+    "message": "Scenarios"
+  },
+  "section_saveScenario": {
+    "message": "Save this scenario"
+  },
+  "field_institution": {
+    "message": "Institution"
+  },
+  "field_segment": {
+    "message": "Segment"
+  },
+  "field_scenarioName": {
+    "message": "Scenario name"
+  },
+  "hint_scenarioName": {
+    "message": "Institution – segment, unless you change it."
+  },
+  "button_saveScenario": {
+    "message": "Save scenario"
+  },
+  "scenario_saved": {
+    "message": "Saved. You can find it in the Scenarios tab."
+  },
+  "section_savedScenarios": {
+    "message": "Saved scenarios"
+  },
+  "scenarios_compareHint": {
+    "message": "Check two to compare them side by side."
+  },
+  "scenarios_emptyTitle": {
+    "message": "No saved scenarios yet"
+  },
+  "scenarios_emptyBody": {
+    "message": "Simulate a loan in the New loan tab and save it, to compare it here with another."
+  },
+  "button_open": {
+    "message": "Open"
+  },
+  "button_rename": {
+    "message": "Rename"
+  },
+  "button_delete": {
+    "message": "Delete"
+  },
+  "button_saveName": {
+    "message": "Save"
+  },
+  "button_cancel": {
+    "message": "Cancel"
+  },
+  "section_scenarioComparison": {
+    "message": "Side by side"
+  },
+  "scenario_cannotSimulate": {
+    "message": "Cannot simulate"
+  },
+  "paymentRange": {
+    "message": "$FIRST$ to $LAST$",
+    "placeholders": {
+      "first": { "content": "$1", "example": "$466.08" },
+      "last": { "content": "$2", "example": "$420.15" }
+    }
   }
 }
