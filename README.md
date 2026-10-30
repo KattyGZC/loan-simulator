@@ -8,7 +8,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 
 > Built for Ecuador (USD, SOLCA contribution, Central Bank credit segments). Since almost all data is entered by the user, it works for other countries once the Ecuador-specific options are turned off.
 
-> **Status:** in development, not published yet. The calculation engine (`src/core/`) and the English and Spanish texts and number formats (`src/i18n/`) are done and tested, and the side panel, loaded unpacked, simulates a new loan and an extra payment on a loan you already have; it counts interest on 30/360 or actual days/360, saves new-loan scenarios to compare two side by side, and keeps your preferences (currency and SOLCA). CSV export is next. This README describes the planned extension.
+> **Status:** in development, not published yet. The calculation engine (`src/core/`) and the English and Spanish texts and number formats (`src/i18n/`) are done and tested, and the side panel, loaded unpacked, simulates a new loan and an extra payment on a loan you already have; it counts interest on 30/360 or actual days/360, saves new-loan scenarios to compare two side by side, and keeps your preferences (currency, decimal sign of exported files and SOLCA), and exports either simulation to CSV. The print view is next. This README describes the planned extension.
 
 ---
 
@@ -85,6 +85,7 @@ The **Preferences** button next to the title opens them; **Done** goes back to t
 | Preference | Default | Description |
 |---|---|---|
 | **Currency** | USD | Every amount shows in it, always with 2 decimals: USD, EUR, MXN, GTQ, HNL, NIO, CRC, DOP, COP, PEN, BOB, ARS, UYU or BRL. It only changes how amounts are written; nothing is converted. Currencies without cents (CLP, PYG) are not offered, because every amount is rounded to cents |
+| **Decimal sign in exported files** | Comma in Spanish, point in English | The one your spreadsheet uses, which follows your computer's regional settings, not the language: Ecuador uses a comma, Mexico a point. With the wrong one, Excel reads amounts as text |
 | **SOLCA on for new loans** and its **percent** | On, 0.5% | How the SOLCA fields of a new loan start: the first one, and each time you press **Start over**. The loan you are simulating and the saved scenarios keep their own |
 
 ### Saved scenarios (third tab)
@@ -107,6 +108,7 @@ Scenarios are for new loans only. They stay in the browser, as the forms do.
 - **Amortization schedule:** #, date, total payment, principal, interest, insurance, other charges and balance.
 - **Two saved scenarios side by side:** payment (first and last when it changes), payments, effective rate, total interest, total cost and total paid.
 - **Extra payment on a loan you have:** how it splits into accrued interest and principal, the rest of the loan without vs. with it, what you save (interest, insurance and other charges), the payments saved or the new payment, and the schedule with the extra payment.
+- **CSV file** (**Export CSV**, on either simulator tab): the currency, what the tab shows above the schedule, the schedule with the same columns, and the disclaimer. Numbers are written so a spreadsheet reads them as numbers: with the decimal sign chosen in Preferences, without a currency sign or thousands separators (`1234,56` or `1234.56`), rates as `15,6%` or `15.6%` and dates as `YYYY-MM-DD`. Fields are separated by `;` with a decimal comma and by `,` with a decimal point, as Excel expects, and the file is UTF-8 with a byte order mark so Excel shows accents.
 
 ---
 

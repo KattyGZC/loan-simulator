@@ -441,9 +441,33 @@
     "message": "SOLCA contribution on for new loans"
   },
   "preferences_note": {
-    "message": "The currency changes every amount at once. SOLCA sets up a new loan: the first one, and each time you start over. Saved scenarios keep their own."
+    "message": "The currency changes every amount at once. SOLCA sets up a new loan: the first one, and each time you start over. Saved scenarios keep their own. Exported files use the decimal sign of your spreadsheet (your computer's regional settings), so it reads amounts as numbers."
   },
   "button_startOver": {
     "message": "Start over"
+  },
+  "button_exportCsv": {
+    "message": "Export CSV"
+  },
+  "file_newLoanCsv": {
+    "message": "loan-schedule-$DATE$.csv",
+    "placeholders": {
+      "date": { "content": "$1", "example": "2026-10-29" }
+    }
+  },
+  "file_existingLoanCsv": {
+    "message": "extra-payment-$DATE$.csv",
+    "placeholders": {
+      "date": { "content": "$1", "example": "2026-10-29" }
+    }
+  },
+  "field_fileDecimalSign": {
+    "message": "Decimal sign in exported files"
+  },
+  "decimalSign_comma": {
+    "message": "1234,56 (comma)"
+  },
+  "decimalSign_point": {
+    "message": "1234.56 (point)"
   }
 }
