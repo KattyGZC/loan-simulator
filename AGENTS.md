@@ -11,25 +11,25 @@ Read this before the first edit. It binds every author and every model (Claude, 
 | `src/i18n/` | UI text (`t()` over `chrome.i18n`), `Intl` formatting, and reading typed numbers |
 | `public/_locales/{en,es}/messages.json` | Every UI string, in English and Spanish. English is the fallback. `MessageKey` (`src/i18n/translate.ts`) is the key list of the English file |
 | `src/entrypoints/background.ts` | Opens the side panel when the toolbar icon is clicked |
-| `src/entrypoints/sidepanel/` | The UI (Preact), two tabs: a new loan (`NewLoan.tsx`) and an extra payment on a loan you already have (`ExistingLoan.tsx`). `form.ts` and `existing-form.ts` hold the panel logic, unit-tested: typed form to engine input, and what the results area shows (`panelState`, `existingLoanState`). `results.ts` builds the lines and columns of the results with the formatter it is given, the panel's or `createFileFormat()`'s (`src/i18n/format.ts`); `csv.ts` writes them as a CSV file, which `ExportCsv.tsx` downloads. The components lay out and format; which error a field shows now is `visibleError()`, in `form.ts` |
-| `src/storage/` | What the panel keeps in `browser.storage.local`, each as `{ schemaVersion, data }` (`versioned.ts`): each tab's draft (`drafts.ts`), the saved scenarios (`scenarios.ts`) and the preferences (`preferences.ts`). `storedFields()` reads stored data back without trusting it; each form's `restore…Form()` (`form.ts`, `existing-form.ts`), `restoreScenarios()` (`saved-scenarios.ts`) and `restorePreferences()` (`sidepanel/preferences.ts`) fall back to the default for a field that is missing or invalid. The option lists of each select are in `sidepanel/choices.ts` |
+| `src/entrypoints/sidepanel/` | The UI (Preact), two tabs: a new loan (`NewLoan.tsx`) and an extra payment on a loan you already have (`ExistingLoan.tsx`). `form.ts` and `existing-form.ts` hold the panel logic, unit-tested: typed form to engine input, and what the results area shows (`panelState`, `existingLoanState`). `results.ts` builds the lines and columns of the results with the formatter it is given, the panel's or `createFileFormat()`'s (`src/i18n/format.ts`); `csv.ts` writes them as a CSV file, which `ExportCsv.tsx` downloads; `printout.ts` writes them out for paper, which `PrintResults.tsx` stores and opens in the print page. The components lay out and format; which error a field shows now is `visibleError()`, in `form.ts` |
+| `src/entrypoints/print/` | The print page, in its own tab: paper width, without the forms. It lays out the printout the panel stored (`restorePrintout()`) and opens the dialog |
+| `src/storage/` | What the panel keeps in `browser.storage.local`, each as `{ schemaVersion, data }` (`versioned.ts`): each tab's draft (`drafts.ts`), the saved scenarios (`scenarios.ts`) and the preferences (`preferences.ts`). The printout (`printout.ts`) goes to `browser.storage.session` instead, unversioned, since it empties when the browser closes or the extension updates. `storedFields()` reads stored data back without trusting it; each form's `restore…Form()` (`form.ts`, `existing-form.ts`), `restoreScenarios()` (`saved-scenarios.ts`) and `restorePreferences()` (`sidepanel/preferences.ts`) fall back to the default for a field that is missing or invalid. The option lists of each select are in `sidepanel/choices.ts` |
 | `tests/core/` | Unit tests of the engine, through `simulate()` or the module's export |
 | `tests/i18n/` | Tests of `src/i18n/`. `fake-i18n.ts` stands in for `chrome.i18n` over the real `messages.json` |
 | `tests/storage/` | Tests of `src/storage/`, over WXT's fake browser |
-| `tests/sidepanel/` | Tests of the side panel logic: the forms, the results lines, the CSV file, scenarios and preferences |
+| `tests/sidepanel/` | Tests of the side panel logic: the forms, the results lines, the CSV file, the printout, scenarios and preferences |
 | `tests/golden/` | Reference schedules copied from real simulators, with their source |
 | `wxt.config.ts` | Manifest: name, permissions (`storage`, `sidePanel`), side panel |
 
 ## Status
 
-Done: project setup (phase 0), the calculation engine (phase 1), tested against Cooperativa JEP, languages and formatting (phase 2), the side panel UI (phase 3), the day-count basis (30/360 or actual days/360), and an extra payment on a loan you already have (`simulateExistingLoan()`, second tab), both tested against a Produbanco statement. Each tab keeps its form as a draft when the panel closes. New-loan scenarios are saved, opened, renamed, deleted and compared two at a time in a third tab (`Scenarios.tsx`, logic in `saved-scenarios.ts`). Preferences (currency, the decimal sign of exported files, and how SOLCA starts on a new loan) open from a header button (phase 4 done). Either simulator tab exports what it shows to CSV.
+Done: project setup (phase 0), the calculation engine (phase 1), tested against Cooperativa JEP, languages and formatting (phase 2), the side panel UI (phase 3), the day-count basis (30/360 or actual days/360), and an extra payment on a loan you already have (`simulateExistingLoan()`, second tab), both tested against a Produbanco statement. Each tab keeps its form as a draft when the panel closes. New-loan scenarios are saved, opened, renamed, deleted and compared two at a time in a third tab (`Scenarios.tsx`, logic in `saved-scenarios.ts`). Preferences (currency, the decimal sign of exported files, and how SOLCA starts on a new loan) open from a header button (phase 4 done). Either simulator tab exports what it shows to CSV and prints it from a page in its own tab (phase 5 done).
 
 Next, in order:
 
-1. **Print view.**
-2. **Accessibility, dark theme, final icons.**
-3. **QA:** Playwright e2e and a manual check against 3 institutions.
-4. **Chrome Web Store** listing, privacy page and release workflow.
+1. **Accessibility, dark theme, final icons.**
+2. **QA:** Playwright e2e and a manual check against 3 institutions.
+3. **Chrome Web Store** listing, privacy page and release workflow.
 
 After v1, not planned: total effective cost (IRR), non-monthly payments, grace periods, Firefox.
 
