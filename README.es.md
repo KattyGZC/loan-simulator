@@ -8,7 +8,7 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
 
 > Pensada para Ecuador (USD, SOLCA, segmentos del BCE), pero como casi todos los datos los ingresa el usuario, sirve para otros países desactivando lo específico de Ecuador.
 
-> **Estado:** en desarrollo, aún no publicada. El motor de cálculo (`src/core/`) y los textos y formatos de número en inglés y español (`src/i18n/`) están terminados y probados, y el panel lateral, cargando la extensión sin empaquetar, ya simula un crédito nuevo y un abono a un crédito que ya tienes; cuenta el interés en 30/360 o en días reales/360, guarda escenarios de crédito nuevo para comparar dos lado a lado y conserva tus preferencias (moneda y SOLCA). Falta la exportación a CSV. Este README describe la extensión prevista.
+> **Estado:** en desarrollo, aún no publicada. El motor de cálculo (`src/core/`) y los textos y formatos de número en inglés y español (`src/i18n/`) están terminados y probados, y el panel lateral, cargando la extensión sin empaquetar, ya simula un crédito nuevo y un abono a un crédito que ya tienes; cuenta el interés en 30/360 o en días reales/360, guarda escenarios de crédito nuevo para comparar dos lado a lado y conserva tus preferencias (moneda, signo decimal de los archivos exportados y SOLCA), y exporta cualquiera de las dos simulaciones a CSV. Falta la vista para imprimir. Este README describe la extensión prevista.
 
 ---
 
@@ -85,6 +85,7 @@ El botón **Preferencias**, junto al título, las abre; **Listo** vuelve a las p
 | Preferencia | Por defecto | Descripción |
 |---|---|---|
 | **Moneda** | USD | Todos los montos se muestran en ella, siempre con 2 decimales: USD, EUR, MXN, GTQ, HNL, NIO, CRC, DOP, COP, PEN, BOB, ARS, UYU o BRL. Solo cambia cómo se escriben los montos; no convierte nada. Las monedas sin centavos (CLP, PYG) no se ofrecen, porque todos los montos se redondean a centavos |
+| **Signo decimal en archivos exportados** | Coma en español, punto en inglés | El que usa tu hoja de cálculo, que sigue la configuración regional de tu equipo y no el idioma: Ecuador usa coma y México punto. Con el equivocado, Excel lee los montos como texto |
 | **SOLCA activada en créditos nuevos** y su **porcentaje** | Activada, 0,5 % | Cómo empiezan los campos de SOLCA de un crédito nuevo: el primero y cada vez que pulsas **Empezar de nuevo**. El crédito que estás simulando y los escenarios guardados conservan los suyos |
 
 ### Escenarios guardados (tercera pestaña)
@@ -107,6 +108,7 @@ Los escenarios son solo de créditos nuevos. Se quedan en el navegador, igual qu
 - **Tabla de amortización:** n.º, fecha, cuota total, capital, interés, seguro, otros cargos y saldo.
 - **Dos escenarios guardados lado a lado:** cuota (la primera y la última cuando cambia), cuotas, tasa efectiva, total de intereses, costo total y total pagado.
 - **Abono a un crédito que tienes:** cómo se reparte entre interés acumulado y capital, el resto del crédito sin vs. con abono, lo que ahorras (intereses, seguro y otros cargos), las cuotas que te ahorras o la nueva cuota, y la tabla con el abono.
+- **Archivo CSV** (**Exportar CSV**, en cualquiera de las dos pestañas de simulación): la moneda, lo que la pestaña muestra sobre la tabla, la tabla con las mismas columnas y el aviso legal. Los números se escriben para que la hoja de cálculo los lea como números: con el signo decimal elegido en Preferencias, sin símbolo de moneda ni separador de miles (`1234,56` o `1234.56`), las tasas como `15,6%` o `15.6%` y las fechas como `AAAA-MM-DD`. Los campos se separan con `;` si el decimal es coma y con `,` si es punto, como espera Excel, y el archivo es UTF-8 con marca de orden de bytes para que Excel muestre las tildes.
 
 ---
 

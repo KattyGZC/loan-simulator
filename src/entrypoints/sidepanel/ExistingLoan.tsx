@@ -1,5 +1,6 @@
 import { useId } from 'preact/hooks';
 import { t } from '@/i18n/translate';
+import { existingLoanCsv, type CsvSettings } from './csv';
 import { ExistingLoanFields } from './ExistingLoanFields';
 import {
   defaultExistingLoanForm,
@@ -7,14 +8,22 @@ import {
   restoreExistingLoanForm,
 } from './existing-form';
 import { AppliedExtraPayment, Comparison } from './ExtraPaymentResults';
+import { ExportCsv } from './ExportCsv';
 import { counterpartRate } from './form';
 import { locale } from './locale';
 import { ScheduleTable } from './ScheduleTable';
 import { useSimulation } from './useSimulation';
 import { Warnings } from './Warnings';
 
+interface ExistingLoanProps {
+  today: string;
+  /** The currency and decimal sign of the exported file. */
+  csvSettings: CsvSettings;
+  draft: unknown;
+}
+
 /** An extra payment on a loan already running: the loan and the payment, then what it saves. */
-export function ExistingLoan({ today, draft }: { today: string; draft: unknown }) {
+export function ExistingLoan({ today, csvSettings, draft }: ExistingLoanProps) {
   const { form, update, simulated, state, errors, errorOf } = useSimulation(
     'existingLoan',
     () => restoreExistingLoanForm(draft, defaultExistingLoanForm(today)),
@@ -44,6 +53,10 @@ export function ExistingLoan({ today, draft }: { today: string; draft: unknown }
           <Warnings warnings={state.simulation.warnings} />
           <AppliedExtraPayment simulation={state.simulation} />
           <Comparison simulation={state.simulation} />
+          <ExportCsv
+            fileName={t('file_existingLoanCsv', [today])}
+            csv={() => existingLoanCsv(state.simulation, csvSettings)}
+          />
           <ScheduleTable
             schedule={state.simulation.withExtraPayment}
             title="section_scheduleWithExtraPayment"

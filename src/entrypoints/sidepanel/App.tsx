@@ -71,6 +71,8 @@ export function App({ stored }: { stored: StoredState }) {
         return (
           <NewLoan
             key={newLoan.restarts}
+            today={todayDate}
+            csvSettings={preferences}
             draft={newLoan.draft}
             defaults={newLoanDefaults}
             onSaveScenario={add}
@@ -78,7 +80,13 @@ export function App({ stored }: { stored: StoredState }) {
           />
         );
       case 'existingLoan':
-        return <ExistingLoan today={todayDate} draft={stored.drafts.existingLoan} />;
+        return (
+          <ExistingLoan
+            today={todayDate}
+            csvSettings={preferences}
+            draft={stored.drafts.existingLoan}
+          />
+        );
       case 'scenarios':
         return (
           <Scenarios

@@ -441,9 +441,33 @@
     "message": "Contribución SOLCA activada en créditos nuevos"
   },
   "preferences_note": {
-    "message": "La moneda cambia todos los montos de inmediato. SOLCA prepara un crédito nuevo: el primero y cada vez que empiezas de nuevo. Los escenarios guardados conservan el suyo."
+    "message": "La moneda cambia todos los montos de inmediato. SOLCA prepara un crédito nuevo: el primero y cada vez que empiezas de nuevo. Los escenarios guardados conservan el suyo. Los archivos exportados usan el signo decimal de tu hoja de cálculo (la configuración regional de tu equipo), para que lea los montos como números."
   },
   "button_startOver": {
     "message": "Empezar de nuevo"
+  },
+  "button_exportCsv": {
+    "message": "Exportar CSV"
+  },
+  "file_newLoanCsv": {
+    "message": "tabla-de-pagos-$DATE$.csv",
+    "placeholders": {
+      "date": { "content": "$1", "example": "2026-10-29" }
+    }
+  },
+  "file_existingLoanCsv": {
+    "message": "abono-a-capital-$DATE$.csv",
+    "placeholders": {
+      "date": { "content": "$1", "example": "2026-10-29" }
+    }
+  },
+  "field_fileDecimalSign": {
+    "message": "Signo decimal en archivos exportados"
+  },
+  "decimalSign_comma": {
+    "message": "1234,56 (coma)"
+  },
+  "decimalSign_point": {
+    "message": "1234.56 (punto)"
   }
 }

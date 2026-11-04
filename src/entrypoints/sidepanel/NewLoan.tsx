@@ -1,5 +1,7 @@
 import { useId } from 'preact/hooks';
 import { t } from '@/i18n/translate';
+import { newLoanCsv, type CsvSettings } from './csv';
+import { ExportCsv } from './ExportCsv';
 import {
   type LoanForm,
   counterpartRate,
@@ -16,6 +18,9 @@ import { useSimulation } from './useSimulation';
 import { Warnings } from './Warnings';
 
 interface NewLoanProps {
+  today: string;
+  /** The currency and decimal sign of the exported file. */
+  csvSettings: CsvSettings;
   draft: unknown;
   /** The empty form, for every field the draft lacks. */
   defaults: LoanForm;
@@ -24,13 +29,22 @@ interface NewLoanProps {
 }
 
 /** The new-loan simulator: the loan's fields, then its summary, saving it, and its schedule. */
-export function NewLoan({ draft, defaults, onSaveScenario, onStartOver }: NewLoanProps) {
+export function NewLoan({
+  today,
+  csvSettings,
+  draft,
+  defaults,
+  onSaveScenario,
+  onStartOver,
+}: NewLoanProps) {
   const { form, update, simulated, state, errors, errorOf } = useSimulation(
     'newLoan',
     () => restoreLoanForm(draft, defaults),
     panelState,
   );
   const emptyTitleId = useId();
+  const fixedPayment =
+    state.kind === 'simulated' && hasFixedPayment(simulated, state.simulation.schedule.summary);
 
   return (
     <>
@@ -57,10 +71,7 @@ export function NewLoan({ draft, defaults, onSaveScenario, onStartOver }: NewLoa
       {state.kind === 'simulated' && (
         <div class="results">
           <Warnings warnings={state.simulation.warnings} />
-          <Summary
-            summary={state.simulation.schedule.summary}
-            fixedPayment={hasFixedPayment(simulated, state.simulation.schedule.summary)}
-          />
+          <Summary summary={state.simulation.schedule.summary} fixedPayment={fixedPayment} />
           <SaveScenario
             form={form}
             update={update}
@@ -72,6 +83,10 @@ export function NewLoan({ draft, defaults, onSaveScenario, onStartOver }: NewLoa
                 segment: form.segment,
               })
             }
+          />
+          <ExportCsv
+            fileName={t('file_newLoanCsv', [today])}
+            csv={() => newLoanCsv(state.simulation, fixedPayment, csvSettings)}
           />
           <ScheduleTable schedule={state.simulation.schedule} title="section_schedule" />
         </div>

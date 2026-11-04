@@ -225,7 +225,8 @@ export function simulateForm(form: LoanForm, locale: FormatLocale): SimulationRe
   return withEmptyFields(simulate(input), empty);
 }
 
-type Simulation = Extract<SimulationResult, { ok: true }>;
+/** A new loan the engine simulated: its schedule and warnings. */
+export type Simulation = Extract<SimulationResult, { ok: true }>;
 
 /** Simulates the form for the panel. */
 export function panelState(form: LoanForm, locale: FormatLocale): PanelState<Simulation> {

@@ -1,5 +1,5 @@
 import { useId } from 'preact/hooks';
-import { CURRENCIES, currencySymbol, type CurrencyCode } from '@/i18n/format';
+import { CURRENCIES, DECIMAL_SIGNS, currencySymbol, type CurrencyCode } from '@/i18n/format';
 import { parseDecimal } from '@/i18n/parse-number';
 import { t } from '@/i18n/translate';
 import { CheckboxField, NumberField, SelectField } from './fields';
@@ -17,7 +17,7 @@ interface PreferencesFormProps {
   onChange: (preferences: Preferences) => void;
 }
 
-/** The currency of every amount, and how SOLCA starts on a new loan. */
+/** The currency of every amount, the decimal sign of exported files, and how SOLCA starts. */
 export function PreferencesForm({ preferences, onChange }: PreferencesFormProps) {
   const titleId = useId();
   const update = (changes: Partial<Preferences>) => onChange({ ...preferences, ...changes });
@@ -33,6 +33,12 @@ export function PreferencesForm({ preferences, onChange }: PreferencesFormProps)
         value={preferences.currency}
         options={CURRENCIES.map((value) => ({ value, label: currencyLabel(value) }))}
         onChange={(currency) => update({ currency })}
+      />
+      <SelectField
+        label={t('field_fileDecimalSign')}
+        value={preferences.fileDecimalSign}
+        options={DECIMAL_SIGNS.map((value) => ({ value, label: t(`decimalSign_${value}`) }))}
+        onChange={(fileDecimalSign) => update({ fileDecimalSign })}
       />
       <CheckboxField
         label={t('field_solcaByDefault')}

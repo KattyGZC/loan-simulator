@@ -11,22 +11,22 @@ Read this before the first edit. It binds every author and every model (Claude, 
 | `src/i18n/` | UI text (`t()` over `chrome.i18n`), `Intl` formatting, and reading typed numbers |
 | `public/_locales/{en,es}/messages.json` | Every UI string, in English and Spanish. English is the fallback. `MessageKey` (`src/i18n/translate.ts`) is the key list of the English file |
 | `src/entrypoints/background.ts` | Opens the side panel when the toolbar icon is clicked |
-| `src/entrypoints/sidepanel/` | The UI (Preact), two tabs: a new loan (`NewLoan.tsx`) and an extra payment on a loan you already have (`ExistingLoan.tsx`). `form.ts` and `existing-form.ts` hold the panel logic, unit-tested: typed form to engine input, and what the results area shows (`panelState`, `existingLoanState`). The components lay out and format; which error a field shows now is `visibleError()`, in `form.ts` |
+| `src/entrypoints/sidepanel/` | The UI (Preact), two tabs: a new loan (`NewLoan.tsx`) and an extra payment on a loan you already have (`ExistingLoan.tsx`). `form.ts` and `existing-form.ts` hold the panel logic, unit-tested: typed form to engine input, and what the results area shows (`panelState`, `existingLoanState`). `results.ts` builds the lines and columns of the results with the formatter it is given, the panel's or `createFileFormat()`'s (`src/i18n/format.ts`); `csv.ts` writes them as a CSV file, which `ExportCsv.tsx` downloads. The components lay out and format; which error a field shows now is `visibleError()`, in `form.ts` |
 | `src/storage/` | What the panel keeps in `browser.storage.local`, each as `{ schemaVersion, data }` (`versioned.ts`): each tab's draft (`drafts.ts`), the saved scenarios (`scenarios.ts`) and the preferences (`preferences.ts`). `storedFields()` reads stored data back without trusting it; each form's `restore…Form()` (`form.ts`, `existing-form.ts`), `restoreScenarios()` (`saved-scenarios.ts`) and `restorePreferences()` (`sidepanel/preferences.ts`) fall back to the default for a field that is missing or invalid. The option lists of each select are in `sidepanel/choices.ts` |
 | `tests/core/` | Unit tests of the engine, through `simulate()` or the module's export |
 | `tests/i18n/` | Tests of `src/i18n/`. `fake-i18n.ts` stands in for `chrome.i18n` over the real `messages.json` |
 | `tests/storage/` | Tests of `src/storage/`, over WXT's fake browser |
-| `tests/sidepanel/` | Tests of the side panel forms (`form.ts`, `existing-form.ts`) |
+| `tests/sidepanel/` | Tests of the side panel logic: the forms, the results lines, the CSV file, scenarios and preferences |
 | `tests/golden/` | Reference schedules copied from real simulators, with their source |
 | `wxt.config.ts` | Manifest: name, permissions (`storage`, `sidePanel`), side panel |
 
 ## Status
 
-Done: project setup (phase 0), the calculation engine (phase 1), tested against Cooperativa JEP, languages and formatting (phase 2), the side panel UI (phase 3), the day-count basis (30/360 or actual days/360), and an extra payment on a loan you already have (`simulateExistingLoan()`, second tab), both tested against a Produbanco statement. Each tab keeps its form as a draft when the panel closes. New-loan scenarios are saved, opened, renamed, deleted and compared two at a time in a third tab (`Scenarios.tsx`, logic in `saved-scenarios.ts`). Preferences (currency, and how SOLCA starts on a new loan) open from a header button (phase 4 done).
+Done: project setup (phase 0), the calculation engine (phase 1), tested against Cooperativa JEP, languages and formatting (phase 2), the side panel UI (phase 3), the day-count basis (30/360 or actual days/360), and an extra payment on a loan you already have (`simulateExistingLoan()`, second tab), both tested against a Produbanco statement. Each tab keeps its form as a draft when the panel closes. New-loan scenarios are saved, opened, renamed, deleted and compared two at a time in a third tab (`Scenarios.tsx`, logic in `saved-scenarios.ts`). Preferences (currency, the decimal sign of exported files, and how SOLCA starts on a new loan) open from a header button (phase 4 done). Either simulator tab exports what it shows to CSV.
 
 Next, in order:
 
-1. **CSV export and print view.**
+1. **Print view.**
 2. **Accessibility, dark theme, final icons.**
 3. **QA:** Playwright e2e and a manual check against 3 institutions.
 4. **Chrome Web Store** listing, privacy page and release workflow.
@@ -49,6 +49,7 @@ Do not reverse one of these in passing. If a change needs to, say so first.
 - **Two languages.** English and Spanish via `chrome.i18n`, following the browser language, English as the fallback. Every string the user sees comes from `messages.json` through `t()`.
 - **Format locale.** Spanish formats as `es-EC` (`$1.234,56`, `31/01/2027`) and anything else as `en-US`. Region-less `es` and `es-419` would print `1234,56 US$` and `USD 1,234.56`. Currency is the user's preference, USD by default, from `CURRENCIES` (`src/i18n/format.ts`): only currencies with cents, always shown with 2 decimals, because the engine rounds to cents. It changes how amounts are written, never their value. The panel's `format` (`sidepanel/locale.ts`) follows it through `showAmountsIn()`, which `App` calls as it renders.
 - **Typed numbers.** `parseDecimal()` accepts `,` or `.` as the decimal separator. The only ambiguous case, one separator after 1–3 digits not starting with 0 (maybe space-grouped) and before exactly three (`10.000`, `1 000.000`), follows the locale's decimal separator. Spaces inside only group thousands. Empty text is `undefined` and unreadable text `NaN`, so `validate()` reports them.
+- **CSV files.** A spreadsheet must read the values as numbers, and it reads them with the computer's regional settings, which the extension cannot see and the UI language does not tell (Spanish in Mexico uses a decimal point). So the decimal sign is a preference (`fileDecimalSign`, the locale's by default), and `createFileFormat()` writes amounts without a currency sign, which the file names once, or thousands separators (`1234,56` or `1234.56`), rates `15,6%` or `15.6%`, ISO dates. The separator follows the decimal sign: `;` with a comma, `,` with a point. UTF-8 with a byte order mark, CRLF lines. A blob link downloads it, so no `downloads` permission.
 - **Privacy.** Permissions are `storage` and `sidePanel` only. No host permissions, no network calls.
 
 ## Before the first edit
