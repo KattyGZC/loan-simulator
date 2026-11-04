@@ -20,10 +20,8 @@ function download(fileName: string, csv: string) {
 /** The button that saves the results on screen as a CSV file. */
 export function ExportCsv({ fileName, csv }: ExportCsvProps) {
   return (
-    <div class="actions">
-      <button type="button" class="button" onClick={() => download(fileName, csv())}>
-        {t('button_exportCsv')}
-      </button>
-    </div>
+    <button type="button" class="button" onClick={() => download(fileName, csv())}>
+      {t('button_exportCsv')}
+    </button>
   );
 }

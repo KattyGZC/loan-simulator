@@ -10,7 +10,9 @@ import {
   restoreLoanForm,
 } from './form';
 import { LoanFields } from './LoanFields';
-import { locale } from './locale';
+import { format, locale } from './locale';
+import { newLoanPrintout } from './printout';
+import { PrintResults } from './PrintResults';
 import { SaveScenario } from './SaveScenario';
 import { ScheduleTable } from './ScheduleTable';
 import { Summary } from './Summary';
@@ -84,10 +86,15 @@ export function NewLoan({
               })
             }
           />
-          <ExportCsv
-            fileName={t('file_newLoanCsv', [today])}
-            csv={() => newLoanCsv(state.simulation, fixedPayment, csvSettings)}
-          />
+          <div class="actions">
+            <ExportCsv
+              fileName={t('file_newLoanCsv', [today])}
+              csv={() => newLoanCsv(state.simulation, fixedPayment, csvSettings)}
+            />
+            <PrintResults
+              printout={() => newLoanPrintout(state.simulation, fixedPayment, today, format)}
+            />
+          </div>
           <ScheduleTable schedule={state.simulation.schedule} title="section_schedule" />
         </div>
       )}
