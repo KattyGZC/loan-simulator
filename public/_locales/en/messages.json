@@ -469,5 +469,23 @@
   },
   "decimalSign_point": {
     "message": "1234.56 (point)"
+  },
+  "button_print": {
+    "message": "Print"
+  },
+  "print_newLoanTitle": {
+    "message": "Loan simulation, $DATE$",
+    "placeholders": {
+      "date": { "content": "$1", "example": "11/04/2026" }
+    }
+  },
+  "print_existingLoanTitle": {
+    "message": "Extra payment, $DATE$",
+    "placeholders": {
+      "date": { "content": "$1", "example": "11/04/2026" }
+    }
+  },
+  "print_nothing": {
+    "message": "Nothing to print. Simulate a loan in the side panel and press Print."
   }
 }

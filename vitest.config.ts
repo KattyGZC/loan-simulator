@@ -16,6 +16,7 @@ export default defineConfig({
         'src/entrypoints/sidepanel/preferences.ts',
         'src/entrypoints/sidepanel/results.ts',
         'src/entrypoints/sidepanel/csv.ts',
+        'src/entrypoints/sidepanel/printout.ts',
       ],
       exclude: ['src/core/index.ts', 'src/core/types.ts'],
       thresholds: { statements: 95, branches: 95, functions: 95, lines: 95 },

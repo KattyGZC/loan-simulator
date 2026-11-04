@@ -10,7 +10,9 @@ import {
 import { AppliedExtraPayment, Comparison } from './ExtraPaymentResults';
 import { ExportCsv } from './ExportCsv';
 import { counterpartRate } from './form';
-import { locale } from './locale';
+import { format, locale } from './locale';
+import { existingLoanPrintout } from './printout';
+import { PrintResults } from './PrintResults';
 import { ScheduleTable } from './ScheduleTable';
 import { useSimulation } from './useSimulation';
 import { Warnings } from './Warnings';
@@ -53,10 +55,13 @@ export function ExistingLoan({ today, csvSettings, draft }: ExistingLoanProps) {
           <Warnings warnings={state.simulation.warnings} />
           <AppliedExtraPayment simulation={state.simulation} />
           <Comparison simulation={state.simulation} />
-          <ExportCsv
-            fileName={t('file_existingLoanCsv', [today])}
-            csv={() => existingLoanCsv(state.simulation, csvSettings)}
-          />
+          <div class="actions">
+            <ExportCsv
+              fileName={t('file_existingLoanCsv', [today])}
+              csv={() => existingLoanCsv(state.simulation, csvSettings)}
+            />
+            <PrintResults printout={() => existingLoanPrintout(state.simulation, today, format)} />
+          </div>
           <ScheduleTable
             schedule={state.simulation.withExtraPayment}
             title="section_scheduleWithExtraPayment"

@@ -8,7 +8,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 
 > Built for Ecuador (USD, SOLCA contribution, Central Bank credit segments). Since almost all data is entered by the user, it works for other countries once the Ecuador-specific options are turned off.
 
-> **Status:** in development, not published yet. The calculation engine (`src/core/`) and the English and Spanish texts and number formats (`src/i18n/`) are done and tested, and the side panel, loaded unpacked, simulates a new loan and an extra payment on a loan you already have; it counts interest on 30/360 or actual days/360, saves new-loan scenarios to compare two side by side, and keeps your preferences (currency, decimal sign of exported files and SOLCA), and exports either simulation to CSV. The print view is next. This README describes the planned extension.
+> **Status:** in development, not published yet. The calculation engine (`src/core/`) and the English and Spanish texts and number formats (`src/i18n/`) are done and tested, and the side panel, loaded unpacked, simulates a new loan and an extra payment on a loan you already have; it counts interest on 30/360 or actual days/360, saves new-loan scenarios to compare two side by side, and keeps your preferences (currency, decimal sign of exported files and SOLCA), and exports or prints either simulation. Accessibility, the dark theme and the final icons are next. This README describes the planned extension.
 
 ---
 
@@ -22,7 +22,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
   - **Reduce payment:** keep the term and pay less each month.
   - **Reduce term:** keep the payment and finish earlier.
 - Shows totals: interest, insurance, SOLCA and total paid.
-- Exports the schedule to CSV.
+- Exports the schedule to CSV, and prints it or saves it as PDF.
 - Interface in English and Spanish.
 - Keeps what you typed in each tab when you close the panel. **Start over** empties the new-loan form.
 - Saves new-loan scenarios and compares two of them side by side (e.g. "Credit Union X – consumer" vs "Bank Y – consumer").
@@ -109,6 +109,7 @@ Scenarios are for new loans only. They stay in the browser, as the forms do.
 - **Two saved scenarios side by side:** payment (first and last when it changes), payments, effective rate, total interest, total cost and total paid.
 - **Extra payment on a loan you have:** how it splits into accrued interest and principal, the rest of the loan without vs. with it, what you save (interest, insurance and other charges), the payments saved or the new payment, and the schedule with the extra payment.
 - **CSV file** (**Export CSV**, on either simulator tab): the currency, what the tab shows above the schedule, the schedule with the same columns, and the disclaimer. Numbers are written so a spreadsheet reads them as numbers: with the decimal sign chosen in Preferences, without a currency sign or thousands separators (`1234,56` or `1234.56`), rates as `15,6%` or `15.6%` and dates as `YYYY-MM-DD`. Fields are separated by `;` with a decimal comma and by `,` with a decimal point, as Excel expects, and the file is UTF-8 with a byte order mark so Excel shows accents.
+- **Printout** (**Print**, on either simulator tab): opens in a new tab, laid out for paper, with today's date, the warnings, what the tab shows above the schedule, the schedule and the disclaimer, and opens the browser's print dialog, where **Save as PDF** is one of the printers. Amounts are written as on screen. A long schedule continues on the next pages with its header repeated, and the payment that holds an extra payment is marked.
 
 ---
 
