@@ -469,5 +469,23 @@
   },
   "decimalSign_point": {
     "message": "1234.56 (punto)"
+  },
+  "button_print": {
+    "message": "Imprimir"
+  },
+  "print_newLoanTitle": {
+    "message": "Simulación de crédito, $DATE$",
+    "placeholders": {
+      "date": { "content": "$1", "example": "04/11/2026" }
+    }
+  },
+  "print_existingLoanTitle": {
+    "message": "Abono a capital, $DATE$",
+    "placeholders": {
+      "date": { "content": "$1", "example": "04/11/2026" }
+    }
+  },
+  "print_nothing": {
+    "message": "No hay nada que imprimir. Simula un crédito en el panel lateral y pulsa Imprimir."
   }
 }
