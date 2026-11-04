@@ -1,50 +1,12 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { simulate, type LoanInput } from '@/core';
 import {
   csvSeparator,
   existingLoanCsv,
   newLoanCsv,
   type CsvSettings,
 } from '@/entrypoints/sidepanel/csv';
-import {
-  defaultExistingLoanForm,
-  simulateExistingLoanForm,
-} from '@/entrypoints/sidepanel/existing-form';
 import { useLocale } from '../i18n/fake-i18n';
-
-const LOAN: LoanInput = {
-  amount: 10000,
-  termMonths: 12,
-  annualRate: 15.6,
-  rateType: 'nominal',
-  method: 'french',
-};
-
-function simulation(input: Partial<LoanInput> = {}) {
-  const result = simulate({ ...LOAN, ...input });
-  if (!result.ok) throw new Error(JSON.stringify(result.errors));
-  return result;
-}
-
-/** The Produbanco loan after payment 4, with an extra payment made on 2025-11-24. */
-function produbancoExtraPayment(extraPaymentAmount = '2700') {
-  const result = simulateExistingLoanForm(
-    {
-      ...defaultExistingLoanForm('2025-11-24'),
-      balance: '5843.78',
-      remainingPayments: '32',
-      annualRate: '15.6',
-      method: 'german',
-      nextPaymentDate: '2025-12-17',
-      dayCount: 'actual360',
-      extraPaymentAmount,
-      extraPaymentEffect: 'reducePayment',
-    },
-    'en-US',
-  );
-  if (!result.ok) throw new Error(JSON.stringify(result.errors));
-  return result;
-}
+import { produbancoExtraPayment, simulation } from './fixtures';
 
 const BYTE_ORDER_MARK = '\uFEFF';
 const POINT: CsvSettings = { currency: 'USD', fileDecimalSign: 'point' };
