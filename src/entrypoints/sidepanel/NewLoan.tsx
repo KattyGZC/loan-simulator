@@ -1,4 +1,4 @@
-import { useId } from 'preact/hooks';
+import { useEffect, useId, useRef } from 'preact/hooks';
 import { t } from '@/i18n/translate';
 import { newLoanCsv, type CsvSettings } from './csv';
 import { ExportCsv } from './ExportCsv';
@@ -13,6 +13,8 @@ import { LoanFields } from './LoanFields';
 import { format, locale } from './locale';
 import { newLoanPrintout } from './printout';
 import { PrintResults } from './PrintResults';
+import { announcement, summaryLines } from './results';
+import { ResultStatus } from './ResultStatus';
 import { SaveScenario } from './SaveScenario';
 import { ScheduleTable } from './ScheduleTable';
 import { Summary } from './Summary';
@@ -20,6 +22,8 @@ import { useSimulation } from './useSimulation';
 import { Warnings } from './Warnings';
 
 interface NewLoanProps {
+  /** Focus the first field on mount: the form was just started over or filled from a scenario. */
+  focusFirstField: boolean;
   today: string;
   /** The currency and decimal sign of the exported file. */
   csvSettings: CsvSettings;
@@ -32,6 +36,7 @@ interface NewLoanProps {
 
 /** The new-loan simulator: the loan's fields, then its summary, saving it, and its schedule. */
 export function NewLoan({
+  focusFirstField,
   today,
   csvSettings,
   draft,
@@ -45,8 +50,15 @@ export function NewLoan({
     panelState,
   );
   const emptyTitleId = useId();
+  const loanForm = useRef<HTMLFormElement>(null);
+  useEffect(() => {
+    if (focusFirstField) loanForm.current?.querySelector('input')?.focus();
+  }, []);
   const fixedPayment =
     state.kind === 'simulated' && hasFixedPayment(simulated, state.simulation.schedule.summary);
+  const status = announcement(state, ({ schedule }) =>
+    summaryLines(schedule.summary, fixedPayment, format),
+  );
 
   return (
     <>
@@ -55,7 +67,12 @@ export function NewLoan({
           {t('button_startOver')}
         </button>
       </div>
-      <form class="loan-form" onSubmit={(event) => event.preventDefault()} noValidate>
+      <form
+        ref={loanForm}
+        class="loan-form"
+        onSubmit={(event) => event.preventDefault()}
+        noValidate
+      >
         <LoanFields
           form={form}
           update={update}
@@ -63,6 +80,7 @@ export function NewLoan({
           counterpartRate={counterpartRate(simulated, errors, locale)}
         />
       </form>
+      <ResultStatus text={status} />
       {state.kind === 'loanIncomplete' && (
         <section class="empty-state" aria-labelledby={emptyTitleId}>
           <h2 id={emptyTitleId}>{t('empty_title')}</h2>

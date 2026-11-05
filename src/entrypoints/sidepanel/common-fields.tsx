@@ -34,6 +34,7 @@ export function RateFields(props: RateFieldsProps) {
         onInput={props.onRateInput}
         hint={hint}
         error={props.error}
+        required
       />
       <SelectField
         label={t('field_rateType')}

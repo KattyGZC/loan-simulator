@@ -1,9 +1,10 @@
-import { useId, useState } from 'preact/hooks';
+import { useId, useRef, useState } from 'preact/hooks';
 import type { LoanSummary } from '@/core';
 import { t, type MessageKey } from '@/i18n/translate';
 import { CheckboxField, TextField } from './fields';
 import { hasFixedPayment } from './form';
 import { format, locale } from './locale';
+import { useFocusAfterRender } from './useFocusAfterRender';
 import { MAX_COMPARED, scenarioSummary, toggleCompared, type Scenario } from './saved-scenarios';
 
 interface ScenariosProps {
@@ -17,13 +18,28 @@ interface ScenariosProps {
 export function Scenarios({ scenarios, onOpen, onRename, onRemove }: ScenariosProps) {
   const [comparedIds, setComparedIds] = useState<string[]>([]);
   const titleId = useId();
+  const hintId = useId();
+  const deleteId = useId();
+  const deleteButtonId = (scenario: Scenario) => `${deleteId}-${scenario.id}`;
+  const focusAfterRender = useFocusAfterRender();
   // A deleted scenario drops out of the comparison.
   const compared = comparedIds.flatMap((id) => scenarios.filter((scenario) => scenario.id === id));
+  // The focus moves to the Delete button of the scenario that takes the deleted one's place, or
+  // of the one before it; to the title of the empty list when none is left.
+  const remove = (index: number) => {
+    const remaining = scenarios.filter((_, position) => position !== index);
+    const next = remaining[Math.min(index, remaining.length - 1)];
+    const deleted = scenarios[index];
+    if (deleted) onRemove(deleted.id);
+    focusAfterRender(() => document.getElementById(next ? deleteButtonId(next) : titleId));
+  };
 
   if (scenarios.length === 0) {
     return (
       <section class="empty-state" aria-labelledby={titleId}>
-        <h2 id={titleId}>{t('scenarios_emptyTitle')}</h2>
+        <h2 id={titleId} tabIndex={-1}>
+          {t('scenarios_emptyTitle')}
+        </h2>
         <p>{t('scenarios_emptyBody')}</p>
       </section>
     );
@@ -32,9 +48,11 @@ export function Scenarios({ scenarios, onOpen, onRename, onRemove }: ScenariosPr
     <>
       <section aria-labelledby={titleId}>
         <h2 id={titleId}>{t('section_savedScenarios')}</h2>
-        <p class="note">{t('scenarios_compareHint')}</p>
+        <p id={hintId} class="note">
+          {t('scenarios_compareHint')}
+        </p>
         <ul class="scenario-list">
-          {scenarios.map((scenario) => {
+          {scenarios.map((scenario, index) => {
             const isCompared = compared.includes(scenario);
             return (
               <ScenarioItem
@@ -42,10 +60,12 @@ export function Scenarios({ scenarios, onOpen, onRename, onRemove }: ScenariosPr
                 scenario={scenario}
                 compared={isCompared}
                 canCompare={isCompared || compared.length < MAX_COMPARED}
+                compareHintId={hintId}
+                deleteButtonId={deleteButtonId(scenario)}
                 onToggleCompared={() => setComparedIds(toggleCompared(comparedIds, scenario.id))}
                 onOpen={() => onOpen(scenario)}
                 onRename={(name) => onRename(scenario.id, name)}
-                onRemove={() => onRemove(scenario.id)}
+                onRemove={() => remove(index)}
               />
             );
           })}
@@ -60,6 +80,9 @@ interface ScenarioItemProps {
   scenario: Scenario;
   compared: boolean;
   canCompare: boolean;
+  /** The hint that says why a scenario cannot be checked once two are. */
+  compareHintId: string;
+  deleteButtonId: string;
   onToggleCompared: () => void;
   onOpen: () => void;
   onRename: (name: string) => void;
@@ -71,11 +94,22 @@ function ScenarioItem(props: ScenarioItemProps) {
   const { scenario } = props;
   // Null unless the user is renaming the scenario.
   const [newName, setNewName] = useState<string | null>(null);
+  const renameButton = useRef<HTMLButtonElement>(null);
+  const focusAfterRender = useFocusAfterRender();
+  const stopRenaming = () => {
+    setNewName(null);
+    focusAfterRender(() => renameButton.current);
+  };
 
   if (newName !== null) {
     return (
       <li class="scenario">
-        <TextField label={t('field_scenarioName')} value={newName} onInput={setNewName} />
+        <TextField
+          label={t('field_scenarioName')}
+          value={newName}
+          onInput={setNewName}
+          focusOnMount
+        />
         <div class="actions">
           <button
             type="button"
@@ -83,12 +117,12 @@ function ScenarioItem(props: ScenarioItemProps) {
             disabled={newName.trim() === ''}
             onClick={() => {
               props.onRename(newName);
-              setNewName(null);
+              stopRenaming();
             }}
           >
             {t('button_saveName')}
           </button>
-          <button type="button" class="button" onClick={() => setNewName(null)}>
+          <button type="button" class="button" onClick={stopRenaming}>
             {t('button_cancel')}
           </button>
         </div>
@@ -101,16 +135,22 @@ function ScenarioItem(props: ScenarioItemProps) {
         label={scenario.name}
         checked={props.compared}
         disabled={!props.canCompare}
+        describedBy={props.canCompare ? undefined : props.compareHintId}
         onChange={props.onToggleCompared}
       />
       <div class="actions" role="group" aria-label={scenario.name}>
         <button type="button" class="button" onClick={props.onOpen}>
           {t('button_open')}
         </button>
-        <button type="button" class="button" onClick={() => setNewName(scenario.name)}>
+        <button
+          ref={renameButton}
+          type="button"
+          class="button"
+          onClick={() => setNewName(scenario.name)}
+        >
           {t('button_rename')}
         </button>
-        <button type="button" class="button" onClick={props.onRemove}>
+        <button id={props.deleteButtonId} type="button" class="button" onClick={props.onRemove}>
           {t('button_delete')}
         </button>
       </div>
@@ -148,7 +188,7 @@ function ScenarioComparison({ scenarios }: { scenarios: readonly Scenario[] }) {
   return (
     <section aria-labelledby={titleId}>
       <h2 id={titleId}>{t('section_scenarioComparison')}</h2>
-      <table class="comparison">
+      <table class="comparison" aria-labelledby={titleId}>
         <thead>
           <tr>
             <td />

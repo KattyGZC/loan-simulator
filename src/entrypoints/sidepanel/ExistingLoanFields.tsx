@@ -32,6 +32,7 @@ export function ExistingLoanFields({
           onInput={(balance) => update({ balance })}
           hint={t('hint_balance')}
           error={errorOf('balance')}
+          required
         />
         <NumberField
           label={t('field_remainingPayments')}
@@ -40,6 +41,7 @@ export function ExistingLoanFields({
           onInput={(remainingPayments) => update({ remainingPayments })}
           hint={t('hint_remainingPayments')}
           error={errorOf('remainingPayments')}
+          required
         />
         <RateFields
           annualRate={form.annualRate}
@@ -58,6 +60,7 @@ export function ExistingLoanFields({
             onInput={(currentPayment) => update({ currentPayment })}
             hint={t('hint_currentPayment')}
             error={errorOf('currentPayment')}
+            required
           />
         )}
         <DateField
@@ -65,6 +68,7 @@ export function ExistingLoanFields({
           value={form.nextPaymentDate}
           onInput={(nextPaymentDate) => update({ nextPaymentDate })}
           error={errorOf('nextPaymentDate')}
+          required
           hint={form.dayCount === 'actual360' ? t('hint_weekendDueDates') : undefined}
         />
       </FieldGroup>
@@ -76,6 +80,7 @@ export function ExistingLoanFields({
             value={form.extraPaymentDate}
             onInput={(extraPaymentDate) => update({ extraPaymentDate })}
             error={errorOf('extraPayment.date')}
+            required
           />
           <NumberField
             label={t('field_extraPaymentAmount')}
@@ -83,6 +88,7 @@ export function ExistingLoanFields({
             value={form.extraPaymentAmount}
             onInput={(extraPaymentAmount) => update({ extraPaymentAmount })}
             error={errorOf('extraPayment.amount')}
+            required
           />
         </div>
         <SelectField

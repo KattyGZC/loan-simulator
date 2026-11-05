@@ -1,4 +1,4 @@
-import { useId } from 'preact/hooks';
+import { useEffect, useId, useRef } from 'preact/hooks';
 import { CURRENCIES, DECIMAL_SIGNS, currencySymbol, type CurrencyCode } from '@/i18n/format';
 import { parseDecimal } from '@/i18n/parse-number';
 import { t } from '@/i18n/translate';
@@ -13,21 +13,38 @@ function currencyLabel(currency: CurrencyCode): string {
 }
 
 interface PreferencesFormProps {
+  id: string;
   preferences: Preferences;
   onChange: (preferences: Preferences) => void;
+  /** Escape closes the preferences, as the header button does. */
+  onClose: () => void;
 }
 
-/** The currency of every amount, the decimal sign of exported files, and how SOLCA starts. */
-export function PreferencesForm({ preferences, onChange }: PreferencesFormProps) {
+/**
+ * The currency of every amount, the decimal sign of exported files, and how SOLCA starts. It
+ * takes the focus when it opens, so a keyboard user lands on it instead of on the hidden tabs.
+ */
+export function PreferencesForm({ id, preferences, onChange, onClose }: PreferencesFormProps) {
   const titleId = useId();
+  const title = useRef<HTMLHeadingElement>(null);
+  useEffect(() => title.current?.focus(), []);
   const update = (changes: Partial<Preferences>) => onChange({ ...preferences, ...changes });
   // Empty is fine: a new loan then starts with no SOLCA percent, as an emptied field does.
   const typedSolcaPercent = parseDecimal(preferences.solcaPercent, locale);
   const solcaPercentIsNumber = !Number.isNaN(typedSolcaPercent ?? 0);
 
   return (
-    <section class="preferences" aria-labelledby={titleId}>
-      <h2 id={titleId}>{t('section_preferences')}</h2>
+    <section
+      id={id}
+      class="preferences"
+      aria-labelledby={titleId}
+      onKeyDown={(event) => {
+        if (event.key === 'Escape') onClose();
+      }}
+    >
+      <h2 id={titleId} ref={title} tabIndex={-1}>
+        {t('section_preferences')}
+      </h2>
       <SelectField
         label={t('field_currency')}
         value={preferences.currency}

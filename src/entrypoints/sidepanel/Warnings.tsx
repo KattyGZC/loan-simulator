@@ -1,16 +1,20 @@
 import { format } from './locale';
 import { warningTexts, type Warning } from './results';
 
-/** Notices about the results: a rate above the maximum, an extra payment cut, a payment off. */
+/**
+ * Notices about the results: a rate above the maximum, an extra payment cut, a payment off. The
+ * status region stays in the page without notices, so a screen reader announces the first one.
+ */
 export function Warnings({ warnings }: { warnings: readonly Warning[] }) {
-  if (warnings.length === 0) return null;
   return (
     <div role="status">
-      <ul class="warnings">
-        {warningTexts(warnings, format).map((text) => (
-          <li key={text}>{text}</li>
-        ))}
-      </ul>
+      {warnings.length > 0 && (
+        <ul class="warnings">
+          {warningTexts(warnings, format).map((text) => (
+            <li key={text}>{text}</li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

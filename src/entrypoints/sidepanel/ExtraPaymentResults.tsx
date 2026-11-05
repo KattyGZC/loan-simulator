@@ -43,7 +43,7 @@ export function Comparison({ simulation }: { simulation: ExistingLoanSimulation 
           </div>
         ))}
       </dl>
-      <table class="comparison">
+      <table class="comparison" aria-labelledby={titleId}>
         <thead>
           <tr>
             <td />
