@@ -14,13 +14,15 @@
     "zip": "wxt zip",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "eslint .",
+    "test:coverage": "vitest run --coverage",
+    "test:mutation": "stryker run",
+    "lint": "eslint . --max-warnings 0",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "test:coverage": "vitest run --coverage",
-    "check": "npm run lint && npm run format:check && npm run typecheck && npm run test:coverage && npm run build",
-    "postinstall": "wxt prepare"
+    "knip": "knip",
+    "check": "npm run lint && npm run format:check && npm run typecheck && npm run knip && npm run test:coverage && npm run build",
+    "postinstall": "wxt prepare && simple-git-hooks"
   },
   "dependencies": {
     "preact": "^11.0.1"
@@ -28,19 +30,37 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@preact/preset-vite": "^2.10.6",
+    "@stryker-mutator/core": "^10.1.1",
+    "@stryker-mutator/vitest-runner": "^10.1.1",
     "@testing-library/preact": "^3.2.6",
     "@testing-library/user-event": "^14.6.8",
     "@vitest/coverage-v8": "^5.0.5",
+    "@vitest/eslint-plugin": "^1.6.28",
     "axe-core": "^4.14.0",
     "eslint": "^10.13.0",
     "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jsx-a11y-x": "^0.2.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.13.0",
     "happy-dom": "^21.0.4",
+    "knip": "^6.44.1",
+    "lint-staged": "^16.4.0",
     "prettier": "^3.9.10",
+    "simple-git-hooks": "^2.14.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.72.0",
     "vitest": "^5.0.5",
     "web-ext": "^10.8.0",
     "wxt": "^0.21.4"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npx lint-staged && npm run typecheck"
+  },
+  "lint-staged": {
+    "*.{js,mjs,ts,tsx}": [
+      "eslint --max-warnings 0",
+      "prettier --write"
+    ],
+    "*.{json,css,html}": "prettier --write"
   }
 }
