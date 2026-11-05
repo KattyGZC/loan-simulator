@@ -3,10 +3,10 @@
  * missing or holds something else, so data from an older or damaged save never reaches the UI.
  */
 export interface StoredFields {
-  text(key: string, fallback: string): string;
-  flag(key: string, fallback: boolean): boolean;
+  text: (key: string, fallback: string) => string;
+  flag: (key: string, fallback: boolean) => boolean;
   /** The stored value when it is one of `options`. */
-  oneOf<T extends string>(key: string, options: readonly T[], fallback: T): T;
+  oneOf: <T extends string>(key: string, options: readonly T[], fallback: T) => T;
 }
 
 /** The fields of a stored object, by name; none when `stored` is not an object. */

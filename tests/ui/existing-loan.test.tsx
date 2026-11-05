@@ -42,7 +42,7 @@ describe('existing-loan results', () => {
     const table = await openWithLoan();
     const marked = within(table)
       .getAllByRole('rowheader')
-      .filter((cell) => cell.textContent?.includes('(extra payment)'));
+      .filter((cell) => cell.textContent.includes('(extra payment)'));
     expect(marked.map((cell) => cell.textContent)).toEqual(['1 (extra payment)']);
   });
 
@@ -50,7 +50,7 @@ describe('existing-loan results', () => {
     await openWithLoan();
     const status = screen
       .getAllByRole('status')
-      .find((region) => region.textContent?.startsWith('You save: $'));
+      .find((region) => region.textContent.startsWith('You save: $'));
     expect(status).toBeTruthy();
   });
 

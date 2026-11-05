@@ -17,7 +17,7 @@ const nothingStored: StoredState = {
   scenarios: undefined,
   preferences: undefined,
 };
-Promise.all([loadDrafts(), loadScenarios(), loadPreferences()])
+void Promise.all([loadDrafts(), loadScenarios(), loadPreferences()])
   .then(([drafts, scenarios, preferences]): StoredState => ({ drafts, scenarios, preferences }))
   .catch((error: unknown) => {
     console.error(error);

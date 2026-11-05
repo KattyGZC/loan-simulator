@@ -19,7 +19,9 @@ export function PrintResults({ printout }: PrintResultsProps) {
     <button
       type="button"
       class="button"
-      onClick={() => openPrintPage(printout()).catch((error: unknown) => console.error(error))}
+      onClick={() => {
+        openPrintPage(printout()).catch((error: unknown) => console.error(error));
+      }}
     >
       {t('button_print')}
     </button>
