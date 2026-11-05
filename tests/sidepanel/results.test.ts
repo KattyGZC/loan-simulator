@@ -6,6 +6,7 @@ import {
   type ExistingLoanForm,
 } from '@/entrypoints/sidepanel/existing-form';
 import {
+  announcement,
   appliedExtraPaymentLines,
   appliedExtraPaymentNote,
   comparisonLines,
@@ -57,6 +58,33 @@ function extraPayment(overrides: Partial<ExistingLoanForm> = {}) {
 const labels = (items: readonly { label: string }[]) => items.map(({ label }) => label);
 
 beforeEach(() => useLocale('en'));
+
+describe('announcement', () => {
+  const lines = [
+    { label: 'Monthly payment', value: '$907.00' },
+    { label: 'Payments', value: '12' },
+  ];
+
+  it('reads the first line of the results as label and value', () => {
+    expect(announcement({ kind: 'simulated', simulation: lines }, (main) => main)).toBe(
+      'Monthly payment: $907.00',
+    );
+  });
+
+  it('is empty for results without lines', () => {
+    expect(announcement({ kind: 'simulated', simulation: [] }, (main) => main)).toBe('');
+  });
+
+  it('says the fields need fixing when one is invalid', () => {
+    expect(announcement({ kind: 'invalid', errors: [] }, () => lines)).toBe(
+      'Fix the marked fields to see the results.',
+    );
+  });
+
+  it('says nothing while the loan is incomplete', () => {
+    expect(announcement({ kind: 'loanIncomplete', errors: [] }, () => lines)).toBe('');
+  });
+});
 
 describe('scheduleColumns', () => {
   it('has payment, principal, interest and balance for a loan without dates or charges', () => {
