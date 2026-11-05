@@ -141,7 +141,7 @@ export function TextField({ label, value, onInput, hint, focusOnMount }: TextFie
   const input = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (focusOnMount) input.current?.focus();
-  }, []);
+  }, [focusOnMount]);
   return (
     <div class="field">
       <label for={id}>{label}</label>

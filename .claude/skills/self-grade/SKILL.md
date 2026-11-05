@@ -66,7 +66,7 @@ git grep -niE "DECISIONS/|implementation plan|research\.md|golden-cases\.md" -- 
 | Comments | Each new comment is JSDoc on an export or a *why* that cannot be a name | | |
 | Tests | New behavior tested with an edge or negative case, in `tests/**/*.test.ts` | | |
 | Golden | Golden cases pass if the math changed; a new case records its source | | |
-| Coverage | `src/core/` and `src/i18n/` ≥ 95 % (quote the summary) | | |
+| Coverage | Every logic file at 100 % lines and functions, 90 % branches; UI floor not lowered (quote the summary) | | |
 | Docs | Both READMEs updated together if behavior, formulas or defaults changed; "Status" updated if a phase closed | | |
 | Dead code | Nothing left unused: imports, exports, files, branches | | |
 | Git | On a feature branch; commits split by layer; commit plan shown before committing | | |

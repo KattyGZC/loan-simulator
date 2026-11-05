@@ -111,10 +111,10 @@ export interface FieldReader {
   /** The required fields read so far that were empty. */
   readonly empty: ReadonlySet<ValidationField>;
   /** The number typed in `field`, or NaN when it is empty. */
-  required(field: ValidationField, text: string): number;
-  optional(text: string): number | undefined;
+  required: (field: ValidationField, text: string) => number;
+  optional: (text: string) => number | undefined;
   /** The ISO date of a date input; empty when the input is. */
-  requiredDate(field: ValidationField, isoDate: string): string;
+  requiredDate: (field: ValidationField, isoDate: string) => string;
 }
 
 /**

@@ -18,5 +18,27 @@ jobs:
       - run: npm run lint
       - run: npm run format:check
       - run: npm run typecheck
+      - run: npm run knip
       - run: npm run test:coverage
       - run: npm run build
+
+  # Fails when a pull request changes what "passing" means; the owner reviews it and merges anyway.
+  guard:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      # The base branch's copy of the guard, so a pull request cannot edit it into passing.
+      - run: |
+          mkdir -p "$RUNNER_TEMP/guard"
+          for file in guard.mjs guarded-files.mjs; do
+            git show "origin/$BASE_REF:scripts/$file" > "$RUNNER_TEMP/guard/$file"
+          done
+          node "$RUNNER_TEMP/guard/guard.mjs" "origin/$BASE_REF"
+        env:
+          BASE_REF: ${{ github.base_ref }}

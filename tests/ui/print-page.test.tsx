@@ -30,7 +30,7 @@ describe('print page', () => {
     const schedule = screen.getByRole('table', { name: 'Schedule with the extra payment' });
     const marked = within(schedule)
       .getAllByRole('rowheader')
-      .filter((cell) => cell.textContent?.includes('(extra payment)'));
+      .filter((cell) => cell.textContent.includes('(extra payment)'));
     expect(marked.map((cell) => cell.textContent)).toEqual(['1 (extra payment)']);
   });
 

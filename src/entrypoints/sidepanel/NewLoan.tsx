@@ -53,7 +53,7 @@ export function NewLoan({
   const loanForm = useRef<HTMLFormElement>(null);
   useEffect(() => {
     if (focusFirstField) loanForm.current?.querySelector('input')?.focus();
-  }, []);
+  }, [focusFirstField]);
   const fixedPayment =
     state.kind === 'simulated' && hasFixedPayment(simulated, state.simulation.schedule.summary);
   const status = announcement(state, ({ schedule }) =>
