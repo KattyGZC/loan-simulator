@@ -18,6 +18,7 @@ Read this before the first edit. It binds every author and every model (Claude, 
 | `tests/i18n/` | Tests of `src/i18n/`. `fake-i18n.ts` stands in for `chrome.i18n` over the real `messages.json` |
 | `tests/storage/` | Tests of `src/storage/`, over WXT's fake browser |
 | `tests/sidepanel/` | Tests of the side panel logic: the forms, the results lines, the CSV file, the printout, scenarios and preferences |
+| `tests/ui/` | Tests of the rendered panel in happy-dom (`// @vitest-environment happy-dom` per file): what the user can reach, read and operate. `renderApp()` mounts `App` over the fake browser in one language per file; `axeViolations()` lists the axe rules the page breaks, without contrast |
 | `tests/golden/` | Reference schedules copied from real simulators, with their source |
 | `wxt.config.ts` | Manifest: name, permissions (`storage`, `sidePanel`), side panel |
 
@@ -99,7 +100,7 @@ Smallest change that solves the cause. Do not refactor nearby code in the same c
 - Every new behavior has its edge or negative case: 0 %, one payment, the last payment, an extra payment that ends the loan, an invalid field.
 - When the engine's math changes, the golden cases in `tests/golden/` must still pass. A new reference case records its source, date and the constant that source actually uses.
 - Coverage of `src/core/`, `src/i18n/` and the side panel logic stays at 95 % or more (`vitest.config.ts`, enforced in CI).
-- Tests live in `tests/**/*.test.ts`. A file outside that glob never runs.
+- Tests live in `tests/**/*.test.{ts,tsx}`. A file outside that glob never runs. Logic tests run in node; a test that renders a component is a `.tsx` file in `tests/ui/` and runs in happy-dom.
 
 ## Docs
 

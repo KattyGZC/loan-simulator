@@ -222,7 +222,7 @@ loan-simulator/
 │   └── storage/       # drafts of each tab's form, saved scenarios
 ├── public/
 │   └── _locales/      # UI strings: en/ and es/ messages.json
-├── tests/             # engine tests against known cases, and i18n tests
+├── tests/             # engine tests against known cases, panel logic, storage, i18n and the rendered panel
 └── wxt.config.ts
 ```
 

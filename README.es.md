@@ -222,7 +222,7 @@ loan-simulator/
 │   └── storage/       # borradores del formulario de cada pestaña, escenarios guardados
 ├── public/
 │   └── _locales/      # textos de la interfaz: en/ y es/ messages.json
-├── tests/             # tests del motor contra casos conocidos, y de i18n
+├── tests/             # tests del motor contra casos conocidos, de la lógica del panel, el almacenamiento, i18n y el panel renderizado
 └── wxt.config.ts
 ```
 
