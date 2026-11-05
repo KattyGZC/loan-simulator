@@ -1,4 +1,4 @@
-import { useId, useState } from 'preact/hooks';
+import { useId, useRef, useState } from 'preact/hooks';
 import { t, type MessageKey } from '@/i18n/translate';
 import { saveDraft, type Drafts } from '@/storage/drafts';
 import { savePreferences } from '@/storage/preferences';
@@ -10,6 +10,7 @@ import { defaultPreferences, restorePreferences } from './preferences';
 import { PreferencesForm } from './PreferencesForm';
 import { restoreScenarios, type Scenario } from './saved-scenarios';
 import { Scenarios } from './Scenarios';
+import { useFocusAfterRender } from './useFocusAfterRender';
 import { useSaveOnChange } from './useSaveOnChange';
 import { useScenarios } from './useScenarios';
 
@@ -19,6 +20,24 @@ const TABS: readonly { tab: Tab; label: MessageKey }[] = [
   { tab: 'existingLoan', label: 'tab_existingLoan' },
   { tab: 'scenarios', label: 'tab_scenarios' },
 ];
+
+/** The tab an arrow key, Home or End moves to from `current`, wrapping around; undefined for other keys. */
+function tabForKey(key: string, current: Tab): Tab | undefined {
+  const index = TABS.findIndex(({ tab }) => tab === current);
+  const last = TABS.length - 1;
+  switch (key) {
+    case 'ArrowRight':
+      return TABS[index === last ? 0 : index + 1]?.tab;
+    case 'ArrowLeft':
+      return TABS[index === 0 ? last : index - 1]?.tab;
+    case 'Home':
+      return TABS[0]?.tab;
+    case 'End':
+      return TABS[last]?.tab;
+    default:
+      return undefined;
+  }
+}
 
 /** What the panel had stored, unchecked until each part restores it. */
 export interface StoredState {
@@ -71,6 +90,7 @@ export function App({ stored }: { stored: StoredState }) {
         return (
           <NewLoan
             key={newLoan.restarts}
+            focusFirstField={newLoan.restarts > 0}
             today={todayDate}
             csvSettings={preferences}
             draft={newLoan.draft}
@@ -101,6 +121,20 @@ export function App({ stored }: { stored: StoredState }) {
   const idPrefix = useId();
   const tabId = (tab: Tab) => `${idPrefix}-tab-${tab}`;
   const panelId = (tab: Tab) => `${idPrefix}-panel-${tab}`;
+  const preferencesId = `${idPrefix}-preferences`;
+  const preferencesButton = useRef<HTMLButtonElement>(null);
+  const focusAfterRender = useFocusAfterRender();
+  const closePreferences = () => {
+    setShowingPreferences(false);
+    focusAfterRender(() => preferencesButton.current);
+  };
+  const moveToTab = (key: string) => {
+    const tab = tabForKey(key, selected);
+    if (!tab) return false;
+    setSelected(tab);
+    document.getElementById(tabId(tab))?.focus();
+    return true;
+  };
 
   return (
     <>
@@ -108,15 +142,25 @@ export function App({ stored }: { stored: StoredState }) {
         <div class="title-bar">
           <h1>{t('extName')}</h1>
           <button
+            ref={preferencesButton}
             type="button"
             class="button"
             aria-expanded={showingPreferences}
+            aria-controls={preferencesId}
             onClick={() => setShowingPreferences(!showingPreferences)}
           >
             {t(showingPreferences ? 'button_done' : 'button_preferences')}
           </button>
         </div>
-        <div class="tabs" role="tablist" hidden={showingPreferences}>
+        <div
+          class="tabs"
+          role="tablist"
+          aria-label={t('tabs_label')}
+          hidden={showingPreferences}
+          onKeyDown={(event) => {
+            if (moveToTab(event.key)) event.preventDefault();
+          }}
+        >
           {TABS.map(({ tab, label }) => (
             <button
               key={tab}
@@ -125,6 +169,7 @@ export function App({ stored }: { stored: StoredState }) {
               role="tab"
               aria-selected={selected === tab}
               aria-controls={panelId(tab)}
+              tabIndex={selected === tab ? 0 : -1}
               onClick={() => setSelected(tab)}
             >
               {t(label)}
@@ -134,7 +179,12 @@ export function App({ stored }: { stored: StoredState }) {
       </header>
       <main>
         {showingPreferences && (
-          <PreferencesForm preferences={preferences} onChange={setPreferences} />
+          <PreferencesForm
+            id={preferencesId}
+            preferences={preferences}
+            onChange={setPreferences}
+            onClose={closePreferences}
+          />
         )}
         {TABS.map(({ tab }) => (
           <div
@@ -143,6 +193,7 @@ export function App({ stored }: { stored: StoredState }) {
             class="tab-panel"
             role="tabpanel"
             aria-labelledby={tabId(tab)}
+            tabIndex={0}
             hidden={showingPreferences || selected !== tab}
           >
             {content(tab)}

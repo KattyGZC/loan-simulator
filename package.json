@@ -29,6 +29,7 @@
     "@eslint/js": "^10.0.1",
     "@preact/preset-vite": "^2.10.6",
     "@testing-library/preact": "^3.2.6",
+    "@testing-library/user-event": "^14.6.8",
     "@vitest/coverage-v8": "^5.0.5",
     "axe-core": "^4.14.0",
     "eslint": "^10.13.0",

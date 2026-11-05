@@ -13,6 +13,8 @@ import { counterpartRate } from './form';
 import { format, locale } from './locale';
 import { existingLoanPrintout } from './printout';
 import { PrintResults } from './PrintResults';
+import { announcement, savingsLines } from './results';
+import { ResultStatus } from './ResultStatus';
 import { ScheduleTable } from './ScheduleTable';
 import { useSimulation } from './useSimulation';
 import { Warnings } from './Warnings';
@@ -32,6 +34,7 @@ export function ExistingLoan({ today, csvSettings, draft }: ExistingLoanProps) {
     existingLoanState,
   );
   const emptyTitleId = useId();
+  const status = announcement(state, (simulation) => savingsLines(simulation, format));
 
   return (
     <>
@@ -43,6 +46,7 @@ export function ExistingLoan({ today, csvSettings, draft }: ExistingLoanProps) {
           counterpartRate={counterpartRate(simulated, errors, locale)}
         />
       </form>
+      <ResultStatus text={status} />
       {state.kind === 'loanIncomplete' && (
         <section class="empty-state" aria-labelledby={emptyTitleId}>
           <h2 id={emptyTitleId}>{t('emptyExisting_title')}</h2>

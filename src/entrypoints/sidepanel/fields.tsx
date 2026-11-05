@@ -1,5 +1,5 @@
 import type { ComponentChildren } from 'preact';
-import { useId, useState } from 'preact/hooks';
+import { useEffect, useId, useRef, useState } from 'preact/hooks';
 import type { FieldError } from './errors';
 import { visibleError } from './form';
 
@@ -17,6 +17,35 @@ function useVisibleError(error: FieldError | undefined, value: string) {
   };
 }
 
+/** The ids of the notes below a field, for `aria-describedby`; undefined when it has none. */
+function noteIds(...ids: (string | false)[]): string | undefined {
+  const shown = ids.filter((id) => id !== false);
+  return shown.length > 0 ? shown.join(' ') : undefined;
+}
+
+/** The field's hint, then its error: an error does not hide what the hint explains. */
+function FieldNotes(props: {
+  hint: string | null | undefined;
+  hintId: string;
+  error: string | undefined;
+  errorId: string;
+}) {
+  return (
+    <>
+      {props.hint && (
+        <p id={props.hintId} class="field-hint">
+          {props.hint}
+        </p>
+      )}
+      {props.error && (
+        <p id={props.errorId} class="field-error">
+          {props.error}
+        </p>
+      )}
+    </>
+  );
+}
+
 interface NumberFieldProps {
   label: string;
   value: string;
@@ -24,14 +53,17 @@ interface NumberFieldProps {
   inputMode: 'decimal' | 'numeric';
   error: FieldError | undefined;
   hint?: string | null;
+  /** The results wait for a value in it. */
+  required?: boolean;
 }
 
-/** A labelled text input for a number, with its error or hint below it. */
-export function NumberField({ label, value, onInput, inputMode, error, hint }: NumberFieldProps) {
+/** A labelled text input for a number, with its hint and its error below it. */
+export function NumberField(props: NumberFieldProps) {
+  const { label, value, onInput, inputMode, error, hint } = props;
   const id = useId();
   const { shownError, markEdited, markLeft } = useVisibleError(error, value);
-  const noteId = `${id}-note`;
-  const note = shownError ?? hint;
+  const hintId = `${id}-hint`;
+  const errorId = `${id}-error`;
   return (
     <div class="field">
       <label for={id}>{label}</label>
@@ -41,19 +73,16 @@ export function NumberField({ label, value, onInput, inputMode, error, hint }: N
         inputMode={inputMode}
         autoComplete="off"
         value={value}
+        aria-required={props.required}
         aria-invalid={shownError ? true : undefined}
-        aria-describedby={note ? noteId : undefined}
+        aria-describedby={noteIds(!!hint && hintId, !!shownError && errorId)}
         onInput={(event) => {
           markEdited();
           onInput(event.currentTarget.value);
         }}
         onBlur={markLeft}
       />
-      {note && (
-        <p id={noteId} class={shownError ? 'field-error' : 'field-hint'}>
-          {note}
-        </p>
-      )}
+      <FieldNotes hint={hint} hintId={hintId} error={shownError} errorId={errorId} />
     </div>
   );
 }
@@ -64,14 +93,17 @@ interface DateFieldProps {
   onInput: (value: string) => void;
   error: FieldError | undefined;
   hint?: string;
+  /** The results wait for a value in it. */
+  required?: boolean;
 }
 
-/** A labelled date input, with its error or hint below it. */
-export function DateField({ label, value, onInput, error, hint }: DateFieldProps) {
+/** A labelled date input, with its hint and its error below it. */
+export function DateField(props: DateFieldProps) {
+  const { label, value, onInput, error, hint } = props;
   const id = useId();
   const { shownError, markEdited, markLeft } = useVisibleError(error, value);
-  const noteId = `${id}-note`;
-  const note = shownError ?? hint;
+  const hintId = `${id}-hint`;
+  const errorId = `${id}-error`;
   return (
     <div class="field">
       <label for={id}>{label}</label>
@@ -79,19 +111,16 @@ export function DateField({ label, value, onInput, error, hint }: DateFieldProps
         id={id}
         type="date"
         value={value}
+        aria-required={props.required}
         aria-invalid={shownError ? true : undefined}
-        aria-describedby={note ? noteId : undefined}
+        aria-describedby={noteIds(!!hint && hintId, !!shownError && errorId)}
         onInput={(event) => {
           markEdited();
           onInput(event.currentTarget.value);
         }}
         onBlur={markLeft}
       />
-      {note && (
-        <p id={noteId} class={shownError ? 'field-error' : 'field-hint'}>
-          {note}
-        </p>
-      )}
+      <FieldNotes hint={hint} hintId={hintId} error={shownError} errorId={errorId} />
     </div>
   );
 }
@@ -101,16 +130,23 @@ interface TextFieldProps {
   value: string;
   onInput: (value: string) => void;
   hint?: string;
+  /** Takes the focus when it appears, for a field the user just asked for. */
+  focusOnMount?: boolean;
 }
 
 /** A labelled text input for free text, with an optional hint below it. */
-export function TextField({ label, value, onInput, hint }: TextFieldProps) {
+export function TextField({ label, value, onInput, hint, focusOnMount }: TextFieldProps) {
   const id = useId();
   const noteId = `${id}-note`;
+  const input = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (focusOnMount) input.current?.focus();
+  }, []);
   return (
     <div class="field">
       <label for={id}>{label}</label>
       <input
+        ref={input}
         id={id}
         type="text"
         autoComplete="off"
@@ -166,16 +202,25 @@ interface CheckboxFieldProps {
   label: string;
   checked: boolean;
   disabled?: boolean;
+  /** The id of the text that says why it is disabled, or what it does. */
+  describedBy?: string;
   onChange: (checked: boolean) => void;
 }
 
-export function CheckboxField({ label, checked, disabled, onChange }: CheckboxFieldProps) {
+export function CheckboxField({
+  label,
+  checked,
+  disabled,
+  describedBy,
+  onChange,
+}: CheckboxFieldProps) {
   return (
     <label class="checkbox">
       <input
         type="checkbox"
         checked={checked}
         disabled={disabled}
+        aria-describedby={describedBy}
         onChange={(event) => onChange(event.currentTarget.checked)}
       />
       {label}

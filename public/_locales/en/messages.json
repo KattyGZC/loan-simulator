@@ -425,6 +425,19 @@
       "last": { "content": "$2", "example": "$420.15" }
     }
   },
+  "tabs_label": {
+    "message": "Sections"
+  },
+  "row_extraPaymentMarker": {
+    "message": "(extra payment)"
+  },
+  "status_result": {
+    "message": "$LABEL$: $VALUE$",
+    "placeholders": {
+      "label": { "content": "$1", "example": "Monthly payment" },
+      "value": { "content": "$2", "example": "$466.08" }
+    }
+  },
   "button_preferences": {
     "message": "Preferences"
   },

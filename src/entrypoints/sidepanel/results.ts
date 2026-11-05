@@ -8,11 +8,32 @@ import type {
 import type { Format } from '@/i18n/format';
 import { t, type MessageKey } from '@/i18n/translate';
 import type { ExistingLoanSimulation } from './existing-form';
+import type { PanelState } from './form';
 
 /** A labelled value of the results, written with the formatter it was built with. */
 export interface Line {
   label: string;
   value: string;
+}
+
+/**
+ * What a screen reader announces for a tab's results: the first of their `mainLines`, that the
+ * fields need fixing, or nothing while the loan is incomplete, since the panel says so already.
+ */
+export function announcement<T>(
+  state: PanelState<T>,
+  mainLines: (simulation: T) => readonly Line[],
+): string {
+  switch (state.kind) {
+    case 'simulated': {
+      const [main] = mainLines(state.simulation);
+      return main ? t('status_result', [main.label, main.value]) : '';
+    }
+    case 'invalid':
+      return t('invalid_body');
+    case 'loanIncomplete':
+      return '';
+  }
 }
 
 /** A column of the schedule: its header and what each row shows in it. */

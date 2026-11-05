@@ -425,6 +425,19 @@
       "last": { "content": "$2", "example": "$420.15" }
     }
   },
+  "tabs_label": {
+    "message": "Secciones"
+  },
+  "row_extraPaymentMarker": {
+    "message": "(abono)"
+  },
+  "status_result": {
+    "message": "$LABEL$: $VALUE$",
+    "placeholders": {
+      "label": { "content": "$1", "example": "Cuota mensual" },
+      "value": { "content": "$2", "example": "$466,08" }
+    }
+  },
   "button_preferences": {
     "message": "Preferencias"
   },

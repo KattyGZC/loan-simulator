@@ -17,9 +17,9 @@ export function ScheduleTable({ schedule, title, extraPaymentNumber }: ScheduleT
   return (
     <section aria-labelledby={titleId}>
       <h2 id={titleId}>{t(title)}</h2>
-      {/* Focusable so keyboard users can scroll the table sideways. */}
-      <div class="table-scroll" role="region" tabIndex={0} aria-labelledby={titleId}>
-        <table class="schedule">
+      {/* Focusable so keyboard users can scroll the table sideways; a group, since the section is already the landmark. */}
+      <div class="table-scroll" role="group" tabIndex={0} aria-labelledby={titleId}>
+        <table class="schedule" aria-labelledby={titleId}>
           <thead>
             <tr>
               <th scope="col">{t('column_number')}</th>
@@ -31,17 +31,22 @@ export function ScheduleTable({ schedule, title, extraPaymentNumber }: ScheduleT
             </tr>
           </thead>
           <tbody>
-            {schedule.rows.map((row) => (
-              <tr
-                key={row.number}
-                class={row.number === extraPaymentNumber ? 'extra-payment' : undefined}
-              >
-                <th scope="row">{row.number}</th>
-                {columns.map((column) => (
-                  <td key={column.label}>{column.cell(row)}</td>
-                ))}
-              </tr>
-            ))}
+            {schedule.rows.map((row) => {
+              const holdsExtraPayment = row.number === extraPaymentNumber;
+              return (
+                <tr key={row.number} class={holdsExtraPayment ? 'extra-payment' : undefined}>
+                  <th scope="row">
+                    {row.number}
+                    {holdsExtraPayment && (
+                      <span class="visually-hidden"> {t('row_extraPaymentMarker')}</span>
+                    )}
+                  </th>
+                  {columns.map((column) => (
+                    <td key={column.label}>{column.cell(row)}</td>
+                  ))}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

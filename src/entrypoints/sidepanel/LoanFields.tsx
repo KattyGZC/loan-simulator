@@ -26,6 +26,7 @@ export function LoanFields({ form, update, errorOf, counterpartRate }: LoanField
           value={form.amount}
           onInput={(amount) => update({ amount })}
           error={errorOf('amount')}
+          required
         />
         <NumberField
           label={t('field_termMonths')}
@@ -33,6 +34,7 @@ export function LoanFields({ form, update, errorOf, counterpartRate }: LoanField
           value={form.termMonths}
           onInput={(termMonths) => update({ termMonths })}
           error={errorOf('termMonths')}
+          required
         />
         <RateFields
           annualRate={form.annualRate}
