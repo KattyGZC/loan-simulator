@@ -4,3 +4,5 @@ coverage/
 DECISIONS/
 package-lock.json
 *.md
+reports/
+.stryker-tmp/
