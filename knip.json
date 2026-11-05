@@ -1,0 +1,11 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "src/entrypoints/*.ts",
+    "src/entrypoints/*/main.tsx",
+    "src/core/index.ts",
+    "scripts/guard.mjs",
+    ".claude/hooks/*.mjs"
+  ],
+  "ignoreExportsUsedInFile": true
+}
