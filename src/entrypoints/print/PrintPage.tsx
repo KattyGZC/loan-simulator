@@ -2,9 +2,12 @@ import { useId } from 'preact/hooks';
 import type { PrintBlock, Printout, PrintSection } from '@/entrypoints/sidepanel/printout';
 import { t } from '@/i18n/translate';
 
-function PrintTable({ rowHeading, columns, rows }: Extract<PrintBlock, { kind: 'table' }>) {
+type TableBlock = Extract<PrintBlock, { kind: 'table' }>;
+
+/** A table named after the section it is in, `titleId`, with the marked row said in words too. */
+function PrintTable({ rowHeading, columns, rows, titleId }: TableBlock & { titleId: string }) {
   return (
-    <table>
+    <table aria-labelledby={titleId}>
       <thead>
         <tr>
           {rowHeading === null ? <td /> : <th scope="col">{rowHeading}</th>}
@@ -18,7 +21,10 @@ function PrintTable({ rowHeading, columns, rows }: Extract<PrintBlock, { kind: '
       <tbody>
         {rows.map(({ heading, cells, marked }) => (
           <tr key={heading} class={marked ? 'marked' : undefined}>
-            <th scope="row">{heading}</th>
+            <th scope="row">
+              {heading}
+              {marked && <span class="visually-hidden"> {t('row_extraPaymentMarker')}</span>}
+            </th>
             {cells.map((cell, index) => (
               <td key={index}>{cell}</td>
             ))}
@@ -29,7 +35,7 @@ function PrintTable({ rowHeading, columns, rows }: Extract<PrintBlock, { kind: '
   );
 }
 
-function Block({ block }: { block: PrintBlock }) {
+function Block({ block, titleId }: { block: PrintBlock; titleId: string }) {
   switch (block.kind) {
     case 'lines':
       return (
@@ -45,7 +51,7 @@ function Block({ block }: { block: PrintBlock }) {
     case 'note':
       return <p class="note">{block.text}</p>;
     case 'table':
-      return <PrintTable {...block} />;
+      return <PrintTable {...block} titleId={titleId} />;
   }
 }
 
@@ -55,7 +61,7 @@ function Section({ section }: { section: PrintSection }) {
     <section aria-labelledby={titleId}>
       <h2 id={titleId}>{section.title}</h2>
       {section.blocks.map((block, index) => (
-        <Block key={index} block={block} />
+        <Block key={index} block={block} titleId={titleId} />
       ))}
     </section>
   );
