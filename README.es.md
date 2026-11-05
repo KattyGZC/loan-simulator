@@ -8,7 +8,7 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
 
 > Pensada para Ecuador (USD, SOLCA, segmentos del BCE), pero como casi todos los datos los ingresa el usuario, sirve para otros países desactivando lo específico de Ecuador.
 
-> **Estado:** en desarrollo, aún no publicada. El motor de cálculo (`src/core/`) y los textos y formatos de número en inglés y español (`src/i18n/`) están terminados y probados, y el panel lateral, cargando la extensión sin empaquetar, ya simula un crédito nuevo y un abono a un crédito que ya tienes; cuenta el interés en 30/360 o en días reales/360, guarda escenarios de crédito nuevo para comparar dos lado a lado y conserva tus preferencias (moneda, signo decimal de los archivos exportados y SOLCA), y exporta o imprime cualquiera de las dos simulaciones. Faltan la accesibilidad, el tema oscuro y los íconos definitivos. Este README describe la extensión prevista.
+> **Estado:** en desarrollo, aún no publicada. El motor de cálculo (`src/core/`) y los textos y formatos de número en inglés y español (`src/i18n/`) están terminados y probados, y el panel lateral, cargando la extensión sin empaquetar, ya simula un crédito nuevo y un abono a un crédito que ya tienes; cuenta el interés en 30/360 o en días reales/360, guarda escenarios de crédito nuevo para comparar dos lado a lado y conserva tus preferencias (moneda, signo decimal de los archivos exportados y SOLCA), y exporta o imprime cualquiera de las dos simulaciones, también con el teclado o un lector de pantalla. Faltan el tema oscuro y los íconos definitivos. Este README describe la extensión prevista.
 
 ---
 
@@ -23,7 +23,7 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
   - **Reducir plazo:** mantienes la cuota y terminas antes.
 - Muestra los totales: intereses, seguros, SOLCA y total pagado.
 - Exporta la tabla a CSV, y la imprime o la guarda como PDF.
-- Interfaz en inglés y español.
+- Interfaz en inglés y español, usable solo con el teclado y con un lector de pantalla: las pestañas se mueven con las flechas, los resultados y avisos se anuncian, y cada campo dice qué necesita.
 - Conserva lo que escribiste en cada pestaña al cerrar el panel. **Empezar de nuevo** vacía el formulario de crédito nuevo.
 - Guarda escenarios de crédito nuevo y compara dos lado a lado (por ejemplo, «Coop X – consumo» vs «Banco Y – consumo»).
 
