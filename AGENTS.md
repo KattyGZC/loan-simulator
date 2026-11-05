@@ -21,6 +21,9 @@ Read this before the first edit. It binds every author and every model (Claude, 
 | `tests/ui/` | Tests of the rendered panel in happy-dom (`// @vitest-environment happy-dom` per file): what the user can reach, read and operate. `renderApp()` mounts `App` over the fake browser in one language per file; `axeViolations()` lists the axe rules the page breaks, without contrast |
 | `tests/golden/` | Reference schedules copied from real simulators, with their source |
 | `wxt.config.ts` | Manifest: name, permissions (`storage`, `sidePanel`), side panel |
+| `eslint.config.js`, `vitest.config.ts`, `knip.json`, `stryker.config.json` | The checks: the rules of this file that a linter can see, coverage per file, unused code, mutation testing |
+| `scripts/` | `guard.mjs`, the CI job that flags a pull request changing a guarded file (`guarded-files.mjs`) or removing tests |
+| `.claude/settings.json`, `.claude/hooks/` | Claude Code's hooks: ask before editing a guarded file, lint each edited file, run the checks before ending a turn |
 
 ## Status
 
@@ -100,7 +103,9 @@ Smallest change that solves the cause. Do not refactor nearby code in the same c
 - Test behavior through `simulate()` or the module's export, not private state.
 - Every new behavior has its edge or negative case: 0 %, one payment, the last payment, an extra payment that ends the loan, an invalid field.
 - When the engine's math changes, the golden cases in `tests/golden/` must still pass. A new reference case records its source, date and the constant that source actually uses.
-- Coverage of `src/core/`, `src/i18n/` and the side panel logic stays at 95 % or more (`vitest.config.ts`, enforced in CI).
+- Every file of `src/core/`, `src/i18n/`, `src/storage/` and the side panel logic (`sidepanel/*.ts` but the hooks `use*.ts` and `locale.ts`, which still lacks tests) keeps 100 % of its lines and functions covered and 90 % of its branches; the components and hooks keep their current floor (`vitest.config.ts`, enforced in CI). Raise the floor when tests add coverage; never lower it.
+- A test asserts something (`vitest/expect-expect`). No `.only`, `.skip` or commented-out tests.
+- `npm run test:mutation` (Stryker, about 8 minutes, weekly in CI) changes the engine on purpose and checks a test fails. A surviving mutant is a behavior no test pins; add the test, do not exclude the line. The score may not drop below 92 % (`stryker.config.json`); 52 survivors are known debt, 41 of them in the rescheduling of `amortization.ts`.
 - Tests live in `tests/**/*.test.{ts,tsx}`. A file outside that glob never runs. Logic tests run in node; a test that renders a component is a `.tsx` file in `tests/ui/` and runs in happy-dom.
 
 ## Docs
@@ -109,9 +114,17 @@ Smallest change that solves the cause. Do not refactor nearby code in the same c
 - A change to a formula or a default updates "How it's calculated" in both READMEs.
 - When a phase closes, update "Status" above.
 
+## Checks that enforce this file
+
+- ESLint (`eslint.config.js`) rejects what it can see of this file: casts, rounding outside `roundMoney`, `* 100` and `/ 100` outside `rates.ts` and `money.ts`, imports from inside `@/core`, text in components, `TODO`, `console.log`, floating promises, non-exhaustive `switch`, hook dependencies, accessibility. Inline `eslint-disable` comments are off (`noInlineConfig`). When a rule is wrong for one file, add a scoped override with its reason to `eslint.config.js`.
+- `knip` reports unused files, exports and dependencies.
+- A pre-commit hook (`simple-git-hooks`, `lint-staged`) lints and formats the staged files and type-checks the project, for every author.
+- Guarded files (`scripts/guarded-files.mjs`) decide what passing means: the golden cases, thresholds, lint rules, CI. Never change one to make a check pass. Claude Code asks before editing one (a speed bump, not a lock: a shell command gets past it, the pre-commit hook and CI do not), and the `guard` CI job fails on a pull request that changes one, changes the check scripts or removes tests; only the owner merges it.
+- `main` takes changes only through pull requests. `check` and `guard` must pass; the owner can merge anyway.
+
 ## Before presenting work
 
-`npm run check` exits 0. It runs what CI runs: lint, format check, typecheck, tests with coverage, and build.
+`npm run check` exits 0. It runs what CI runs: lint, format check, typecheck, unused code, tests with coverage, and build.
 
 Then run the `self-grade` and `tech-audit` skills (`.claude/skills/`). Fix and re-run until every applicable self-grade row is **A** and the audit says **SHIP**. Only then propose commits.
 

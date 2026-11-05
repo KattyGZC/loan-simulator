@@ -237,7 +237,8 @@ npm test           # correr los tests unitarios
 npm run lint       # ESLint
 npm run typecheck  # TypeScript
 npm run build      # build de producción en .output/chrome-mv3
-npm run check      # todo lo que corre la CI: lint, formato, typecheck, cobertura, build
+npm run check      # todo lo que corre la CI: lint, formato, typecheck, código sin uso, cobertura, build
+npm run test:mutation  # tests de mutación del motor (Stryker, ~8 min)
 npm run zip        # zip listo para la Chrome Web Store
 ```
 
@@ -245,7 +246,7 @@ Para cargar el build a mano: abre `chrome://extensions`, activa el **Modo de des
 
 Antes de cambiar código, lee [AGENTS.md](AGENTS.md) (en inglés): estándar de código, estado actual y las decisiones en las que se apoya el motor.
 
-La CI (GitHub Actions) corre lint, revisión de formato, typecheck, tests y build en cada push a `main` y en cada pull request.
+La CI (GitHub Actions) corre lint, revisión de formato, typecheck, código sin uso, tests y build en cada push a `main` y en cada pull request. En un pull request, un job `guard` falla cuando cambia los casos golden, un umbral, una regla de lint o la CI, o elimina tests, para que la dueña lo revise. Los tests de mutación corren cada semana. Un hook de pre-commit revisa lint, formato y tipos de lo que commiteas.
 
 ---
 
