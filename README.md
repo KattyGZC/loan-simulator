@@ -8,7 +8,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 
 > Built for Ecuador (USD, SOLCA contribution, Central Bank credit segments). Since almost all data is entered by the user, it works for other countries once the Ecuador-specific options are turned off.
 
-> **Status:** in development, not published yet. The calculation engine (`src/core/`) and the English and Spanish texts and number formats (`src/i18n/`) are done and tested, and the side panel, loaded unpacked, simulates a new loan and an extra payment on a loan you already have; it counts interest on 30/360 or actual days/360, saves new-loan scenarios to compare two side by side, and keeps your preferences (currency, decimal sign of exported files and SOLCA), and exports or prints either simulation, from the keyboard or a screen reader too. The dark theme and the final icons are next. This README describes the planned extension.
+> **Status:** in development, not published yet. The calculation engine (`src/core/`) and the English and Spanish texts and number formats (`src/i18n/`) are done and tested, and the side panel, loaded unpacked, simulates a new loan and an extra payment on a loan you already have; it counts interest on 30/360 or actual days/360, saves new-loan scenarios to compare two side by side, and keeps your preferences (currency, decimal sign of exported files and SOLCA), and exports or prints either simulation, from the keyboard or a screen reader too, in a light or dark theme. The final icons are next. This README describes the planned extension.
 
 ---
 
@@ -23,6 +23,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
   - **Reduce term:** keep the payment and finish earlier.
 - Shows totals: interest, insurance, SOLCA and total paid.
 - Exports the schedule to CSV, and prints it or saves it as PDF.
+- Follows the system's light or dark theme; printouts are always light.
 - Interface in English and Spanish, usable with the keyboard alone and with a screen reader: the tabs move with the arrow keys, results and warnings are announced, and every field says what it needs.
 - Keeps what you typed in each tab when you close the panel. **Start over** empties the new-loan form.
 - Saves new-loan scenarios and compares two of them side by side (e.g. "Credit Union X – consumer" vs "Bank Y – consumer").
@@ -218,8 +219,10 @@ loan-simulator/
 │   ├── i18n/          # UI text, number and date formats, reading typed numbers
 │   ├── entrypoints/
 │   │   ├── background.ts
+│   │   ├── print/     # the printout, in its own tab
 │   │   └── sidepanel/ # UI
-│   └── storage/       # drafts of each tab's form, saved scenarios
+│   ├── storage/       # drafts of each tab's form, saved scenarios
+│   └── styles/        # colors of the light and dark theme
 ├── public/
 │   └── _locales/      # UI strings: en/ and es/ messages.json
 ├── tests/             # engine tests against known cases, panel logic, storage, i18n and the rendered panel

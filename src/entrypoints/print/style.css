@@ -1,14 +1,4 @@
 :root {
-  --text: #1c1f24;
-  --muted: #5b6270;
-  --border: #d4d8de;
-  --surface: #ffffff;
-  --surface-alt: #f4f6f8;
-  --accent: #1f5fbf;
-  --accent-bg: #e8f0fb;
-  --warning-bg: #fff6e0;
-  --warning-border: #e3a008;
-
   font-family: system-ui, sans-serif;
   font-size: 87.5%;
   line-height: 1.45;
@@ -139,7 +129,7 @@ tr.marked td {
   font: inherit;
   color: var(--accent);
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--control-border);
   border-radius: 6px;
   padding: 4px 10px;
   cursor: pointer;

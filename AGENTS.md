@@ -18,6 +18,8 @@ Read this before the first edit. It binds every author and every model (Claude, 
 | `tests/i18n/` | Tests of `src/i18n/`. `fake-i18n.ts` stands in for `chrome.i18n` over the real `messages.json` |
 | `tests/storage/` | Tests of `src/storage/`, over WXT's fake browser |
 | `tests/sidepanel/` | Tests of the side panel logic: the forms, the results lines, the CSV file, the printout, scenarios and preferences |
+| `src/styles/theme.css` | Every color of the side panel and the print page, light and dark, as tokens on `:root` |
+| `tests/styles/` | The contrast of every color pair the pages draw, in both themes, against WCAG AA |
 | `tests/ui/` | Tests of the rendered panel in happy-dom (`// @vitest-environment happy-dom` per file): what the user can reach, read and operate. `renderApp()` mounts `App` over the fake browser in one language per file; `axeViolations()` lists the axe rules the page breaks, without contrast |
 | `tests/golden/` | Reference schedules copied from real simulators, with their source |
 | `wxt.config.ts` | Manifest: name, permissions (`storage`, `sidePanel`), side panel |
@@ -31,7 +33,7 @@ Done: project setup (phase 0), the calculation engine (phase 1), tested against 
 
 Next, in order:
 
-1. **Dark theme, final icons, performance and wording** (accessibility done).
+1. **Final icons, performance and wording** (accessibility and dark theme done).
 2. **QA:** Playwright e2e and a manual check against 3 institutions.
 3. **Chrome Web Store** listing, privacy page and release workflow.
 
@@ -54,6 +56,7 @@ Do not reverse one of these in passing. If a change needs to, say so first.
 - **Format locale.** Spanish formats as `es-EC` (`$1.234,56`, `31/01/2027`) and anything else as `en-US`. Region-less `es` and `es-419` would print `1234,56 US$` and `USD 1,234.56`. Currency is the user's preference, USD by default, from `CURRENCIES` (`src/i18n/format.ts`): only currencies with cents, always shown with 2 decimals, because the engine rounds to cents. It changes how amounts are written, never their value. The panel's `format` (`sidepanel/locale.ts`) follows it through `showAmountsIn()`, which `App` calls as it renders.
 - **Typed numbers.** `parseDecimal()` accepts `,` or `.` as the decimal separator. The only ambiguous case, one separator after 1–3 digits not starting with 0 (maybe space-grouped) and before exactly three (`10.000`, `1 000.000`), follows the locale's decimal separator. Spaces inside only group thousands. Empty text is `undefined` and unreadable text `NaN`, so `validate()` reports them.
 - **CSV files.** A spreadsheet must read the values as numbers, and it reads them with the computer's regional settings, which the extension cannot see and the UI language does not tell (Spanish in Mexico uses a decimal point). So the decimal sign is a preference (`fileDecimalSign`, the locale's by default), and `createFileFormat()` writes amounts without a currency sign, which the file names once, or thousands separators (`1234,56` or `1234.56`), rates `15,6%` or `15.6%`, ISO dates. The separator follows the decimal sign: `;` with a comma, `,` with a point. UTF-8 with a byte order mark, CRLF lines. A blob link downloads it, so no `downloads` permission.
+- **Theme.** It follows the system (`prefers-color-scheme`); it is not a preference. Every color is a token in `src/styles/theme.css`, defined in both themes, and paper is always light (the dark tokens apply only on `screen`). A component draws with tokens, never a color literal. Fields and buttons are outlined with `--control-border`, at least 3:1 against the background (WCAG 1.4.11); `--border` is for dividers. A new pair of colors goes into `tests/styles/theme.test.ts`, which holds both themes to AA.
 - **Accessibility.** The tabs follow the ARIA tabs pattern: only the selected tab is in the tab order, and the arrow keys, Home and End move between them. After an action removes or hides what had the focus (Open, Start over, Rename, Delete, closing Preferences with Escape), the focus moves to what replaces it (`useFocusAfterRender`), never to the page. Status regions stay mounted, empty when there is nothing to say, so a screen reader announces the first message: the warnings and one hidden `ResultStatus` per simulator tab with the results' main line (`announcement()`). A field shows its hint and its error together, both in `aria-describedby`, and the fields the results wait for carry `aria-required`. A table is named after its section's heading. A row marked by color also says it in hidden text.
 - **Privacy.** Permissions are `storage` and `sidePanel` only. No host permissions, no network calls.
 
