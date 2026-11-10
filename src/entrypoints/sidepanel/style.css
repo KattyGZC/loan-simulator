@@ -1,14 +1,4 @@
 :root {
-  --text: #1c1f24;
-  --muted: #5b6270;
-  --border: #d4d8de;
-  --surface: #ffffff;
-  --surface-alt: #f4f6f8;
-  --accent: #1f5fbf;
-  --accent-bg: #e8f0fb;
-  --error: #b42318;
-  --warning-bg: #fff6e0;
-  --warning-border: #e3a008;
   --gap: 12px;
 
   font-family: system-ui, sans-serif;
@@ -142,7 +132,7 @@ select {
   font: inherit;
   color: inherit;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--control-border);
   border-radius: 6px;
   padding: 6px 8px;
   width: 100%;
@@ -402,14 +392,14 @@ table {
   font: inherit;
   color: var(--accent);
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--control-border);
   border-radius: 6px;
   padding: 4px 10px;
   cursor: pointer;
 }
 
 .button.primary {
-  color: var(--surface);
+  color: var(--on-accent);
   background: var(--accent);
   border-color: var(--accent);
 }
