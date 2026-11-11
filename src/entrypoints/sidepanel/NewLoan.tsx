@@ -1,7 +1,8 @@
 import { useEffect, useId, useRef } from 'preact/hooks';
 import { t } from '@/i18n/translate';
+import { ActionsMenu } from './ActionsMenu';
 import { newLoanCsv, type CsvSettings } from './csv';
-import { ExportCsv } from './ExportCsv';
+import { downloadCsv } from './download-csv';
 import {
   type LoanForm,
   counterpartRate,
@@ -11,8 +12,8 @@ import {
 } from './form';
 import { LoanFields } from './LoanFields';
 import { format, locale } from './locale';
+import { openPrintPage } from './print-page';
 import { newLoanPrintout } from './printout';
-import { PrintResults } from './PrintResults';
 import { announcement, summaryLines } from './results';
 import { ResultStatus } from './ResultStatus';
 import { SaveScenario } from './SaveScenario';
@@ -51,6 +52,7 @@ export function NewLoan({
   );
   const emptyTitleId = useId();
   const loanForm = useRef<HTMLFormElement>(null);
+  const saveDialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     if (focusFirstField) loanForm.current?.querySelector('input')?.focus();
   }, [focusFirstField]);
@@ -91,8 +93,35 @@ export function NewLoan({
       {state.kind === 'simulated' && (
         <div class="results">
           <Warnings warnings={state.simulation.warnings} />
-          <Summary summary={state.simulation.schedule.summary} fixedPayment={fixedPayment} />
+          <Summary
+            summary={state.simulation.schedule.summary}
+            fixedPayment={fixedPayment}
+            menu={
+              <ActionsMenu
+                actions={[
+                  {
+                    label: t('menu_saveScenario'),
+                    onSelect: () => saveDialog.current?.showModal(),
+                  },
+                  {
+                    label: t('button_exportCsv'),
+                    onSelect: () =>
+                      downloadCsv(
+                        t('file_newLoanCsv', [today]),
+                        newLoanCsv(state.simulation, fixedPayment, csvSettings),
+                      ),
+                  },
+                  {
+                    label: t('button_print'),
+                    onSelect: () =>
+                      openPrintPage(newLoanPrintout(state.simulation, fixedPayment, today, format)),
+                  },
+                ]}
+              />
+            }
+          />
           <SaveScenario
+            dialogRef={saveDialog}
             form={form}
             update={update}
             onSave={(name) =>
@@ -104,15 +133,6 @@ export function NewLoan({
               })
             }
           />
-          <div class="actions">
-            <ExportCsv
-              fileName={t('file_newLoanCsv', [today])}
-              csv={() => newLoanCsv(state.simulation, fixedPayment, csvSettings)}
-            />
-            <PrintResults
-              printout={() => newLoanPrintout(state.simulation, fixedPayment, today, format)}
-            />
-          </div>
           <ScheduleTable schedule={state.simulation.schedule} title="section_schedule" />
         </div>
       )}

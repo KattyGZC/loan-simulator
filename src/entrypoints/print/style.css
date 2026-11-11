@@ -1,5 +1,4 @@
 :root {
-  font-family: system-ui, sans-serif;
   font-size: 87.5%;
   line-height: 1.45;
   color: var(--text);
@@ -12,7 +11,11 @@
   box-sizing: border-box;
 }
 
+/* On body too, not only :root: Chrome sets a font family and a 75 % size on the body of
+ * extension pages. */
 body {
+  font-family: var(--font-sans);
+  font-size: 1rem;
   max-width: 900px;
   margin: 0 auto;
   padding: 24px 16px;
@@ -24,6 +27,12 @@ header {
   align-items: flex-start;
   gap: 16px;
   margin-bottom: 16px;
+}
+
+h1,
+h2 {
+  font-family: var(--font-serif);
+  font-weight: 500;
 }
 
 h1 {

@@ -8,7 +8,7 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
 
 > Pensada para Ecuador (USD, SOLCA, segmentos del BCE), pero como casi todos los datos los ingresa el usuario, sirve para otros países desactivando lo específico de Ecuador.
 
-> **Estado:** en desarrollo, aún no publicada. El motor de cálculo (`src/core/`) y los textos y formatos de número en inglés y español (`src/i18n/`) están terminados y probados, y el panel lateral, cargando la extensión sin empaquetar, ya simula un crédito nuevo y un abono a un crédito que ya tienes; cuenta el interés en 30/360 o en días reales/360, guarda escenarios de crédito nuevo para comparar dos lado a lado y conserva tus preferencias (moneda, signo decimal de los archivos exportados y SOLCA), y exporta o imprime cualquiera de las dos simulaciones, también con el teclado o un lector de pantalla, en tema claro u oscuro. Faltan los íconos definitivos. Este README describe la extensión prevista.
+> **Estado:** en desarrollo, aún no publicada. El motor de cálculo (`src/core/`) y los textos y formatos de número en inglés y español (`src/i18n/`) están terminados y probados, y el panel lateral, cargando la extensión sin empaquetar, ya simula un crédito nuevo y un abono a un crédito que ya tienes; cuenta el interés en 30/360 o en días reales/360, guarda escenarios de crédito nuevo para comparar dos lado a lado y conserva tus preferencias (moneda, signo decimal de los archivos exportados y SOLCA), y exporta o imprime cualquiera de las dos simulaciones, también con el teclado o un lector de pantalla, en tema claro u oscuro. Siguen los íconos definitivos y un glosario. Este README describe la extensión prevista.
 
 ---
 
@@ -60,7 +60,7 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
 | **Base de días** | 30/360 | `30/360`: cada mes cuenta 30 días. `Días reales/360`: cada cuota cobra los días desde la anterior, como hace Produbanco |
 | **Fecha de desembolso** | Hoy | Solo con días reales: ahí empieza el primer periodo de interés |
 | **Fecha del primer pago** | Un mes después de hoy | Pone fechas en la tabla. Con días reales también fija los días de interés, y un vencimiento en sábado o domingo pasa al lunes |
-| **Entidad y segmento** | Vacío | En «Guardar este escenario», cuando el crédito ya se simula. Son solo etiquetas: sugieren el nombre del escenario (por ejemplo, «Coop JEP – Consumo») |
+| **Entidad y segmento** | Vacío | En el diálogo **Guardar escenario…**, desde el menú ⋮ de los resultados, cuando el crédito ya se simula. Son solo etiquetas: sugieren el nombre del escenario (por ejemplo, «Coop JEP – Consumo») |
 | **Tasa máxima del segmento** | Vacío | Si la ingresas, la extensión avisa cuando la tasa supera el máximo legal |
 
 ### Un crédito que ya tienes (segunda pestaña)
@@ -91,7 +91,7 @@ El botón **Preferencias**, junto al título, las abre; **Listo** vuelve a las p
 
 ### Escenarios guardados (tercera pestaña)
 
-Cuando un crédito nuevo ya se simula, **Guardar este escenario** lo guarda con un nombre: «Entidad – Segmento», salvo que lo cambies. La pestaña **Escenarios** los lista:
+Cuando un crédito nuevo ya se simula, **Guardar escenario…** en el menú ⋮ de los resultados abre un diálogo que lo guarda con un nombre: «Entidad – Segmento», salvo que lo cambies. La pestaña **Escenarios** los lista:
 
 - **Abrir** vuelve a cargar el escenario en la pestaña Crédito nuevo.
 - **Renombrar** y **Eliminar** actúan solo sobre ese escenario.
@@ -109,8 +109,8 @@ Los escenarios son solo de créditos nuevos. Se quedan en el navegador, igual qu
 - **Tabla de amortización:** n.º, fecha, cuota total, capital, interés, seguro, otros cargos y saldo.
 - **Dos escenarios guardados lado a lado:** cuota (la primera y la última cuando cambia), cuotas, tasa efectiva, total de intereses, costo total y total pagado.
 - **Abono a un crédito que tienes:** cómo se reparte entre interés acumulado y capital, el resto del crédito sin vs. con abono, lo que ahorras (intereses, seguro y otros cargos), las cuotas que te ahorras o la nueva cuota, y la tabla con el abono.
-- **Archivo CSV** (**Exportar CSV**, en cualquiera de las dos pestañas de simulación): la moneda, lo que la pestaña muestra sobre la tabla, la tabla con las mismas columnas y el aviso legal. Los números se escriben para que la hoja de cálculo los lea como números: con el signo decimal elegido en Preferencias, sin símbolo de moneda ni separador de miles (`1234,56` o `1234.56`), las tasas como `15,6%` o `15.6%` y las fechas como `AAAA-MM-DD`. Los campos se separan con `;` si el decimal es coma y con `,` si es punto, como espera Excel, y el archivo es UTF-8 con marca de orden de bytes para que Excel muestre las tildes.
-- **Hoja para imprimir** (**Imprimir**, en cualquiera de las dos pestañas de simulación): se abre en una pestaña nueva, preparada para papel, con la fecha de hoy, los avisos, lo que la pestaña muestra sobre la tabla, la tabla y el aviso legal, y abre el diálogo de impresión del navegador, donde **Guardar como PDF** es una de las impresoras. Los montos se escriben como en pantalla. Una tabla larga sigue en las páginas siguientes con su encabezado repetido, y la cuota que lleva el abono va marcada.
+- **Archivo CSV** (**Exportar CSV** en el menú ⋮ de los resultados, en cualquiera de las dos pestañas de simulación): la moneda, lo que la pestaña muestra sobre la tabla, la tabla con las mismas columnas y el aviso legal. Los números se escriben para que la hoja de cálculo los lea como números: con el signo decimal elegido en Preferencias, sin símbolo de moneda ni separador de miles (`1234,56` o `1234.56`), las tasas como `15,6%` o `15.6%` y las fechas como `AAAA-MM-DD`. Los campos se separan con `;` si el decimal es coma y con `,` si es punto, como espera Excel, y el archivo es UTF-8 con marca de orden de bytes para que Excel muestre las tildes.
+- **Hoja para imprimir** (**Imprimir** en el menú ⋮ de los resultados, en cualquiera de las dos pestañas de simulación): se abre en una pestaña nueva, preparada para papel, con la fecha de hoy, los avisos, lo que la pestaña muestra sobre la tabla, la tabla y el aviso legal, y abre el diálogo de impresión del navegador, donde **Guardar como PDF** es una de las impresoras. Los montos se escriben como en pantalla. Una tabla larga sigue en las páginas siguientes con su encabezado repetido, y la cuota que lleva el abono va marcada.
 
 ---
 
@@ -221,10 +221,12 @@ loan-simulator/
 │   │   ├── background.ts
 │   │   ├── print/     # la impresión, en su propia pestaña
 │   │   └── sidepanel/ # interfaz
+│   ├── assets/fonts/  # Inter y Newsreader, incluidas: la extensión no hace llamadas de red
 │   ├── storage/       # borradores del formulario de cada pestaña, escenarios guardados
-│   └── styles/        # colores del tema claro y oscuro
+│   └── styles/        # colores del tema claro y oscuro, y las fuentes
 ├── public/
-│   └── _locales/      # textos de la interfaz: en/ y es/ messages.json
+│   ├── _locales/      # textos de la interfaz: en/ y es/ messages.json
+│   └── licenses/      # la SIL Open Font License de las fuentes
 ├── tests/             # tests del motor contra casos conocidos, de la lógica del panel, el almacenamiento, i18n y el panel renderizado
 └── wxt.config.ts
 ```
@@ -263,7 +265,7 @@ Los resultados son **aproximados y referenciales**. Pueden diferir de los de la 
 
 ## Licencia
 
-[MIT](LICENSE)
+[MIT](LICENSE). Las fuentes incluidas, Inter y Newsreader, tienen la [SIL Open Font License 1.1](public/licenses/).
 
 ---
 

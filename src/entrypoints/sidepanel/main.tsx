@@ -4,6 +4,7 @@ import { loadDrafts } from '@/storage/drafts';
 import { loadPreferences } from '@/storage/preferences';
 import { loadScenarios } from '@/storage/scenarios';
 import { App, type StoredState } from './App';
+import '@/styles/fonts.css';
 import '@/styles/theme.css';
 import './style.css';
 

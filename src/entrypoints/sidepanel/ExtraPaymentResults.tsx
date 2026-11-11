@@ -1,3 +1,4 @@
+import type { ComponentChildren } from 'preact';
 import { useId } from 'preact/hooks';
 import { t } from '@/i18n/translate';
 import type { ExistingLoanSimulation } from './existing-form';
@@ -9,13 +10,22 @@ import {
   savingsLines,
 } from './results';
 
+interface AppliedExtraPaymentProps {
+  simulation: ExistingLoanSimulation;
+  /** Shown beside the heading: the results menu. */
+  menu: ComponentChildren;
+}
+
 /** How the extra payment splits into accrued interest and principal, and the balance left. */
-export function AppliedExtraPayment({ simulation }: { simulation: ExistingLoanSimulation }) {
+export function AppliedExtraPayment({ simulation, menu }: AppliedExtraPaymentProps) {
   const note = appliedExtraPaymentNote(simulation, format);
   const titleId = useId();
   return (
     <section aria-labelledby={titleId}>
-      <h2 id={titleId}>{t('section_appliedExtraPayment')}</h2>
+      <div class="section-header">
+        <h2 id={titleId}>{t('section_appliedExtraPayment')}</h2>
+        {menu}
+      </div>
       <dl class="summary">
         {appliedExtraPaymentLines(simulation, format).map(({ label, value }) => (
           <div key={label}>

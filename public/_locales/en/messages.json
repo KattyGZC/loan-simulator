@@ -382,6 +382,9 @@
   "button_saveScenario": {
     "message": "Save scenario"
   },
+  "menu_saveScenario": {
+    "message": "Save scenario…"
+  },
   "scenario_saved": {
     "message": "Saved. You can find it in the Scenarios tab."
   },
@@ -440,6 +443,9 @@
   },
   "button_preferences": {
     "message": "Preferences"
+  },
+  "button_moreActions": {
+    "message": "More actions"
   },
   "button_done": {
     "message": "Done"
