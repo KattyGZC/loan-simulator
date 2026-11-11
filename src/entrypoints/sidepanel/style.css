@@ -1,20 +1,30 @@
 :root {
-  --gap: 12px;
+  --gap: 14px;
+  --radius-card: 20px;
+  --radius-inner: 12px;
+  --control-height: 42px;
+  --card-shadow:
+    0 1px 2px color-mix(in srgb, var(--shadow) 6%, transparent),
+    0 10px 28px color-mix(in srgb, var(--shadow) 8%, transparent);
+  --control-shadow: 0 2px 6px color-mix(in srgb, var(--shadow) 7%, transparent);
 
-  font-family: system-ui, sans-serif;
   /* 14px at the browser's default size, and larger when the user sets a larger one. */
   font-size: 87.5%;
   line-height: 1.45;
   color: var(--text);
-  background: var(--surface);
+  background: var(--page);
 }
 
 * {
   box-sizing: border-box;
 }
 
+/* On body too, not only :root: Chrome sets a font family and a 75 % size on the body of
+ * extension pages. */
 body {
   margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1rem;
 }
 
 #app {
@@ -30,13 +40,13 @@ main {
 
 main {
   flex: 1;
-  padding-bottom: 20px;
+  padding-bottom: 24px;
 }
 
 .tab-panel {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
 .tab-panel[hidden] {
@@ -44,8 +54,51 @@ main {
 }
 
 h1 {
-  font-size: 1.29rem;
-  margin: 16px 0 4px;
+  font-size: 1.4rem;
+  font-weight: 400;
+  line-height: 1.2;
+  margin: 18px 0 4px;
+}
+
+h2 {
+  font-size: 1.15rem;
+  font-weight: 400;
+  margin: 0 0 10px;
+}
+
+h3 {
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* The secondary voice: hints, notes, small labels, figures in tables, what the user types. */
+.field-hint,
+.field-error,
+.note,
+.empty-state p,
+dt,
+table,
+input,
+select,
+.disclaimer {
+  font-family: var(--font-sans);
+}
+
+/* Card titles and legends in small spaced capitals, so they label a card without competing with it. */
+.group legend,
+.advanced summary,
+.results > section > h2,
+.section-header h2,
+.tab-panel > section:not(.empty-state) > h2,
+.preferences > h2,
+.schedule thead th {
+  font-family: var(--font-sans);
+  font-size: 0.73rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 .title-bar {
@@ -56,35 +109,79 @@ h1 {
 }
 
 .title-bar .button {
-  margin-top: 12px;
+  margin-top: 14px;
 }
 
 .tabs[hidden] {
   display: none;
 }
 
-.preferences {
+.tabs {
+  display: flex;
+  margin: 12px 0 20px;
+  background: var(--surface);
+  border: 1px solid var(--control-border);
+  border-radius: 14px;
+  box-shadow: var(--control-shadow);
+  overflow: hidden;
+}
+
+.tabs button {
+  flex: 1;
+  min-width: 0;
+  min-height: var(--control-height);
+  font: inherit;
+  color: var(--text);
+  background: none;
+  border: none;
+  padding: 6px 8px;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.tabs button + button {
+  border-left: 1px solid var(--border);
+}
+
+.tabs button[aria-selected='true'] {
+  color: var(--on-accent);
+  background: var(--accent);
+}
+
+.tabs button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -4px;
+  box-shadow: inset 0 0 0 4px var(--surface);
+}
+
+.group,
+.advanced,
+.empty-state,
+.scenario,
+.preferences,
+.results > section,
+.tab-panel > section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--card-shadow);
+  padding: 18px;
+}
+
+.preferences,
+.save-scenario {
   display: flex;
   flex-direction: column;
   gap: var(--gap);
 }
 
-.preferences h2 {
+.preferences h2,
+.save-scenario h2 {
   margin: 0;
 }
 
 .tab-actions {
   justify-content: flex-end;
-}
-
-h2 {
-  font-size: 1.07rem;
-  margin: 0 0 8px;
-}
-
-h3 {
-  font-size: 0.93rem;
-  margin: 0;
 }
 
 .loan-form {
@@ -94,19 +191,23 @@ h3 {
 }
 
 .group {
-  border: 1px solid var(--border);
-  border-radius: 8px;
   margin: 0;
-  padding: 8px 12px 12px;
   display: flex;
   flex-direction: column;
   gap: var(--gap);
   min-width: 0;
 }
 
+/* Floated so the legend sits inside the card like any heading, not on its border. */
 .group legend {
-  font-weight: 600;
-  padding: 0 4px;
+  float: left;
+  width: 100%;
+  padding: 0;
+  margin-bottom: 4px;
+}
+
+.group legend + * {
+  clear: both;
 }
 
 .row {
@@ -118,28 +219,81 @@ h3 {
 .field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   min-width: 0;
-}
-
-.field label {
-  font-weight: 500;
 }
 
 input[type='text'],
 input[type='date'],
 select {
-  font: inherit;
+  font-size: 0.93rem;
   color: inherit;
-  background: var(--surface);
+  background-color: var(--surface);
   border: 1px solid var(--control-border);
-  border-radius: 6px;
-  padding: 6px 8px;
+  border-radius: 999px;
+  box-shadow: var(--control-shadow);
+  min-height: var(--control-height);
+  padding: 0 18px;
   width: 100%;
+}
+
+/* A chevron drawn with two gradients, so it takes the theme's color. */
+select {
+  appearance: none;
+  padding-right: 40px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 22px) 50%,
+    calc(100% - 17px) 50%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
 }
 
 input[aria-invalid='true'] {
   border-color: var(--error);
+}
+
+input[type='checkbox'] {
+  appearance: none;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  display: grid;
+  place-content: center;
+  background: var(--surface);
+  border: 1.5px solid var(--control-border);
+  border-radius: 6px;
+  box-shadow: var(--control-shadow);
+  cursor: pointer;
+}
+
+input[type='checkbox']::after {
+  content: '';
+  width: 5px;
+  height: 10px;
+  margin-top: -2px;
+  border: solid var(--on-accent);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  visibility: hidden;
+}
+
+input[type='checkbox']:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+input[type='checkbox']:checked::after {
+  visibility: visible;
+}
+
+input[type='checkbox']:disabled {
+  background: var(--surface-alt);
+  border-color: var(--border);
+  cursor: default;
 }
 
 input:focus-visible,
@@ -147,13 +301,14 @@ select:focus-visible,
 summary:focus-visible,
 .table-scroll:focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: 1px;
+  outline-offset: 2px;
 }
 
 .field-error,
 .field-hint {
   margin: 0;
-  font-size: 0.86rem;
+  font-size: 0.82rem;
+  padding: 0 18px;
 }
 
 .field-error {
@@ -167,87 +322,101 @@ summary:focus-visible,
 .checkbox {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
-.advanced {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 12px;
+.checkbox:has(input:disabled) {
+  color: var(--muted);
 }
 
 .advanced[open] {
   display: flex;
   flex-direction: column;
   gap: var(--gap);
-  padding-bottom: 12px;
 }
 
 .advanced summary {
   cursor: pointer;
-  font-weight: 600;
 }
 
 .results {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
-.empty-state {
-  background: var(--surface-alt);
-  border-radius: 8px;
-  padding: 12px 16px;
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: -8px -8px 8px 0;
+}
+
+.section-header h2 {
+  margin: 0;
+}
+
+.empty-state h2 {
+  margin-bottom: 4px;
 }
 
 .empty-state p,
 .note {
   margin: 0;
+  font-size: 0.86rem;
   color: var(--muted);
 }
 
 .warnings {
   margin: 0;
-  padding: 8px 12px 8px 28px;
+  padding: 12px 16px 12px 32px;
+  font-size: 0.93rem;
   background: var(--warning-bg);
   border: 1px solid var(--warning-border);
-  border-radius: 8px;
+  border-radius: var(--radius-card);
 }
 
 .summary {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 16px 18px;
   margin: 0;
-}
-
-.summary div {
-  background: var(--surface-alt);
-  border-radius: 6px;
-  padding: 6px 10px;
 }
 
 dt {
   color: var(--muted);
-  font-size: 0.86rem;
+  font-size: 0.8rem;
 }
 
 dd {
-  margin: 0;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
+  margin: 2px 0 0;
+  font-size: 1.3rem;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.savings {
+  margin-bottom: 14px;
+}
+
+.savings div {
+  background: var(--accent-bg);
+  border-radius: var(--radius-inner);
+  padding: 10px 14px;
 }
 
 table {
   border-collapse: collapse;
+  font-size: 0.86rem;
   font-variant-numeric: tabular-nums;
 }
 
 .table-scroll {
   overflow: auto;
   max-height: 60vh;
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  margin: 0 -18px -18px;
+  border-top: 1px solid var(--border);
+  border-radius: 0 0 var(--radius-card) var(--radius-card);
 }
 
 .schedule {
@@ -257,7 +426,7 @@ table {
 
 .schedule th,
 .schedule td {
-  padding: 4px 8px;
+  padding: 7px 12px;
   text-align: right;
 }
 
@@ -265,8 +434,9 @@ table {
   position: sticky;
   top: 0;
   z-index: 1;
-  background: var(--surface-alt);
+  background: var(--surface);
   border-bottom: 1px solid var(--border);
+  letter-spacing: 0.08em;
 }
 
 .schedule tbody th {
@@ -286,55 +456,10 @@ table {
   background: var(--surface-alt);
 }
 
-.disclaimer {
-  position: sticky;
-  bottom: 0;
-  padding: 8px 16px;
-  font-size: 0.86rem;
-  color: var(--muted);
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-}
-
-.tabs {
-  display: flex;
-  gap: 4px;
-  margin: 8px 0 16px;
-  border-bottom: 1px solid var(--border);
-}
-
-.tabs button {
-  font: inherit;
-  color: var(--muted);
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-  padding: 6px 10px;
-  cursor: pointer;
-}
-
-.tabs button[aria-selected='true'] {
-  color: var(--text);
-  font-weight: 600;
-  border-bottom-color: var(--accent);
-}
-
-.tabs button:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: -2px;
-}
-
-.results .note {
-  margin-top: 8px;
-}
-
-.savings {
-  margin-bottom: 8px;
-}
-
-.savings div {
+.schedule tbody tr.extra-payment td,
+.schedule tbody tr.extra-payment th {
   background: var(--accent-bg);
+  font-weight: 600;
 }
 
 .comparison {
@@ -343,15 +468,31 @@ table {
 
 .comparison th,
 .comparison td {
-  padding: 4px 8px;
+  padding: 7px 8px;
   text-align: right;
   border-bottom: 1px solid var(--border);
 }
 
+.comparison thead th {
+  font-family: var(--font-serif);
+  font-size: 0.93rem;
+  font-weight: 500;
+}
+
 .comparison tbody th {
   text-align: left;
-  font-weight: 500;
+  font-weight: 400;
   color: var(--muted);
+}
+
+.disclaimer {
+  position: sticky;
+  bottom: 0;
+  padding: 10px 16px;
+  font-size: 0.8rem;
+  color: var(--muted);
+  background: var(--page);
+  border-top: 1px solid var(--border);
 }
 
 .scenario-list {
@@ -360,42 +501,37 @@ table {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .scenario {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 12px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-
-.save-scenario {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap);
-}
-
-.save-scenario h2 {
-  margin: 0;
+  gap: 10px;
+  box-shadow: var(--control-shadow);
 }
 
 .actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
 }
 
 .button {
   font: inherit;
-  color: var(--accent);
+  color: var(--text);
   background: var(--surface);
   border: 1px solid var(--control-border);
-  border-radius: 6px;
-  padding: 4px 10px;
+  border-radius: 999px;
+  box-shadow: var(--control-shadow);
+  min-height: 38px;
+  padding: 0 20px;
   cursor: pointer;
+}
+
+.button:hover:not(:disabled) {
+  background: var(--accent-bg);
 }
 
 .button.primary {
@@ -404,27 +540,102 @@ table {
   border-color: var(--accent);
 }
 
+.button.primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent) 88%, var(--text));
+}
+
 .button:disabled,
 .button.primary:disabled {
   color: var(--muted);
   background: var(--surface-alt);
   border-color: var(--border);
+  box-shadow: none;
   cursor: default;
 }
 
-.button:focus-visible {
+.button:focus-visible,
+.icon-button:focus-visible,
+.menu [role='menuitem']:focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: 1px;
+  outline-offset: 2px;
 }
 
-.checkbox:has(input:disabled) {
-  color: var(--muted);
+.menu {
+  position: relative;
 }
 
-.schedule tbody tr.extra-payment td,
-.schedule tbody tr.extra-payment th {
+.icon-button {
+  display: grid;
+  place-content: center;
+  width: 36px;
+  height: 36px;
+  color: var(--text);
+  fill: currentcolor;
+  background: none;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.icon-button:hover,
+.icon-button[aria-expanded='true'] {
   background: var(--accent-bg);
-  font-weight: 600;
+}
+
+.menu [role='menu'] {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 10;
+  min-width: 210px;
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+}
+
+.menu [role='menu'][hidden] {
+  display: none;
+}
+
+.menu [role='menuitem'] {
+  display: block;
+  width: 100%;
+  font: inherit;
+  text-align: left;
+  color: var(--text);
+  background: none;
+  border: none;
+  border-radius: 10px;
+  padding: 9px 14px;
+  cursor: pointer;
+}
+
+.menu [role='menuitem']:hover,
+.menu [role='menuitem']:focus-visible {
+  background: var(--accent-bg);
+}
+
+.dialog {
+  width: min(420px, calc(100% - 32px));
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--card-shadow);
+  padding: 20px;
+}
+
+.dialog::backdrop {
+  background: color-mix(in srgb, var(--shadow) 35%, transparent);
+}
+
+.dialog-actions {
+  justify-content: flex-end;
+  margin-top: 4px;
 }
 
 /* Read by screen readers, not shown. */
@@ -438,4 +649,10 @@ table {
   clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
+}
+
+.advanced .group {
+  background: none;
+  box-shadow: none;
+  padding: 14px 16px;
 }
