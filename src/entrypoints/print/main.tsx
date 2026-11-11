@@ -3,6 +3,7 @@ import { restorePrintout } from '@/entrypoints/sidepanel/printout';
 import { t, uiLanguage } from '@/i18n/translate';
 import { loadPrintout } from '@/storage/printout';
 import { PrintPage } from './PrintPage';
+import '@/styles/fonts.css';
 import '@/styles/theme.css';
 import './style.css';
 
