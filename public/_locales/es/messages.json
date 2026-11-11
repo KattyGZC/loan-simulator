@@ -382,6 +382,9 @@
   "button_saveScenario": {
     "message": "Guardar escenario"
   },
+  "menu_saveScenario": {
+    "message": "Guardar escenario…"
+  },
   "scenario_saved": {
     "message": "Guardado. Lo encuentras en la pestaña Escenarios."
   },
@@ -440,6 +443,9 @@
   },
   "button_preferences": {
     "message": "Preferencias"
+  },
+  "button_moreActions": {
+    "message": "Más acciones"
   },
   "button_done": {
     "message": "Listo"

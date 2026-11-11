@@ -1,6 +1,8 @@
 import { useId } from 'preact/hooks';
 import { t } from '@/i18n/translate';
+import { ActionsMenu } from './ActionsMenu';
 import { existingLoanCsv, type CsvSettings } from './csv';
+import { downloadCsv } from './download-csv';
 import { ExistingLoanFields } from './ExistingLoanFields';
 import {
   defaultExistingLoanForm,
@@ -8,11 +10,10 @@ import {
   restoreExistingLoanForm,
 } from './existing-form';
 import { AppliedExtraPayment, Comparison } from './ExtraPaymentResults';
-import { ExportCsv } from './ExportCsv';
 import { counterpartRate } from './form';
 import { format, locale } from './locale';
+import { openPrintPage } from './print-page';
 import { existingLoanPrintout } from './printout';
-import { PrintResults } from './PrintResults';
 import { announcement, savingsLines } from './results';
 import { ResultStatus } from './ResultStatus';
 import { ScheduleTable } from './ScheduleTable';
@@ -57,15 +58,29 @@ export function ExistingLoan({ today, csvSettings, draft }: ExistingLoanProps) {
       {state.kind === 'simulated' && (
         <div class="results">
           <Warnings warnings={state.simulation.warnings} />
-          <AppliedExtraPayment simulation={state.simulation} />
+          <AppliedExtraPayment
+            simulation={state.simulation}
+            menu={
+              <ActionsMenu
+                actions={[
+                  {
+                    label: t('button_exportCsv'),
+                    onSelect: () =>
+                      downloadCsv(
+                        t('file_existingLoanCsv', [today]),
+                        existingLoanCsv(state.simulation, csvSettings),
+                      ),
+                  },
+                  {
+                    label: t('button_print'),
+                    onSelect: () =>
+                      openPrintPage(existingLoanPrintout(state.simulation, today, format)),
+                  },
+                ]}
+              />
+            }
+          />
           <Comparison simulation={state.simulation} />
-          <div class="actions">
-            <ExportCsv
-              fileName={t('file_existingLoanCsv', [today])}
-              csv={() => existingLoanCsv(state.simulation, csvSettings)}
-            />
-            <PrintResults printout={() => existingLoanPrintout(state.simulation, today, format)} />
-          </div>
           <ScheduleTable
             schedule={state.simulation.withExtraPayment}
             title="section_scheduleWithExtraPayment"
