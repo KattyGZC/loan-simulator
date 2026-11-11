@@ -8,7 +8,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 
 > Built for Ecuador (USD, SOLCA contribution, Central Bank credit segments). Since almost all data is entered by the user, it works for other countries once the Ecuador-specific options are turned off.
 
-> **Status:** in development, not published yet. The calculation engine (`src/core/`) and the English and Spanish texts and number formats (`src/i18n/`) are done and tested, and the side panel, loaded unpacked, simulates a new loan and an extra payment on a loan you already have; it counts interest on 30/360 or actual days/360, saves new-loan scenarios to compare two side by side, and keeps your preferences (currency, decimal sign of exported files and SOLCA), and exports or prints either simulation, from the keyboard or a screen reader too, in a light or dark theme. The final icons are next. This README describes the planned extension.
+> **Status:** in development, not published yet. The calculation engine (`src/core/`) and the English and Spanish texts and number formats (`src/i18n/`) are done and tested, and the side panel, loaded unpacked, simulates a new loan and an extra payment on a loan you already have; it counts interest on 30/360 or actual days/360, saves new-loan scenarios to compare two side by side, and keeps your preferences (currency, decimal sign of exported files and SOLCA), and exports or prints either simulation, from the keyboard or a screen reader too, in a light or dark theme. Next: the final icons and a glossary. This README describes the planned extension.
 
 ---
 
@@ -60,7 +60,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 | **Day count** | 30/360 | `30/360`: every month counts 30 days. `Actual days/360`: each payment charges the days since the previous one, as Produbanco does |
 | **Disbursement date** | Today | Actual days only: the first interest period starts here |
 | **First payment date** | One month from today | Puts dates in the schedule. With actual days it also sets the interest days, and a due date on a Saturday or Sunday moves to Monday |
-| **Institution and segment** | Empty | Under "Save this scenario", once the loan simulates. Labels only: they suggest the scenario's name (e.g. "JEP Credit Union – Consumer") |
+| **Institution and segment** | Empty | In the **Save scenario…** dialog, from the ⋮ menu of the results, once the loan simulates. Labels only: they suggest the scenario's name (e.g. "JEP Credit Union – Consumer") |
 | **Segment maximum rate** | Empty | If set, the extension warns when the rate exceeds the legal maximum |
 
 ### A loan you already have (second tab)
@@ -91,7 +91,7 @@ The **Preferences** button next to the title opens them; **Done** goes back to t
 
 ### Saved scenarios (third tab)
 
-Once a new loan simulates, **Save this scenario** saves it under a name: "Institution – Segment" unless you change it. The **Scenarios** tab lists them:
+Once a new loan simulates, **Save scenario…** in the ⋮ menu of the results opens a dialog that saves it under a name: "Institution – Segment" unless you change it. The **Scenarios** tab lists them:
 
 - **Open** loads the scenario back into the New loan tab.
 - **Rename** and **Delete** act on that scenario only.
@@ -109,8 +109,8 @@ Scenarios are for new loans only. They stay in the browser, as the forms do.
 - **Amortization schedule:** #, date, total payment, principal, interest, insurance, other charges and balance.
 - **Two saved scenarios side by side:** payment (first and last when it changes), payments, effective rate, total interest, total cost and total paid.
 - **Extra payment on a loan you have:** how it splits into accrued interest and principal, the rest of the loan without vs. with it, what you save (interest, insurance and other charges), the payments saved or the new payment, and the schedule with the extra payment.
-- **CSV file** (**Export CSV**, on either simulator tab): the currency, what the tab shows above the schedule, the schedule with the same columns, and the disclaimer. Numbers are written so a spreadsheet reads them as numbers: with the decimal sign chosen in Preferences, without a currency sign or thousands separators (`1234,56` or `1234.56`), rates as `15,6%` or `15.6%` and dates as `YYYY-MM-DD`. Fields are separated by `;` with a decimal comma and by `,` with a decimal point, as Excel expects, and the file is UTF-8 with a byte order mark so Excel shows accents.
-- **Printout** (**Print**, on either simulator tab): opens in a new tab, laid out for paper, with today's date, the warnings, what the tab shows above the schedule, the schedule and the disclaimer, and opens the browser's print dialog, where **Save as PDF** is one of the printers. Amounts are written as on screen. A long schedule continues on the next pages with its header repeated, and the payment that holds an extra payment is marked.
+- **CSV file** (**Export CSV** in the ⋮ menu of the results, on either simulator tab): the currency, what the tab shows above the schedule, the schedule with the same columns, and the disclaimer. Numbers are written so a spreadsheet reads them as numbers: with the decimal sign chosen in Preferences, without a currency sign or thousands separators (`1234,56` or `1234.56`), rates as `15,6%` or `15.6%` and dates as `YYYY-MM-DD`. Fields are separated by `;` with a decimal comma and by `,` with a decimal point, as Excel expects, and the file is UTF-8 with a byte order mark so Excel shows accents.
+- **Printout** (**Print** in the ⋮ menu of the results, on either simulator tab): opens in a new tab, laid out for paper, with today's date, the warnings, what the tab shows above the schedule, the schedule and the disclaimer, and opens the browser's print dialog, where **Save as PDF** is one of the printers. Amounts are written as on screen. A long schedule continues on the next pages with its header repeated, and the payment that holds an extra payment is marked.
 
 ---
 
@@ -221,10 +221,12 @@ loan-simulator/
 │   │   ├── background.ts
 │   │   ├── print/     # the printout, in its own tab
 │   │   └── sidepanel/ # UI
+│   ├── assets/fonts/  # Inter and Newsreader, bundled: the extension makes no network calls
 │   ├── storage/       # drafts of each tab's form, saved scenarios
-│   └── styles/        # colors of the light and dark theme
+│   └── styles/        # colors of the light and dark theme, and the fonts
 ├── public/
-│   └── _locales/      # UI strings: en/ and es/ messages.json
+│   ├── _locales/      # UI strings: en/ and es/ messages.json
+│   └── licenses/      # the fonts' SIL Open Font License
 ├── tests/             # engine tests against known cases, panel logic, storage, i18n and the rendered panel
 └── wxt.config.ts
 ```
@@ -263,7 +265,7 @@ Results are **approximate estimates**. They may differ from the institution's fi
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE). The bundled fonts, Inter and Newsreader, are under the [SIL Open Font License 1.1](public/licenses/).
 
 ---
 
