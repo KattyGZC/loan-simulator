@@ -59,6 +59,7 @@ export function PreferencesForm({ id, preferences, onChange, onClose }: Preferen
       />
       <CheckboxField
         label={t('field_solcaByDefault')}
+        term="solca"
         checked={preferences.solcaEnabled}
         onChange={(solcaEnabled) => update({ solcaEnabled })}
       />

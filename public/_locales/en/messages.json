@@ -12,7 +12,7 @@
     "message": "New loan"
   },
   "tab_existingLoan": {
-    "message": "Loan I already have"
+    "message": "My loan"
   },
   "validation_required": {
     "message": "Enter a value."
@@ -343,20 +343,8 @@
       "amount": { "content": "$2", "example": "$412.80" }
     }
   },
-  "empty_title": {
-    "message": "Enter the amount, term and rate"
-  },
-  "empty_body": {
-    "message": "You will find the rate, the credit life insurance and other charges in the Transparency section (\"Transparencia\" or \"Tasas y tarifas\") of the institution's website."
-  },
   "invalid_body": {
     "message": "Fix the marked fields to see the results."
-  },
-  "emptyExisting_title": {
-    "message": "Enter your loan as your statement shows it"
-  },
-  "emptyExisting_body": {
-    "message": "You need the balance, the payments left, the rate, the next payment date and the extra payment. Your institution's amortization table has them."
   },
   "disclaimer": {
     "message": "Estimates only. The institution sets the actual payment when it approves the loan."
@@ -447,8 +435,8 @@
   "button_moreActions": {
     "message": "More actions"
   },
-  "button_done": {
-    "message": "Done"
+  "button_back": {
+    "message": "Back"
   },
   "section_preferences": {
     "message": "Preferences"
@@ -457,7 +445,7 @@
     "message": "Currency"
   },
   "field_solcaByDefault": {
-    "message": "SOLCA contribution on for new loans"
+    "message": "SOLCA on for new loans"
   },
   "preferences_note": {
     "message": "The currency changes every amount at once. SOLCA sets up a new loan: the first one, and each time you start over. Saved scenarios keep their own. Exported files use the decimal sign of your spreadsheet (your computer's regional settings), so it reads amounts as numbers."
@@ -506,5 +494,263 @@
   },
   "print_nothing": {
     "message": "Nothing to print. Simulate a loan in the side panel and press Print."
+  },
+  "hint_annualRate": {
+    "message": "It's in the Transparency section (\"Transparencia\" or \"Tasas y tarifas\") of the lender's website."
+  },
+  "hint_annualRateExisting": {
+    "message": "It's on your statement or your lender's amortization schedule."
+  },
+  "hint_rateType_nominal": {
+    "message": "The one each month’s interest is worked out from."
+  },
+  "hint_rateType_effective": {
+    "message": "What the loan costs in a year; banks usually publish this one."
+  },
+  "hint_method_french": {
+    "message": "The same payment every month."
+  },
+  "hint_method_german": {
+    "message": "A higher first payment that falls every month."
+  },
+  "hint_dayCount_thirty360": {
+    "message": "Every month charges 30 days, even with 31 or 28."
+  },
+  "hint_dayCount_actual360": {
+    "message": "Each payment charges the calendar days since the one before."
+  },
+  "hint_effect_reduceTerm": {
+    "message": "You keep your payment and finish sooner."
+  },
+  "hint_effect_reducePayment": {
+    "message": "You finish on the same date with a smaller payment."
+  },
+  "missing_newLoan": {
+    "message": "To see your payment, fill in: $FIELDS$.",
+    "placeholders": {
+      "fields": { "content": "$1", "example": "term and rate" }
+    }
+  },
+  "missing_existingLoan": {
+    "message": "To see what you save, fill in: $FIELDS$.",
+    "placeholders": {
+      "fields": { "content": "$1", "example": "term and rate" }
+    }
+  },
+  "missingField_amount": {
+    "message": "amount"
+  },
+  "missingField_termMonths": {
+    "message": "term"
+  },
+  "missingField_annualRate": {
+    "message": "rate"
+  },
+  "missingField_balance": {
+    "message": "balance"
+  },
+  "missingField_remainingPayments": {
+    "message": "remaining payments"
+  },
+  "missingField_currentPayment": {
+    "message": "current payment"
+  },
+  "missingField_nextPaymentDate": {
+    "message": "next payment date"
+  },
+  "missingField_extraPaymentDate": {
+    "message": "extra payment date"
+  },
+  "missingField_extraPaymentAmount": {
+    "message": "extra payment amount"
+  },
+  "button_glossary": {
+    "message": "Glossary"
+  },
+  "section_glossary": {
+    "message": "Glossary"
+  },
+  "glossary_explain": {
+    "message": "What is $TERM$?",
+    "placeholders": {
+      "term": { "content": "$1", "example": "SOLCA" }
+    }
+  },
+  "glossary_seeEntry": {
+    "message": "Example in the glossary"
+  },
+  "glossaryGroup_basics": {
+    "message": "The basics"
+  },
+  "glossaryGroup_rate": {
+    "message": "The rate"
+  },
+  "glossaryGroup_charges": {
+    "message": "Insurance and charges"
+  },
+  "glossaryGroup_dates": {
+    "message": "Dates and extra payments"
+  },
+  "glossaryTerm_principal": {
+    "message": "Principal (amount)"
+  },
+  "glossaryDefinition_principal": {
+    "message": "The money you borrow, which you pay back little by little with each payment."
+  },
+  "glossaryExample_principal": {
+    "message": "Example: if you borrow $$10,000, the principal is $$10,000; interest is charged on top."
+  },
+  "glossaryTerm_interest": {
+    "message": "Interest"
+  },
+  "glossaryDefinition_interest": {
+    "message": "What you pay the lender for using its money. It is charged every month on what you still owe."
+  },
+  "glossaryExample_interest": {
+    "message": "Example: on $$10,000 at 15.6 % nominal, the first month’s interest is $$130."
+  },
+  "glossaryTerm_term": {
+    "message": "Term"
+  },
+  "glossaryDefinition_term": {
+    "message": "How long you have to pay the loan back, in months: one payment a month."
+  },
+  "glossaryExample_term": {
+    "message": "Example: a 36-month term is 3 years of payments."
+  },
+  "glossaryTerm_installment": {
+    "message": "Payment (installment)"
+  },
+  "glossaryDefinition_installment": {
+    "message": "What you pay each month. It covers part of the principal, the interest and, if any, insurance and other charges."
+  },
+  "glossaryExample_installment": {
+    "message": "Example: $$10,000 over 12 months at 15.6 % nominal, French system: $$905.42 a month."
+  },
+  "glossaryTerm_balance": {
+    "message": "Balance"
+  },
+  "glossaryDefinition_balance": {
+    "message": "The principal you still owe. It goes down with every payment."
+  },
+  "glossaryExample_balance": {
+    "message": "Example: in the loan above, the first payment repays $$775.42 of principal, so the balance drops to $$9,224.58."
+  },
+  "glossaryTerm_schedule": {
+    "message": "Amortization schedule"
+  },
+  "glossaryDefinition_schedule": {
+    "message": "The list of all your payments: the date of each, how much goes to principal, interest and charges, and the balance left."
+  },
+  "glossaryExample_schedule": {
+    "message": "Example: a 12-month loan has 12 rows, one per payment. The simulator shows it under the summary."
+  },
+  "glossaryTerm_amortization": {
+    "message": "Amortization method"
+  },
+  "glossaryDefinition_amortization": {
+    "message": "How each payment splits between principal and interest. French: the same payment every month. German: the same principal every month, so the payment starts higher and falls."
+  },
+  "glossaryExample_amortization": {
+    "message": "Example: $$10,000 over 12 months at 15.6 %: French, $$905.42 every month and $$865 of interest; German, from $$963.33 down to $$844.20 and $$845 of interest."
+  },
+  "glossaryTerm_nominalRate": {
+    "message": "Nominal rate"
+  },
+  "glossaryDefinition_nominalRate": {
+    "message": "The yearly rate each month’s interest is worked out from: each month charges about a twelfth of it."
+  },
+  "glossaryExample_nominalRate": {
+    "message": "Example: 15.6 % nominal is 1.3 % a month."
+  },
+  "glossaryTerm_effectiveRate": {
+    "message": "Effective rate"
+  },
+  "glossaryDefinition_effectiveRate": {
+    "message": "What the loan costs in a whole year once each month’s interest also earns interest. It is a little higher than the nominal rate, and it is the one banks usually publish."
+  },
+  "glossaryExample_effectiveRate": {
+    "message": "Example: 15.6 % nominal is 16.77 % effective."
+  },
+  "glossaryTerm_maxRate": {
+    "message": "Segment maximum rate"
+  },
+  "glossaryDefinition_maxRate": {
+    "message": "The highest effective rate a lender may charge for each kind of loan (consumer, mortgage, microcredit…), published by the Central Bank of Ecuador (BCE). It changes every few months."
+  },
+  "glossaryExample_maxRate": {
+    "message": "Example: enter it and the simulator warns you when your loan’s effective rate is above it."
+  },
+  "glossaryTerm_dayCount": {
+    "message": "Day count"
+  },
+  "glossaryDefinition_dayCount": {
+    "message": "How many days of interest each payment charges. 30/360: every month counts 30 days. Actual days/360: each payment charges the calendar days since the one before."
+  },
+  "glossaryExample_dayCount": {
+    "message": "Example: with actual days, a 31-day month charges more interest than February."
+  },
+  "glossaryTerm_creditLifeInsurance": {
+    "message": "Credit life insurance"
+  },
+  "glossaryDefinition_creditLifeInsurance": {
+    "message": "Insurance that pays off what you still owe if you die (and, in some policies, if you become permanently disabled). It is charged every month."
+  },
+  "glossaryExample_creditLifeInsurance": {
+    "message": "Example: at 0.05 % a month on a $$10,000 balance, that month’s insurance is $$5."
+  },
+  "glossaryTerm_solca": {
+    "message": "SOLCA contribution"
+  },
+  "glossaryDefinition_solca": {
+    "message": "A 0.5 % contribution on loans in Ecuador that funds SOLCA, the cancer society’s hospitals. It is taken once from the amount when the loan is paid out."
+  },
+  "glossaryExample_solca": {
+    "message": "Example: on a $$10,000 loan, $$50 goes to SOLCA and you receive $$9,950."
+  },
+  "glossaryTerm_otherCharges": {
+    "message": "Other charges"
+  },
+  "glossaryDefinition_otherCharges": {
+    "message": "Fixed amounts some lenders add to every payment, such as fees or extra insurance."
+  },
+  "glossaryExample_otherCharges": {
+    "message": "Example: a $$2 charge on each of 12 payments adds $$24."
+  },
+  "glossaryTerm_totalCost": {
+    "message": "Total cost"
+  },
+  "glossaryDefinition_totalCost": {
+    "message": "What you pay on top of the principal: interest, insurance, other charges and SOLCA."
+  },
+  "glossaryExample_totalCost": {
+    "message": "Example: $$10,000 over 12 months at 15.6 % with SOLCA: $$865 of interest plus $$50 of SOLCA, $$915 in total."
+  },
+  "glossaryTerm_disbursement": {
+    "message": "Disbursement"
+  },
+  "glossaryDefinition_disbursement": {
+    "message": "The day the lender pays the loan out to you. With actual days, the first payment charges interest from that day."
+  },
+  "glossaryExample_disbursement": {
+    "message": "Example: paid out on 10 January with the first payment on 15 February, the first payment charges 36 days of interest."
+  },
+  "glossaryTerm_dueDate": {
+    "message": "Due date"
+  },
+  "glossaryDefinition_dueDate": {
+    "message": "The last day to pay each payment. The payments fall on the same day of every month."
+  },
+  "glossaryExample_dueDate": {
+    "message": "Example: if the first payment is due on 15 January, the next ones are due on the 15th of each month."
+  },
+  "glossaryTerm_extraPayment": {
+    "message": "Extra payment"
+  },
+  "glossaryDefinition_extraPayment": {
+    "message": "Money you pay on top of your payments to lower what you owe. It first pays the interest accrued since your last due date; the rest lowers the balance."
+  },
+  "glossaryExample_extraPayment": {
+    "message": "Example: after an extra payment you either keep your payment and finish sooner (reduce term), or finish on the same date with a smaller payment (reduce payment)."
   }
 }

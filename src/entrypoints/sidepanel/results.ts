@@ -4,8 +4,10 @@ import type {
   PaymentsSummary,
   ScheduleRow,
   SimulationWarning,
+  ValidationError,
+  ValidationField,
 } from '@/core';
-import type { Format } from '@/i18n/format';
+import type { Format, FormatLocale } from '@/i18n/format';
 import { t, type MessageKey } from '@/i18n/translate';
 import type { ExistingLoanSimulation } from './existing-form';
 import type { PanelState } from './form';
@@ -34,6 +36,31 @@ export function announcement<T>(
     case 'loanIncomplete':
       return '';
   }
+}
+
+/** How the line under an incomplete form names each field the results wait for. */
+const MISSING_FIELD_NAMES: Partial<Record<ValidationField, MessageKey>> = {
+  amount: 'missingField_amount',
+  termMonths: 'missingField_termMonths',
+  annualRate: 'missingField_annualRate',
+  balance: 'missingField_balance',
+  remainingPayments: 'missingField_remainingPayments',
+  currentPayment: 'missingField_currentPayment',
+  nextPaymentDate: 'missingField_nextPaymentDate',
+  'extraPayment.date': 'missingField_extraPaymentDate',
+  'extraPayment.amount': 'missingField_extraPaymentAmount',
+};
+
+/**
+ * The fields the results wait for that are still empty, joined as a sentence lists them
+ * ("term and rate"), in the order of `errors`, which is the form's.
+ */
+export function missingFields(errors: readonly ValidationError[], locale: FormatLocale): string {
+  const names = errors.flatMap(({ field, code }) => {
+    const name = code === 'required' ? MISSING_FIELD_NAMES[field] : undefined;
+    return name ? [t(name)] : [];
+  });
+  return new Intl.ListFormat(locale, { type: 'conjunction' }).format(names);
 }
 
 /** A column of the schedule: its header and what each row shows in it. */

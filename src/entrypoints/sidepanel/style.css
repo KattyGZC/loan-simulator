@@ -1,18 +1,28 @@
+/*
+ * Sized for a panel used with a mouse, 360px wide at least: controls of 32–36px (WCAG 2.5.8
+ * asks for 24), spacing in steps of 4, 8, 12, 16, 24 and 32px, and sections set apart by headings,
+ * space and a rule instead of cards.
+ */
 :root {
-  --gap: 14px;
-  --radius-card: 20px;
-  --radius-inner: 12px;
-  --control-height: 42px;
-  --card-shadow:
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --radius: 8px;
+  --radius-large: 12px;
+  --control-height: 36px;
+  --button-height: 32px;
+  --raised-shadow:
     0 1px 2px color-mix(in srgb, var(--shadow) 6%, transparent),
-    0 10px 28px color-mix(in srgb, var(--shadow) 8%, transparent);
-  --control-shadow: 0 2px 6px color-mix(in srgb, var(--shadow) 7%, transparent);
+    0 10px 28px color-mix(in srgb, var(--shadow) 10%, transparent);
 
   /* 14px at the browser's default size, and larger when the user sets a larger one. */
   font-size: 87.5%;
   line-height: 1.45;
   color: var(--text);
-  background: var(--page);
+  background: var(--surface);
 }
 
 * {
@@ -35,35 +45,28 @@ body {
 
 header,
 main {
-  padding: 0 16px;
+  padding: 0 var(--space-4);
 }
 
 main {
   flex: 1;
-  padding-bottom: 24px;
+  padding-bottom: var(--space-5);
 }
 
 .tab-panel {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--space-5);
 }
 
 .tab-panel[hidden] {
   display: none;
 }
 
-h1 {
-  font-size: 1.4rem;
-  font-weight: 400;
-  line-height: 1.2;
-  margin: 18px 0 4px;
-}
-
 h2 {
   font-size: 1.15rem;
   font-weight: 400;
-  margin: 0 0 10px;
+  margin: 0 0 var(--space-2);
 }
 
 h3 {
@@ -77,6 +80,9 @@ h3 {
 .field-error,
 .note,
 .empty-state p,
+.field-definition,
+.link-button,
+.glossary dd,
 dt,
 table,
 input,
@@ -85,13 +91,15 @@ select,
   font-family: var(--font-sans);
 }
 
-/* Card titles and legends in small spaced capitals, so they label a card without competing with it. */
+/* Section titles in small spaced capitals, so they label a section without competing with it. */
 .group legend,
 .advanced summary,
 .results > section > h2,
 .section-header h2,
 .tab-panel > section:not(.empty-state) > h2,
 .preferences > h2,
+.glossary > h2,
+.glossary h3,
 .schedule thead th {
   font-family: var(--font-sans);
   font-size: 0.73rem;
@@ -101,15 +109,18 @@ select,
   color: var(--muted);
 }
 
-.title-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+header {
+  padding-top: var(--space-3);
 }
 
-.title-bar .button {
-  margin-top: 14px;
+/* The glossary and the preferences, under the tabs and above what they open: the place people
+ * look for a panel's tools (NN/g, Utility Navigation). */
+.toolbar {
+  display: flex;
+  gap: var(--space-2);
+  padding-bottom: var(--space-4);
+  margin-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border);
 }
 
 .tabs[hidden] {
@@ -118,11 +129,9 @@ select,
 
 .tabs {
   display: flex;
-  margin: 12px 0 20px;
-  background: var(--surface);
+  margin-bottom: var(--space-3);
   border: 1px solid var(--control-border);
-  border-radius: 14px;
-  box-shadow: var(--control-shadow);
+  border-radius: var(--radius);
   overflow: hidden;
 }
 
@@ -134,8 +143,9 @@ select,
   color: var(--text);
   background: none;
   border: none;
-  padding: 6px 8px;
+  padding: var(--space-1) var(--space-2);
   line-height: 1.2;
+  white-space: nowrap;
   cursor: pointer;
 }
 
@@ -154,25 +164,27 @@ select,
   box-shadow: inset 0 0 0 4px var(--surface);
 }
 
+/* A section is set apart by a rule above it, not by a card around it. */
 .group,
 .advanced,
-.empty-state,
-.scenario,
-.preferences,
 .results > section,
-.tab-panel > section {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-  box-shadow: var(--card-shadow);
-  padding: 18px;
+.tab-panel > section,
+.scenario {
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-4);
+}
+
+.loan-form > .group:first-child,
+.tab-panel > section:first-child {
+  border-top: none;
+  padding-top: 0;
 }
 
 .preferences,
 .save-scenario {
   display: flex;
   flex-direction: column;
-  gap: var(--gap);
+  gap: var(--space-4);
 }
 
 .preferences h2,
@@ -180,30 +192,49 @@ select,
   margin: 0;
 }
 
+/* Start over shares the line of the first section's title, next to the form it empties. Its row
+ * comes first in the page, so it pulls the form up by its own height. */
 .tab-actions {
+  position: relative;
+  z-index: 1;
   justify-content: flex-end;
+  margin-bottom: calc(-1 * (var(--button-height) + var(--space-5)));
+  pointer-events: none;
+}
+
+.tab-actions .button {
+  pointer-events: auto;
+}
+
+.loan-form > .group:first-child legend {
+  line-height: var(--button-height);
 }
 
 .loan-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--space-5);
 }
 
 .group {
   margin: 0;
+  border-right: none;
+  border-bottom: none;
+  border-left: none;
+  padding-right: 0;
+  padding-bottom: 0;
+  padding-left: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--gap);
+  gap: var(--space-4);
   min-width: 0;
 }
 
-/* Floated so the legend sits inside the card like any heading, not on its border. */
+/* Floated so the legend sits inside the section like any heading, not on its rule. */
 .group legend {
   float: left;
   width: 100%;
   padding: 0;
-  margin-bottom: 4px;
 }
 
 .group legend + * {
@@ -213,13 +244,13 @@ select,
 .row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: var(--gap);
+  gap: var(--space-4) var(--space-3);
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-1);
   min-width: 0;
 }
 
@@ -230,23 +261,22 @@ select {
   color: inherit;
   background-color: var(--surface);
   border: 1px solid var(--control-border);
-  border-radius: 999px;
-  box-shadow: var(--control-shadow);
+  border-radius: var(--radius);
   min-height: var(--control-height);
-  padding: 0 18px;
+  padding: 0 var(--space-3);
   width: 100%;
 }
 
 /* A chevron drawn with two gradients, so it takes the theme's color. */
 select {
   appearance: none;
-  padding-right: 40px;
+  padding-right: var(--space-6);
   background-image:
     linear-gradient(45deg, transparent 50%, var(--muted) 50%),
     linear-gradient(135deg, var(--muted) 50%, transparent 50%);
   background-position:
-    calc(100% - 22px) 50%,
-    calc(100% - 17px) 50%;
+    calc(100% - 18px) 50%,
+    calc(100% - 13px) 50%;
   background-size: 5px 5px;
   background-repeat: no-repeat;
 }
@@ -258,22 +288,21 @@ input[aria-invalid='true'] {
 input[type='checkbox'] {
   appearance: none;
   flex: none;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   margin: 0;
   display: grid;
   place-content: center;
   background: var(--surface);
   border: 1.5px solid var(--control-border);
-  border-radius: 6px;
-  box-shadow: var(--control-shadow);
+  border-radius: 4px;
   cursor: pointer;
 }
 
 input[type='checkbox']::after {
   content: '';
   width: 5px;
-  height: 10px;
+  height: 9px;
   margin-top: -2px;
   border: solid var(--on-accent);
   border-width: 0 2px 2px 0;
@@ -299,16 +328,90 @@ input[type='checkbox']:disabled {
 input:focus-visible,
 select:focus-visible,
 summary:focus-visible,
-.table-scroll:focus-visible {
+.table-scroll:focus-visible,
+.tab-panel:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+/* What the panel focuses itself, a title or a glossary term, shows no ring: the user did not
+ * move there, so it marks nothing they need to find. */
+[tabindex='-1']:focus {
+  outline: none;
+}
+
+.field-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* A 24px target (WCAG 2.5.8) around a 16px outlined "?", so it reads as a footnote to the label. */
+.help-button {
+  flex: none;
+  display: grid;
+  place-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  color: var(--muted);
+  background: none;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.help-button span {
+  display: grid;
+  place-content: center;
+  width: 16px;
+  height: 16px;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1;
+  border: 1px solid currentcolor;
+  border-radius: 999px;
+}
+
+.help-button:hover,
+.help-button[aria-expanded='true'] {
+  color: var(--accent);
+}
+
+.field-definition {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  padding-left: var(--space-3);
+  font-size: 0.86rem;
+  border-left: 2px solid var(--accent);
+}
+
+.field-definition p {
+  margin: 0;
+}
+
+.field-definition[hidden] {
+  display: none;
+}
+
+.link-button {
+  padding: 0;
+  font-size: 0.86rem;
+  color: var(--accent);
+  background: none;
+  border: none;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
 }
 
 .field-error,
 .field-hint {
   margin: 0;
-  font-size: 0.82rem;
-  padding: 0 18px;
+  font-size: 0.86rem;
 }
 
 .field-error {
@@ -322,35 +425,38 @@ summary:focus-visible,
 .checkbox {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-2);
 }
 
 .checkbox:has(input:disabled) {
   color: var(--muted);
 }
 
-.advanced[open] {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap);
+/* Margins, not a flex gap: Chrome lays out what a <details> holds in its own box. */
+.advanced > :not(summary) {
+  margin-top: var(--space-4);
 }
 
 .advanced summary {
   cursor: pointer;
 }
 
+.advanced .group {
+  padding-top: var(--space-4);
+}
+
 .results {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--space-5);
 }
 
 .section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  margin: -8px -8px 8px 0;
+  gap: var(--space-2);
+  margin: -6px -6px var(--space-2) 0;
 }
 
 .section-header h2 {
@@ -358,7 +464,7 @@ summary:focus-visible,
 }
 
 .empty-state h2 {
-  margin-bottom: 4px;
+  margin-bottom: var(--space-1);
 }
 
 .empty-state p,
@@ -370,17 +476,17 @@ summary:focus-visible,
 
 .warnings {
   margin: 0;
-  padding: 12px 16px 12px 32px;
+  padding: var(--space-3) var(--space-4) var(--space-3) var(--space-6);
   font-size: 0.93rem;
   background: var(--warning-bg);
   border: 1px solid var(--warning-border);
-  border-radius: var(--radius-card);
+  border-radius: var(--radius);
 }
 
 .summary {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 16px 18px;
+  gap: var(--space-3) var(--space-4);
   margin: 0;
 }
 
@@ -391,18 +497,28 @@ dt {
 
 dd {
   margin: 2px 0 0;
-  font-size: 1.3rem;
+  font-size: 1.05rem;
   font-variant-numeric: tabular-nums lining-nums;
 }
 
+/* The payment is what the user came for: the one large figure. */
+.summary:not(.savings) > div:first-child {
+  grid-column: 1 / -1;
+}
+
+.summary:not(.savings) > div:first-child dd {
+  font-size: 1.6rem;
+  line-height: 1.2;
+}
+
 .savings {
-  margin-bottom: 14px;
+  margin-bottom: var(--space-3);
 }
 
 .savings div {
   background: var(--accent-bg);
-  border-radius: var(--radius-inner);
-  padding: 10px 14px;
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-3);
 }
 
 table {
@@ -414,9 +530,8 @@ table {
 .table-scroll {
   overflow: auto;
   max-height: 60vh;
-  margin: 0 -18px -18px;
-  border-top: 1px solid var(--border);
-  border-radius: 0 0 var(--radius-card) var(--radius-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
 }
 
 .schedule {
@@ -426,7 +541,7 @@ table {
 
 .schedule th,
 .schedule td {
-  padding: 7px 12px;
+  padding: 6px var(--space-3);
   text-align: right;
 }
 
@@ -468,7 +583,7 @@ table {
 
 .comparison th,
 .comparison td {
-  padding: 7px 8px;
+  padding: 6px var(--space-2);
   text-align: right;
   border-bottom: 1px solid var(--border);
 }
@@ -488,34 +603,32 @@ table {
 .disclaimer {
   position: sticky;
   bottom: 0;
-  padding: 10px 16px;
+  padding: var(--space-2) var(--space-4);
   font-size: 0.8rem;
   color: var(--muted);
-  background: var(--page);
+  background: var(--surface);
   border-top: 1px solid var(--border);
 }
 
 .scenario-list {
   list-style: none;
-  margin: 8px 0 0;
+  margin: var(--space-2) 0 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-4);
 }
 
 .scenario {
-  padding: 14px 16px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  box-shadow: var(--control-shadow);
+  gap: var(--space-2);
 }
 
 .actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: var(--space-2);
 }
 
 .button {
@@ -523,11 +636,18 @@ table {
   color: var(--text);
   background: var(--surface);
   border: 1px solid var(--control-border);
-  border-radius: 999px;
-  box-shadow: var(--control-shadow);
-  min-height: 38px;
-  padding: 0 20px;
+  border-radius: var(--radius);
+  min-height: var(--button-height);
+  padding: 0 var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   cursor: pointer;
+}
+
+.button svg {
+  flex: none;
+  color: var(--accent);
 }
 
 .button:hover:not(:disabled) {
@@ -549,12 +669,13 @@ table {
   color: var(--muted);
   background: var(--surface-alt);
   border-color: var(--border);
-  box-shadow: none;
   cursor: default;
 }
 
 .button:focus-visible,
 .icon-button:focus-visible,
+.help-button:focus-visible,
+.link-button:focus-visible,
 .menu [role='menuitem']:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
@@ -567,13 +688,13 @@ table {
 .icon-button {
   display: grid;
   place-content: center;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   color: var(--text);
   fill: currentcolor;
   background: none;
   border: none;
-  border-radius: 999px;
+  border-radius: var(--radius);
   cursor: pointer;
 }
 
@@ -584,17 +705,17 @@ table {
 
 .menu [role='menu'] {
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% + var(--space-1));
   right: 0;
   z-index: 10;
   min-width: 210px;
   list-style: none;
   margin: 0;
-  padding: 6px;
+  padding: var(--space-1);
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: var(--card-shadow);
+  border-radius: var(--radius-large);
+  box-shadow: var(--raised-shadow);
 }
 
 .menu [role='menu'][hidden] {
@@ -609,8 +730,8 @@ table {
   color: var(--text);
   background: none;
   border: none;
-  border-radius: 10px;
-  padding: 9px 14px;
+  border-radius: 6px;
+  padding: var(--space-2) var(--space-3);
   cursor: pointer;
 }
 
@@ -624,9 +745,9 @@ table {
   color: var(--text);
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-  box-shadow: var(--card-shadow);
-  padding: 20px;
+  border-radius: var(--radius-large);
+  box-shadow: var(--raised-shadow);
+  padding: var(--space-5);
 }
 
 .dialog::backdrop {
@@ -635,7 +756,49 @@ table {
 
 .dialog-actions {
   justify-content: flex-end;
-  margin-top: 4px;
+  margin-top: var(--space-1);
+}
+
+.glossary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.glossary h2,
+.glossary h3 {
+  margin: 0 0 var(--space-3);
+}
+
+.glossary dl {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  margin: 0;
+}
+
+.glossary dt {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.glossary dd {
+  margin: var(--space-1) 0 0;
+  font-size: 0.93rem;
+  line-height: 1.5;
+}
+
+.glossary .example {
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+
+/* The term a field's definition opened the glossary at. */
+.glossary .target {
+  padding-left: var(--space-3);
+  border-left: 2px solid var(--accent);
 }
 
 /* Read by screen readers, not shown. */
@@ -649,10 +812,4 @@ table {
   clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
-}
-
-.advanced .group {
-  background: none;
-  box-shadow: none;
-  padding: 14px 16px;
 }

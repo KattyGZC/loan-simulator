@@ -24,6 +24,14 @@ describe('messages.json', () => {
     }
   });
 
+  it('writes a dollar sign as $$, since Chrome reads $1 to $9 as substitutions', () => {
+    for (const messages of [en, es]) {
+      for (const [key, { message }] of Object.entries(messages)) {
+        expect(message.replace(/\$\$|\$\w+\$/g, ''), key).not.toMatch(/\$/);
+      }
+    }
+  });
+
   it('uses key names Chrome accepts and no empty messages', () => {
     for (const messages of [en, es]) {
       for (const [key, { message }] of Object.entries(messages)) {

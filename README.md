@@ -8,7 +8,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 
 > Built for Ecuador (USD, SOLCA contribution, Central Bank credit segments). Since almost all data is entered by the user, it works for other countries once the Ecuador-specific options are turned off.
 
-> **Status:** in development, not published yet. The calculation engine (`src/core/`) and the English and Spanish texts and number formats (`src/i18n/`) are done and tested, and the side panel, loaded unpacked, simulates a new loan and an extra payment on a loan you already have; it counts interest on 30/360 or actual days/360, saves new-loan scenarios to compare two side by side, and keeps your preferences (currency, decimal sign of exported files and SOLCA), and exports or prints either simulation, from the keyboard or a screen reader too, in a light or dark theme. Next: the final icons and a glossary. This README describes the planned extension.
+> **Status:** in development, not published yet. The calculation engine (`src/core/`) and the English and Spanish texts and number formats (`src/i18n/`) are done and tested, and the side panel, loaded unpacked, simulates a new loan and an extra payment on a loan you already have; it counts interest on 30/360 or actual days/360, saves new-loan scenarios to compare two side by side, and keeps your preferences (currency, decimal sign of exported files and SOLCA), exports or prints either simulation, and explains its technical terms in a glossary, from the keyboard or a screen reader too, in a light or dark theme. Next: the final icons. This README describes the planned extension.
 
 ---
 
@@ -23,6 +23,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
   - **Reduce term:** keep the payment and finish earlier.
 - Shows totals: interest, insurance, SOLCA and total paid.
 - Exports the schedule to CSV, and prints it or saves it as PDF.
+- Explains every term a loan raises, for someone who has never had one: a **Glossary** of 18 terms in four groups (the basics, the rate, insurance and charges, dates and extra payments), each with a definition and an example. A choice says under it what the chosen option means, the rate field says where to find the rate, and a **?** next to a field with jargon shows its definition, with a link to its example.
 - Follows the system's light or dark theme; printouts are always light.
 - Interface in English and Spanish, usable with the keyboard alone and with a screen reader: the tabs move with the arrow keys, results and warnings are announced, and every field says what it needs.
 - Keeps what you typed in each tab when you close the panel. **Start over** empties the new-loan form.
@@ -63,7 +64,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 | **Institution and segment** | Empty | In the **Save scenario…** dialog, from the ⋮ menu of the results, once the loan simulates. Labels only: they suggest the scenario's name (e.g. "JEP Credit Union – Consumer") |
 | **Segment maximum rate** | Empty | If set, the extension warns when the rate exceeds the legal maximum |
 
-### A loan you already have (second tab)
+### A loan you already have (**My loan** tab)
 
 Enter the loan as your latest statement or amortization table shows it.
 
@@ -79,9 +80,9 @@ Enter the loan as your latest statement or amortization table shows it.
 | **Extra payment: amount** | What you pay. It must be more than the interest accrued up to its date |
 | **Extra payment: effect** | `Reduce term` (default) or `Reduce payment` |
 
-### Preferences
+### Glossary and preferences
 
-The **Preferences** button next to the title opens them; **Done** goes back to the tabs.
+The **Glossary** and **Preferences** buttons under the tabs open them in place of the tabs; while one shows, **Back** (or Escape) is the only way out, back to the tabs. A **?** next to a field with jargon shows its definition below the label; **Example in the glossary** opens the glossary at that term, and Escape returns to the field. Until the loan is complete, a line under the form says which fields the results still wait for.
 
 | Preference | Default | Description |
 |---|---|---|

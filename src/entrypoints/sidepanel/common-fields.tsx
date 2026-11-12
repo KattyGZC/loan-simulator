@@ -15,18 +15,23 @@ interface RateFieldsProps {
   error: FieldError | undefined;
   /** The annual rate of the type not chosen, in percent, or null when it cannot be derived. */
   counterpartRate: number | null;
+  /** Where the user finds the rate, shown until the rate is typed. */
+  whereToFind: string;
 }
 
-/** The annual rate and its type, with the rate of the other type below it. */
+/**
+ * The annual rate and its type. Below the rate, where to find it until it is typed, then the rate
+ * of the other type.
+ */
 export function RateFields(props: RateFieldsProps) {
   const hint =
     props.counterpartRate === null
-      ? null
+      ? props.whereToFind
       : t(props.rateType === 'nominal' ? 'rateHint_effective' : 'rateHint_nominal', [
           format.percent(props.counterpartRate),
         ]);
   return (
-    <div class="row">
+    <>
       <NumberField
         label={t('field_annualRate')}
         inputMode="decimal"
@@ -38,11 +43,12 @@ export function RateFields(props: RateFieldsProps) {
       />
       <SelectField
         label={t('field_rateType')}
+        hint={t(`hint_rateType_${props.rateType}`)}
         value={props.rateType}
         options={RATE_TYPES.map((value) => ({ value, label: t(`rateType_${value}`) }))}
         onChange={props.onRateTypeChange}
       />
-    </div>
+    </>
   );
 }
 
@@ -53,6 +59,7 @@ export function MethodField(props: {
   return (
     <SelectField
       label={t('field_method')}
+      hint={t(`hint_method_${props.value}`)}
       value={props.value}
       options={METHODS.map((value) => ({ value, label: t(`method_${value}`) }))}
       onChange={props.onChange}
@@ -64,6 +71,7 @@ export function DayCountField(props: { value: DayCount; onChange: (dayCount: Day
   return (
     <SelectField
       label={t('field_dayCount')}
+      hint={t(`hint_dayCount_${props.value}`)}
       value={props.value}
       options={DAY_COUNTS.map((value) => ({ value, label: t(`dayCount_${value}`) }))}
       onChange={props.onChange}
@@ -91,6 +99,7 @@ export function InsuranceFields({ form, update, error, rateHint, children }: Ins
     <FieldGroup legend={t('group_insurance')}>
       <NumberField
         label={t('field_insuranceRate')}
+        term="creditLifeInsurance"
         inputMode="decimal"
         value={form.insuranceRate}
         onInput={(insuranceRate) => update({ insuranceRate })}

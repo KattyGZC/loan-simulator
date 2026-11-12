@@ -37,6 +37,15 @@ describe('new-loan results', () => {
     expect(statuses.some((status) => status.getAttribute('role') === 'status')).toBe(true);
   });
 
+  it('says under the form which fields the payment still waits for', async () => {
+    const user = userEvent.setup();
+    await renderApp();
+    expect(screen.getByText('To see your payment, fill in: amount, term, and rate.')).toBeTruthy();
+
+    await user.type(field('Amount'), '10000');
+    expect(await screen.findByText('To see your payment, fill in: term and rate.')).toBeTruthy();
+  });
+
   it('keeps an empty status region while the loan is incomplete', async () => {
     await renderApp();
     const regions = screen.getAllByRole('status');

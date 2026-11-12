@@ -10,6 +10,7 @@ import {
   appliedExtraPaymentLines,
   appliedExtraPaymentNote,
   comparisonLines,
+  missingFields,
   savingsLines,
   scheduleColumns,
   summaryLines,
@@ -258,5 +259,36 @@ describe('comparisonLines', () => {
       'Total other charges',
       'Total paid',
     ]);
+  });
+});
+
+describe('missingFields', () => {
+  it('names the empty fields the results wait for, in the order of the errors', () => {
+    const errors = [
+      { field: 'termMonths', code: 'required' },
+      { field: 'annualRate', code: 'required' },
+    ] as const;
+    expect(missingFields(errors, 'en-US')).toBe('term and rate');
+  });
+
+  it('joins three or more as a list, in the language of the panel', () => {
+    useLocale('es');
+    const errors = [
+      { field: 'balance', code: 'required' },
+      { field: 'extraPayment.date', code: 'required' },
+      { field: 'extraPayment.amount', code: 'required' },
+    ] as const;
+    expect(missingFields(errors, 'es-EC')).toBe(
+      'saldo pendiente, fecha del abono y monto del abono',
+    );
+  });
+
+  it('leaves out fields with another error and fields it has no name for', () => {
+    const errors = [
+      { field: 'amount', code: 'notANumber' },
+      { field: 'disbursementDate', code: 'required' },
+      { field: 'remainingPayments', code: 'required' },
+    ] as const;
+    expect(missingFields(errors, 'en-US')).toBe('remaining payments');
   });
 });

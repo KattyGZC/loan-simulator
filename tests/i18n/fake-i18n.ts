@@ -21,8 +21,9 @@ function find(messages: Record<string, ChromeMessage>, key: string): ChromeMessa
 /**
  * `chrome.i18n.getMessage` over our `messages.json`, resolved as Chrome does: names ignore case,
  * a key missing in `language` falls back to English (`default_locale`), `$name$` takes its
- * placeholder's content, `$1`…`$9` take the substitutions, `$$` is a `$`, and a key no
- * language has gives an empty string.
+ * placeholder's content, `$1`…`$9` take the substitutions, in a placeholder or in the message
+ * itself, `$$` is a `$`, and a key no language has gives an empty string. So `$10` reads as the
+ * first substitution and a `0`, as in Chrome: a written dollar sign must be `$$`.
  */
 export function useLocale(language: keyof typeof locales): void {
   vi.spyOn(fakeBrowser.i18n, 'getUILanguage').mockReturnValue(language);
@@ -32,14 +33,16 @@ export function useLocale(language: keyof typeof locales): void {
       if (!entry) return '';
       const values = typeof substitutions === 'string' ? [substitutions] : (substitutions ?? []);
       const text = values.map(String);
-      return entry.message.replace(/\$\$|\$(\w+)\$/g, (_, name?: string) => {
-        if (name === undefined) return '$';
-        const content = entry.placeholders?.[name.toLowerCase()]?.content ?? '';
-        return content.replace(
-          /\$(\d)/g,
-          (__, position: string) => text[Number(position) - 1] ?? '',
-        );
-      });
+      const substitute = (position: string) => text[Number(position) - 1] ?? '';
+      return entry.message.replace(
+        /\$\$|\$(\d)|\$(\w+)\$/g,
+        (_, position?: string, name?: string) => {
+          if (position !== undefined) return substitute(position);
+          if (name === undefined) return '$';
+          const content = entry.placeholders?.[name.toLowerCase()]?.content ?? '';
+          return content.replace(/\$(\d)/g, (__, digit: string) => substitute(digit));
+        },
+      );
     },
   );
 }
