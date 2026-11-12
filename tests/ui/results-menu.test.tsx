@@ -120,7 +120,7 @@ describe('results menu', () => {
   it('offers only exporting and printing for a loan you already have, and does both', async () => {
     const user = userEvent.setup();
     await renderApp('en', { drafts: { newLoan: undefined, existingLoan: produbancoForm() } });
-    await user.click(screen.getByRole('tab', { name: 'Loan I already have' }));
+    await user.click(screen.getByRole('tab', { name: 'My loan' }));
     await screen.findByRole('table', { name: 'Schedule with the extra payment' });
 
     await user.click(menuButton());

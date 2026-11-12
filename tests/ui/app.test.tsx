@@ -39,7 +39,7 @@ describe('tabs', () => {
     await user.click(selectedTab());
 
     await user.keyboard('{ArrowRight}');
-    expect(selectedTab().textContent).toBe('Loan I already have');
+    expect(selectedTab().textContent).toBe('My loan');
     expect(document.activeElement).toBe(selectedTab());
     expect(screen.getAllByRole('tab').map((tab) => tab.tabIndex)).toEqual([-1, 0, -1]);
 
@@ -86,7 +86,6 @@ describe('preferences', () => {
     await user.click(screen.getByRole('button', { name: 'Preferences' }));
 
     expect(document.activeElement).toBe(screen.getByRole('heading', { name: 'Preferences' }));
-    expect(screen.getByRole('button', { name: 'Done' }).getAttribute('aria-expanded')).toBe('true');
   });
 
   it('closes with Escape and gives the focus back to its button', async () => {
@@ -97,19 +96,19 @@ describe('preferences', () => {
     await user.keyboard('{Escape}');
     const button = screen.getByRole('button', { name: 'Preferences' });
     expect(document.activeElement).toBe(button);
-    expect(button.getAttribute('aria-expanded')).toBe('false');
     expect(screen.queryByRole('heading', { name: 'Preferences' })).toBeNull();
   });
 
-  it('points its button at the section it opens', async () => {
+  it('offers only Back while open, which returns to the tabs and to its button', async () => {
     const user = userEvent.setup();
     await renderApp();
     await user.click(screen.getByRole('button', { name: 'Preferences' }));
+    expect(screen.queryByRole('button', { name: 'Glossary' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Preferences' })).toBeNull();
 
-    const section = screen.getByRole('region', { name: 'Preferences' });
-    expect(screen.getByRole('button', { name: 'Done' }).getAttribute('aria-controls')).toBe(
-      section.id,
-    );
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+    expect(screen.getByRole('tablist')).toBeTruthy();
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Preferences' }));
   });
 
   it('breaks no axe rule while open', async () => {

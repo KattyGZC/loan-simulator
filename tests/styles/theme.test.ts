@@ -40,24 +40,21 @@ const NON_TEXT = 3;
 
 /** Every pair the side panel and the print page draw, with where they draw it. */
 const PAIRS: readonly [foreground: string, background: string, minimum: number, use: string][] = [
-  ['text', 'page', TEXT, 'title, headings and text between the cards'],
-  ['text', 'surface', TEXT, 'text on a card'],
+  ['text', 'surface', TEXT, 'every text on the panel'],
   ['text', 'surface-alt', TEXT, 'striped rows and the table header'],
   ['text', 'accent-bg', TEXT, 'savings, the extra-payment row, hovered buttons and menu items'],
   ['text', 'warning-bg', TEXT, 'warnings'],
-  ['muted', 'page', TEXT, 'notes between the cards, disclaimer'],
-  ['muted', 'surface', TEXT, 'hints, legends, labels of the summary cards, unselected tabs'],
+  ['muted', 'surface', TEXT, 'hints, notes, section titles, the disclaimer, unselected tabs'],
   ['muted', 'surface-alt', TEXT, 'disabled buttons'],
   ['muted', 'accent-bg', TEXT, 'labels of the savings'],
-  ['accent', 'surface', TEXT, 'selected tab, checked boxes and focus rings on a card'],
+  ['accent', 'surface', TEXT, 'selected tab, checked boxes, quiet buttons, links and focus rings'],
   ['accent', 'accent-bg', NON_TEXT, 'focus ring on a highlighted menu item or button'],
+  ['accent', 'accent-bg', TEXT, 'the "?" of a field while its definition shows'],
   ['on-accent', 'accent', TEXT, 'primary button'],
   ['error', 'surface', TEXT, 'field errors'],
   ['accent', 'surface-alt', NON_TEXT, 'focus ring on a striped row'],
-  ['accent', 'page', NON_TEXT, 'focus ring between the cards'],
-  ['control-border', 'surface', NON_TEXT, 'outline of fields and buttons'],
+  ['control-border', 'surface', NON_TEXT, 'outline of fields, buttons and the tabs'],
   ['control-border', 'surface-alt', NON_TEXT, 'outline of a control on a tinted surface'],
-  ['control-border', 'page', NON_TEXT, 'outline of the tabs and of buttons between the cards'],
 ];
 
 describe.each(Object.entries(THEMES))('%s theme', (_, tokens) => {

@@ -11,7 +11,7 @@ afterEach(cleanup);
 async function openWithLoan() {
   const user = userEvent.setup();
   await renderApp('en', { drafts: { newLoan: undefined, existingLoan: produbancoForm() } });
-  await user.click(screen.getByRole('tab', { name: 'Loan I already have' }));
+  await user.click(screen.getByRole('tab', { name: 'My loan' }));
   return screen.findByRole('table', { name: 'Schedule with the extra payment' });
 }
 
@@ -34,6 +34,20 @@ describe('existing-loan fields', () => {
       'Principal left after your last payment, as your statement shows it.',
       'Enter a number.',
     ]);
+  });
+});
+
+describe('existing-loan rate', () => {
+  it('points to the statement for the rate, not to the website', async () => {
+    const user = userEvent.setup();
+    await renderApp();
+    await user.click(screen.getByRole('tab', { name: 'My loan' }));
+    const panel = within(screen.getByRole('tabpanel', { name: 'My loan' }));
+    const rate = panel.getByRole('textbox', { name: 'Annual interest rate (%)' });
+    const hint = document.getElementById(rate.getAttribute('aria-describedby') ?? '');
+    expect(hint?.textContent).toBe(
+      "It's on your statement or your lender's amortization schedule.",
+    );
   });
 });
 
