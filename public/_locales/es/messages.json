@@ -875,7 +875,7 @@
     }
   },
   "presetNote_unpublished": {
-    "message": "No publica $FIELDS$: esos campos quedan como en un formulario nuevo.",
+    "message": "No publica $FIELDS$: esos campos quedan como estaban, así que revísalos.",
     "placeholders": {
       "fields": {
         "content": "$1",

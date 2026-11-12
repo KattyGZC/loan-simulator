@@ -875,7 +875,7 @@
     }
   },
   "presetNote_unpublished": {
-    "message": "It does not publish $FIELDS$: those fields stay as in a new form.",
+    "message": "It does not publish $FIELDS$: those fields keep what they had, so check them.",
     "placeholders": {
       "fields": {
         "content": "$1",

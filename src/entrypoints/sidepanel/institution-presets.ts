@@ -107,7 +107,7 @@ const PRESETS: Record<InstitutionPreset, PresetSource> = {
   },
 };
 
-/** The fields a preset fills, as the note names those it leaves as in a new form. */
+/** The advanced options a preset can fill, as the note names those it leaves untouched. */
 const PRESET_FIELDS = [
   'insurance',
   'insuranceBase',
@@ -140,35 +140,31 @@ export function presetName(choice: PresetChoice): string {
 }
 
 /**
- * The form changes that choosing `choice` makes. An institution fills the advanced options it
- * publishes a value for and puts every other one back as in `defaults`, so no value from the
- * previous choice stays behind looking like this institution's. "None" only clears the choice.
+ * The form changes that choosing `choice` makes: the advanced options the institution publishes a
+ * value for, and nothing else, so what the user typed in the others stays. "None" only clears the
+ * choice.
  */
-export function presetChanges(
-  choice: PresetChoice,
-  defaults: LoanForm,
-  locale: FormatLocale,
-): Partial<LoanForm> {
-  if (choice === 'none') return { institutionPreset: choice };
+export function presetChanges(choice: PresetChoice, locale: FormatLocale): Partial<LoanForm> {
+  const changes: Partial<LoanForm> = { institutionPreset: choice };
+  if (choice === 'none') return changes;
   const { insurance, insuranceBase, solcaPercent } = PRESETS[choice].values;
-  return {
-    institutionPreset: choice,
-    insuranceRate: insurance ? typed(insurance.rate, locale) : defaults.insuranceRate,
-    insuranceUnit: insurance?.unit ?? defaults.insuranceUnit,
-    insuranceBase: insuranceBase ?? defaults.insuranceBase,
-    onTopOfInstallment: defaults.onTopOfInstallment,
-    otherCharges: defaults.otherCharges,
-    solcaEnabled: solcaPercent === undefined ? defaults.solcaEnabled : true,
-    solcaPercent: solcaPercent === undefined ? defaults.solcaPercent : typed(solcaPercent, locale),
-    dayCount: defaults.dayCount,
-  };
+  if (insurance) {
+    changes.insuranceRate = typed(insurance.rate, locale);
+    changes.insuranceUnit = insurance.unit;
+  }
+  if (insuranceBase) changes.insuranceBase = insuranceBase;
+  if (solcaPercent !== undefined) {
+    changes.solcaEnabled = true;
+    changes.solcaPercent = typed(solcaPercent, locale);
+  }
+  return changes;
 }
 
 /** What the note under the choice says about an institution's values, and where to check them. */
 export interface PresetNote {
   /** "Banco Pichincha publishes: credit life insurance 1.69 ‰ per month." */
   published: string;
-  /** The fields it does not publish, back as in a new form. */
+  /** The fields it does not publish, left as the user had them. */
   unpublished: string;
   caveat: string | null;
   /** The document, and when it was read. */

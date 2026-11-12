@@ -79,7 +79,6 @@ export function NewLoan({
         <LoanFields
           form={form}
           update={update}
-          defaults={defaults}
           errorOf={errorOf}
           counterpartRate={counterpartRate(simulated, errors, locale)}
         />

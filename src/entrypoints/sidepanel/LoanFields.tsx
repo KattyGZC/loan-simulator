@@ -17,15 +17,13 @@ import { format, locale } from './locale';
 interface LoanFieldsProps {
   form: LoanForm;
   update: (changes: Partial<LoanForm>) => void;
-  /** The empty form: what an institution's preset leaves in the fields it does not publish. */
-  defaults: LoanForm;
   errorOf: (field: ValidationField) => FieldError | undefined;
   /** The annual rate of the type not chosen, in percent, or null when it cannot be derived. */
   counterpartRate: number | null;
 }
 
 /** The required fields, then the advanced options folded away. */
-export function LoanFields({ form, update, defaults, errorOf, counterpartRate }: LoanFieldsProps) {
+export function LoanFields({ form, update, errorOf, counterpartRate }: LoanFieldsProps) {
   const actualDays = form.dayCount === 'actual360';
   return (
     <>
@@ -64,7 +62,7 @@ export function LoanFields({ form, update, defaults, errorOf, counterpartRate }:
           label={t('field_institutionPreset')}
           value={form.institutionPreset}
           options={PRESET_CHOICES.map((value) => ({ value, label: presetName(value) }))}
-          onChange={(choice) => update(presetChanges(choice, defaults, locale))}
+          onChange={(choice) => update(presetChanges(choice, locale))}
         />
         {form.institutionPreset !== 'none' && <PresetNote preset={form.institutionPreset} />}
         <InsuranceFields form={form} update={update} error={errorOf('insurance.rate')}>
