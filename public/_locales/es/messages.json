@@ -12,7 +12,7 @@
     "message": "Crédito nuevo"
   },
   "tab_existingLoan": {
-    "message": "Crédito que ya tengo"
+    "message": "Mi crédito"
   },
   "validation_required": {
     "message": "Ingresa un valor."
@@ -343,20 +343,8 @@
       "amount": { "content": "$2", "example": "$412,80" }
     }
   },
-  "empty_title": {
-    "message": "Ingresa el monto, el plazo y la tasa"
-  },
-  "empty_body": {
-    "message": "La tasa, el seguro de desgravamen y otros cargos están en la sección Transparencia (o «Tasas y tarifas») del sitio web de la entidad."
-  },
   "invalid_body": {
     "message": "Corrige los campos marcados para ver los resultados."
-  },
-  "emptyExisting_title": {
-    "message": "Ingresa tu crédito como aparece en tu estado de cuenta"
-  },
-  "emptyExisting_body": {
-    "message": "Necesitas el saldo, las cuotas restantes, la tasa, la fecha de la próxima cuota y el abono. La tabla de amortización de tu entidad los tiene."
   },
   "disclaimer": {
     "message": "Solo es una estimación. La entidad fija la cuota real cuando aprueba el crédito."
@@ -447,8 +435,8 @@
   "button_moreActions": {
     "message": "Más acciones"
   },
-  "button_done": {
-    "message": "Listo"
+  "button_back": {
+    "message": "Volver"
   },
   "section_preferences": {
     "message": "Preferencias"
@@ -457,7 +445,7 @@
     "message": "Moneda"
   },
   "field_solcaByDefault": {
-    "message": "Contribución SOLCA activada en créditos nuevos"
+    "message": "SOLCA en créditos nuevos"
   },
   "preferences_note": {
     "message": "La moneda cambia todos los montos de inmediato. SOLCA prepara un crédito nuevo: el primero y cada vez que empiezas de nuevo. Los escenarios guardados conservan el suyo. Los archivos exportados usan el signo decimal de tu hoja de cálculo (la configuración regional de tu equipo), para que lea los montos como números."
@@ -506,5 +494,263 @@
   },
   "print_nothing": {
     "message": "No hay nada que imprimir. Simula un crédito en el panel lateral y pulsa Imprimir."
+  },
+  "hint_annualRate": {
+    "message": "Está en la sección Transparencia (o «Tasas y tarifas») del sitio de la entidad."
+  },
+  "hint_annualRateExisting": {
+    "message": "Está en tu estado de cuenta o en la tabla de amortización de tu entidad."
+  },
+  "hint_rateType_nominal": {
+    "message": "Con la que se calcula el interés de cada mes."
+  },
+  "hint_rateType_effective": {
+    "message": "Lo que el crédito cuesta en un año; los bancos suelen publicar esta."
+  },
+  "hint_method_french": {
+    "message": "La misma cuota todos los meses."
+  },
+  "hint_method_german": {
+    "message": "La primera cuota es más alta y baja cada mes."
+  },
+  "hint_dayCount_thirty360": {
+    "message": "Cada mes cobra 30 días, aunque tenga 31 o 28."
+  },
+  "hint_dayCount_actual360": {
+    "message": "Cada cuota cobra los días de calendario desde la anterior."
+  },
+  "hint_effect_reduceTerm": {
+    "message": "Sigues pagando la misma cuota y terminas antes."
+  },
+  "hint_effect_reducePayment": {
+    "message": "Terminas en la misma fecha con una cuota menor."
+  },
+  "missing_newLoan": {
+    "message": "Para ver tu cuota, falta: $FIELDS$.",
+    "placeholders": {
+      "fields": { "content": "$1", "example": "plazo y tasa" }
+    }
+  },
+  "missing_existingLoan": {
+    "message": "Para ver cuánto ahorras, falta: $FIELDS$.",
+    "placeholders": {
+      "fields": { "content": "$1", "example": "plazo y tasa" }
+    }
+  },
+  "missingField_amount": {
+    "message": "monto"
+  },
+  "missingField_termMonths": {
+    "message": "plazo"
+  },
+  "missingField_annualRate": {
+    "message": "tasa"
+  },
+  "missingField_balance": {
+    "message": "saldo pendiente"
+  },
+  "missingField_remainingPayments": {
+    "message": "cuotas restantes"
+  },
+  "missingField_currentPayment": {
+    "message": "cuota actual"
+  },
+  "missingField_nextPaymentDate": {
+    "message": "fecha de la próxima cuota"
+  },
+  "missingField_extraPaymentDate": {
+    "message": "fecha del abono"
+  },
+  "missingField_extraPaymentAmount": {
+    "message": "monto del abono"
+  },
+  "button_glossary": {
+    "message": "Glosario"
+  },
+  "section_glossary": {
+    "message": "Glosario"
+  },
+  "glossary_explain": {
+    "message": "¿Qué es $TERM$?",
+    "placeholders": {
+      "term": { "content": "$1", "example": "SOLCA" }
+    }
+  },
+  "glossary_seeEntry": {
+    "message": "Ejemplo en el glosario"
+  },
+  "glossaryGroup_basics": {
+    "message": "Lo básico"
+  },
+  "glossaryGroup_rate": {
+    "message": "La tasa"
+  },
+  "glossaryGroup_charges": {
+    "message": "Seguros y cargos"
+  },
+  "glossaryGroup_dates": {
+    "message": "Fechas y abonos"
+  },
+  "glossaryTerm_principal": {
+    "message": "Capital (monto)"
+  },
+  "glossaryDefinition_principal": {
+    "message": "El dinero que te prestan y que devuelves poco a poco con cada cuota."
+  },
+  "glossaryExample_principal": {
+    "message": "Ejemplo: si pides $$10.000, el capital es $$10.000; el interés se cobra aparte."
+  },
+  "glossaryTerm_interest": {
+    "message": "Interés"
+  },
+  "glossaryDefinition_interest": {
+    "message": "Lo que pagas a la entidad por usar su dinero. Se cobra cada mes sobre lo que aún debes."
+  },
+  "glossaryExample_interest": {
+    "message": "Ejemplo: sobre $$10.000 al 15,6 % nominal, el interés del primer mes es $$130."
+  },
+  "glossaryTerm_term": {
+    "message": "Plazo"
+  },
+  "glossaryDefinition_term": {
+    "message": "El tiempo que tienes para pagar el crédito, en meses: una cuota por mes."
+  },
+  "glossaryExample_term": {
+    "message": "Ejemplo: un plazo de 36 meses son 3 años de cuotas."
+  },
+  "glossaryTerm_installment": {
+    "message": "Cuota"
+  },
+  "glossaryDefinition_installment": {
+    "message": "Lo que pagas cada mes. Cubre una parte del capital, el interés y, si los hay, el seguro y otros cargos."
+  },
+  "glossaryExample_installment": {
+    "message": "Ejemplo: $$10.000 a 12 meses al 15,6 % nominal, sistema francés: $$905,42 al mes."
+  },
+  "glossaryTerm_balance": {
+    "message": "Saldo"
+  },
+  "glossaryDefinition_balance": {
+    "message": "El capital que aún debes. Baja con cada cuota."
+  },
+  "glossaryExample_balance": {
+    "message": "Ejemplo: en el crédito anterior, la primera cuota paga $$775,42 de capital, así que el saldo baja a $$9.224,58."
+  },
+  "glossaryTerm_schedule": {
+    "message": "Tabla de amortización"
+  },
+  "glossaryDefinition_schedule": {
+    "message": "La lista de todas tus cuotas: la fecha de cada una, cuánto va a capital, a interés y a cargos, y el saldo que queda."
+  },
+  "glossaryExample_schedule": {
+    "message": "Ejemplo: un crédito a 12 meses tiene 12 filas, una por cuota. El simulador la muestra debajo del resumen."
+  },
+  "glossaryTerm_amortization": {
+    "message": "Sistema de amortización"
+  },
+  "glossaryDefinition_amortization": {
+    "message": "Cómo se reparte cada cuota entre capital e interés. Francés: la misma cuota todos los meses. Alemán: el mismo capital cada mes, así que la cuota empieza más alta y baja."
+  },
+  "glossaryExample_amortization": {
+    "message": "Ejemplo: $$10.000 a 12 meses al 15,6 %: francés, $$905,42 cada mes y $$865 de interés; alemán, de $$963,33 a $$844,20 y $$845 de interés."
+  },
+  "glossaryTerm_nominalRate": {
+    "message": "Tasa nominal"
+  },
+  "glossaryDefinition_nominalRate": {
+    "message": "La tasa anual con la que se calcula el interés de cada mes: cada mes cobra más o menos la doceava parte."
+  },
+  "glossaryExample_nominalRate": {
+    "message": "Ejemplo: 15,6 % nominal es 1,3 % al mes."
+  },
+  "glossaryTerm_effectiveRate": {
+    "message": "Tasa efectiva"
+  },
+  "glossaryDefinition_effectiveRate": {
+    "message": "Lo que el crédito cuesta en un año completo cuando el interés de cada mes también genera interés. Es un poco mayor que la nominal, y es la que suelen publicar los bancos."
+  },
+  "glossaryExample_effectiveRate": {
+    "message": "Ejemplo: 15,6 % nominal equivale a 16,77 % efectiva."
+  },
+  "glossaryTerm_maxRate": {
+    "message": "Tasa máxima del segmento"
+  },
+  "glossaryDefinition_maxRate": {
+    "message": "La tasa efectiva más alta que una entidad puede cobrar en cada tipo de crédito (consumo, vivienda, microcrédito…), que publica el Banco Central del Ecuador (BCE). Cambia cada pocos meses."
+  },
+  "glossaryExample_maxRate": {
+    "message": "Ejemplo: si la ingresas, el simulador te avisa cuando la tasa efectiva de tu crédito la supera."
+  },
+  "glossaryTerm_dayCount": {
+    "message": "Base de días"
+  },
+  "glossaryDefinition_dayCount": {
+    "message": "Cuántos días de interés cobra cada cuota. 30/360: cada mes cuenta 30 días. Días reales/360: cada cuota cobra los días de calendario desde la anterior."
+  },
+  "glossaryExample_dayCount": {
+    "message": "Ejemplo: con días reales, un mes de 31 días cobra más interés que febrero."
+  },
+  "glossaryTerm_creditLifeInsurance": {
+    "message": "Seguro de desgravamen"
+  },
+  "glossaryDefinition_creditLifeInsurance": {
+    "message": "Seguro que paga lo que aún debes si falleces (y, en algunas pólizas, si quedas con una incapacidad permanente). Se cobra cada mes."
+  },
+  "glossaryExample_creditLifeInsurance": {
+    "message": "Ejemplo: al 0,05 % mensual sobre un saldo de $$10.000, el seguro de ese mes es $$5."
+  },
+  "glossaryTerm_solca": {
+    "message": "Contribución SOLCA"
+  },
+  "glossaryDefinition_solca": {
+    "message": "Una contribución del 0,5 % sobre los créditos en Ecuador que financia los hospitales de SOLCA (Sociedad de Lucha Contra el Cáncer). Se descuenta una sola vez del monto al desembolsar."
+  },
+  "glossaryExample_solca": {
+    "message": "Ejemplo: en un crédito de $$10.000, $$50 van a SOLCA y recibes $$9.950."
+  },
+  "glossaryTerm_otherCharges": {
+    "message": "Otros cargos"
+  },
+  "glossaryDefinition_otherCharges": {
+    "message": "Valores fijos que algunas entidades suman a cada cuota, como comisiones o seguros adicionales."
+  },
+  "glossaryExample_otherCharges": {
+    "message": "Ejemplo: un cargo de $$2 en cada una de 12 cuotas suma $$24."
+  },
+  "glossaryTerm_totalCost": {
+    "message": "Costo total"
+  },
+  "glossaryDefinition_totalCost": {
+    "message": "Lo que pagas además del capital: intereses, seguros, otros cargos y SOLCA."
+  },
+  "glossaryExample_totalCost": {
+    "message": "Ejemplo: $$10.000 a 12 meses al 15,6 % con SOLCA: $$865 de interés más $$50 de SOLCA, $$915 en total."
+  },
+  "glossaryTerm_disbursement": {
+    "message": "Desembolso"
+  },
+  "glossaryDefinition_disbursement": {
+    "message": "El día en que la entidad te entrega el dinero del crédito. Con días reales, la primera cuota cobra interés desde ese día."
+  },
+  "glossaryExample_disbursement": {
+    "message": "Ejemplo: con desembolso el 10 de enero y primera cuota el 15 de febrero, la primera cuota cobra 36 días de interés."
+  },
+  "glossaryTerm_dueDate": {
+    "message": "Vencimiento"
+  },
+  "glossaryDefinition_dueDate": {
+    "message": "El último día para pagar cada cuota. Las cuotas caen el mismo día de cada mes."
+  },
+  "glossaryExample_dueDate": {
+    "message": "Ejemplo: si la primera cuota vence el 15 de enero, las demás vencen el 15 de cada mes."
+  },
+  "glossaryTerm_extraPayment": {
+    "message": "Abono a capital"
+  },
+  "glossaryDefinition_extraPayment": {
+    "message": "Dinero que pagas aparte de tus cuotas para bajar lo que debes. Primero paga el interés acumulado desde tu último vencimiento; el resto baja el saldo."
+  },
+  "glossaryExample_extraPayment": {
+    "message": "Ejemplo: después de un abono, o sigues con la misma cuota y terminas antes (reducir plazo), o terminas en la misma fecha con una cuota menor (reducir cuota)."
   }
 }
