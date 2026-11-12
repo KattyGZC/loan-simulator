@@ -50,6 +50,7 @@ export function ExistingLoanFields({
           onRateTypeChange={(rateType) => update({ rateType })}
           error={errorOf('annualRate')}
           counterpartRate={counterpartRate}
+          whereToFind={t('hint_annualRateExisting')}
         />
         <MethodField value={form.method} onChange={(method) => update({ method })} />
         {french && (
@@ -93,6 +94,7 @@ export function ExistingLoanFields({
         </div>
         <SelectField
           label={t('field_extraPaymentEffect')}
+          hint={t(`hint_effect_${form.extraPaymentEffect}`)}
           value={form.extraPaymentEffect}
           options={EFFECTS.map((value) => ({ value, label: t(`effect_${value}`) }))}
           onChange={(extraPaymentEffect) => update({ extraPaymentEffect })}
@@ -109,6 +111,7 @@ export function ExistingLoanFields({
         />
         <NumberField
           label={t('field_otherCharges')}
+          term="otherCharges"
           inputMode="decimal"
           value={form.otherCharges}
           onInput={(otherCharges) => update({ otherCharges })}

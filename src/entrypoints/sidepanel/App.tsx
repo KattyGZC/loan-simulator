@@ -1,9 +1,13 @@
+import type { ComponentChildren } from 'preact';
 import { useId, useRef, useState } from 'preact/hooks';
 import { t, type MessageKey } from '@/i18n/translate';
 import { saveDraft, type Drafts } from '@/storage/drafts';
 import { savePreferences } from '@/storage/preferences';
 import { ExistingLoan } from './ExistingLoan';
 import { defaultForm, type LoanForm } from './form';
+import { Glossary, OpenGlossary } from './Glossary';
+import type { GlossaryTerm } from './glossary-terms';
+import { BackIcon, BookIcon, SlidersIcon } from './icons';
 import { locale, showAmountsIn } from './locale';
 import { NewLoan } from './NewLoan';
 import { defaultPreferences, restorePreferences } from './preferences';
@@ -20,6 +24,9 @@ const TABS: readonly { tab: Tab; label: MessageKey }[] = [
   { tab: 'existingLoan', label: 'tab_existingLoan' },
   { tab: 'scenarios', label: 'tab_scenarios' },
 ];
+
+/** What a header button opens in place of the tabs. */
+type HeaderView = 'glossary' | 'preferences';
 
 /** The tab an arrow key, Home or End moves to from `current`, wrapping around; undefined for other keys. */
 function tabForKey(key: string, current: Tab): Tab | undefined {
@@ -54,13 +61,18 @@ function today(): string {
 }
 
 /**
- * Two simulators and the saved scenarios, in tabs, and the preferences behind a header button.
+ * Two simulators and the saved scenarios, in tabs, and the glossary and the preferences behind
+ * header buttons.
  * The tabs stay mounted, so each simulator keeps what was typed in it, and each starts from its
  * draft: what it held when the panel last closed.
  */
 export function App({ stored }: { stored: StoredState }) {
   const [selected, setSelected] = useState<Tab>('newLoan');
-  const [showingPreferences, setShowingPreferences] = useState(false);
+  const [headerView, setHeaderView] = useState<HeaderView | null>(null);
+  // The term a field's definition opened the glossary at, and the button that did it, which
+  // gets the focus back when the glossary closes.
+  const [glossaryTerm, setGlossaryTerm] = useState<GlossaryTerm>();
+  const glossaryOpener = useRef<HTMLElement | null>(null);
   const [todayDate] = useState(today);
   const [preferences, setPreferences] = useState(() =>
     restorePreferences(stored.preferences, defaultPreferences(locale)),
@@ -121,13 +133,34 @@ export function App({ stored }: { stored: StoredState }) {
   const idPrefix = useId();
   const tabId = (tab: Tab) => `${idPrefix}-tab-${tab}`;
   const panelId = (tab: Tab) => `${idPrefix}-panel-${tab}`;
-  const preferencesId = `${idPrefix}-preferences`;
-  const preferencesButton = useRef<HTMLButtonElement>(null);
-  const focusAfterRender = useFocusAfterRender();
-  const closePreferences = () => {
-    setShowingPreferences(false);
-    focusAfterRender(() => preferencesButton.current);
+  const viewId = (view: HeaderView) => `${idPrefix}-${view}`;
+  const headerButtons = {
+    glossary: useRef<HTMLButtonElement>(null),
+    preferences: useRef<HTMLButtonElement>(null),
   };
+  const focusAfterRender = useFocusAfterRender();
+  const showView = (view: HeaderView | null) => {
+    setHeaderView(view);
+    setGlossaryTerm(undefined);
+    glossaryOpener.current = null;
+  };
+  const closeView = (view: HeaderView) => {
+    const opener = glossaryOpener.current;
+    showView(null);
+    focusAfterRender(() => opener ?? headerButtons[view].current);
+  };
+  const openGlossaryAt = (term: GlossaryTerm) => {
+    showView('glossary');
+    setGlossaryTerm(term);
+    glossaryOpener.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  };
+  const headerButton = (view: HeaderView, label: MessageKey, icon: ComponentChildren) => (
+    <button ref={headerButtons[view]} type="button" class="button" onClick={() => showView(view)}>
+      {icon}
+      {t(label)}
+    </button>
+  );
   const moveToTab = (key: string) => {
     const tab = tabForKey(key, selected);
     if (!tab) return false;
@@ -139,24 +172,13 @@ export function App({ stored }: { stored: StoredState }) {
   return (
     <>
       <header>
-        <div class="title-bar">
-          <h1>{t('extName')}</h1>
-          <button
-            ref={preferencesButton}
-            type="button"
-            class="button"
-            aria-expanded={showingPreferences}
-            aria-controls={preferencesId}
-            onClick={() => setShowingPreferences(!showingPreferences)}
-          >
-            {t(showingPreferences ? 'button_done' : 'button_preferences')}
-          </button>
-        </div>
+        {/* Chrome names the panel above it, so the title is only for screen readers. */}
+        <h1 class="visually-hidden">{t('extName')}</h1>
         <div
           class="tabs"
           role="tablist"
           aria-label={t('tabs_label')}
-          hidden={showingPreferences}
+          hidden={headerView !== null}
           onKeyDown={(event) => {
             if (moveToTab(event.key)) event.preventDefault();
           }}
@@ -176,29 +198,54 @@ export function App({ stored }: { stored: StoredState }) {
             </button>
           ))}
         </div>
+        {/* The glossary and the preferences are pages of their own: while one shows, the only way
+            on is back to the tabs. */}
+        <div class="toolbar">
+          {headerView === null ? (
+            <>
+              {headerButton('glossary', 'button_glossary', <BookIcon />)}
+              {headerButton('preferences', 'button_preferences', <SlidersIcon />)}
+            </>
+          ) : (
+            <button type="button" class="button" onClick={() => closeView(headerView)}>
+              <BackIcon />
+              {t('button_back')}
+            </button>
+          )}
+        </div>
       </header>
       <main>
-        {showingPreferences && (
-          <PreferencesForm
-            id={preferencesId}
-            preferences={preferences}
-            onChange={setPreferences}
-            onClose={closePreferences}
+        {headerView === 'glossary' && (
+          <Glossary
+            key={glossaryTerm}
+            id={viewId('glossary')}
+            term={glossaryTerm}
+            onClose={() => closeView('glossary')}
           />
         )}
-        {TABS.map(({ tab }) => (
-          <div
-            key={tab}
-            id={panelId(tab)}
-            class="tab-panel"
-            role="tabpanel"
-            aria-labelledby={tabId(tab)}
-            tabIndex={0}
-            hidden={showingPreferences || selected !== tab}
-          >
-            {content(tab)}
-          </div>
-        ))}
+        {headerView === 'preferences' && (
+          <PreferencesForm
+            id={viewId('preferences')}
+            preferences={preferences}
+            onChange={setPreferences}
+            onClose={() => closeView('preferences')}
+          />
+        )}
+        <OpenGlossary.Provider value={openGlossaryAt}>
+          {TABS.map(({ tab }) => (
+            <div
+              key={tab}
+              id={panelId(tab)}
+              class="tab-panel"
+              role="tabpanel"
+              aria-labelledby={tabId(tab)}
+              tabIndex={0}
+              hidden={headerView !== null || selected !== tab}
+            >
+              {content(tab)}
+            </div>
+          ))}
+        </OpenGlossary.Provider>
       </main>
       <footer class="disclaimer">{t('disclaimer')}</footer>
     </>

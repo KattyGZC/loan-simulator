@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef } from 'preact/hooks';
+import { useEffect, useRef } from 'preact/hooks';
 import { t } from '@/i18n/translate';
 import { ActionsMenu } from './ActionsMenu';
 import { newLoanCsv, type CsvSettings } from './csv';
@@ -10,11 +10,12 @@ import {
   panelState,
   restoreLoanForm,
 } from './form';
+import { ResetIcon } from './icons';
 import { LoanFields } from './LoanFields';
 import { format, locale } from './locale';
 import { openPrintPage } from './print-page';
 import { newLoanPrintout } from './printout';
-import { announcement, summaryLines } from './results';
+import { announcement, missingFields, summaryLines } from './results';
 import { ResultStatus } from './ResultStatus';
 import { SaveScenario } from './SaveScenario';
 import { ScheduleTable } from './ScheduleTable';
@@ -50,7 +51,6 @@ export function NewLoan({
     () => restoreLoanForm(draft, defaults),
     panelState,
   );
-  const emptyTitleId = useId();
   const loanForm = useRef<HTMLFormElement>(null);
   const saveDialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
@@ -66,6 +66,7 @@ export function NewLoan({
     <>
       <div class="actions tab-actions">
         <button type="button" class="button" onClick={onStartOver}>
+          <ResetIcon />
           {t('button_startOver')}
         </button>
       </div>
@@ -84,10 +85,7 @@ export function NewLoan({
       </form>
       <ResultStatus text={status} />
       {state.kind === 'loanIncomplete' && (
-        <section class="empty-state" aria-labelledby={emptyTitleId}>
-          <h2 id={emptyTitleId}>{t('empty_title')}</h2>
-          <p>{t('empty_body')}</p>
-        </section>
+        <p class="note">{t('missing_newLoan', [missingFields(state.errors, locale)])}</p>
       )}
       {state.kind === 'invalid' && <p class="note">{t('invalid_body')}</p>}
       {state.kind === 'simulated' && (

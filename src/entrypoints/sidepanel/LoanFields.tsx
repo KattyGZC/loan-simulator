@@ -43,6 +43,7 @@ export function LoanFields({ form, update, errorOf, counterpartRate }: LoanField
           onRateTypeChange={(rateType) => update({ rateType })}
           error={errorOf('annualRate')}
           counterpartRate={counterpartRate}
+          whereToFind={t('hint_annualRate')}
         />
         <MethodField value={form.method} onChange={(method) => update({ method })} />
       </FieldGroup>
@@ -63,6 +64,7 @@ export function LoanFields({ form, update, errorOf, counterpartRate }: LoanField
 
         <NumberField
           label={t('field_otherCharges')}
+          term="otherCharges"
           inputMode="decimal"
           value={form.otherCharges}
           onInput={(otherCharges) => update({ otherCharges })}
@@ -70,6 +72,7 @@ export function LoanFields({ form, update, errorOf, counterpartRate }: LoanField
         />
         <CheckboxField
           label={t('field_solcaEnabled')}
+          term="solca"
           checked={form.solcaEnabled}
           onChange={(solcaEnabled) => update({ solcaEnabled })}
         />
@@ -86,6 +89,7 @@ export function LoanFields({ form, update, errorOf, counterpartRate }: LoanField
         {actualDays && (
           <DateField
             label={t('field_disbursementDate')}
+            term="disbursement"
             value={form.disbursementDate}
             onInput={(disbursementDate) => update({ disbursementDate })}
             error={errorOf('disbursementDate')}
@@ -100,6 +104,7 @@ export function LoanFields({ form, update, errorOf, counterpartRate }: LoanField
         />
         <NumberField
           label={t('field_maxRate')}
+          term="maxRate"
           inputMode="decimal"
           value={form.maxRate}
           onInput={(maxRate) => update({ maxRate })}

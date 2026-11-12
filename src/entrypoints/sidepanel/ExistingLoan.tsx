@@ -1,4 +1,3 @@
-import { useId } from 'preact/hooks';
 import { t } from '@/i18n/translate';
 import { ActionsMenu } from './ActionsMenu';
 import { existingLoanCsv, type CsvSettings } from './csv';
@@ -14,7 +13,7 @@ import { counterpartRate } from './form';
 import { format, locale } from './locale';
 import { openPrintPage } from './print-page';
 import { existingLoanPrintout } from './printout';
-import { announcement, savingsLines } from './results';
+import { announcement, missingFields, savingsLines } from './results';
 import { ResultStatus } from './ResultStatus';
 import { ScheduleTable } from './ScheduleTable';
 import { useSimulation } from './useSimulation';
@@ -34,7 +33,6 @@ export function ExistingLoan({ today, csvSettings, draft }: ExistingLoanProps) {
     () => restoreExistingLoanForm(draft, defaultExistingLoanForm(today)),
     existingLoanState,
   );
-  const emptyTitleId = useId();
   const status = announcement(state, (simulation) => savingsLines(simulation, format));
 
   return (
@@ -49,10 +47,7 @@ export function ExistingLoan({ today, csvSettings, draft }: ExistingLoanProps) {
       </form>
       <ResultStatus text={status} />
       {state.kind === 'loanIncomplete' && (
-        <section class="empty-state" aria-labelledby={emptyTitleId}>
-          <h2 id={emptyTitleId}>{t('emptyExisting_title')}</h2>
-          <p>{t('emptyExisting_body')}</p>
-        </section>
+        <p class="note">{t('missing_existingLoan', [missingFields(state.errors, locale)])}</p>
       )}
       {state.kind === 'invalid' && <p class="note">{t('invalid_body')}</p>}
       {state.kind === 'simulated' && (

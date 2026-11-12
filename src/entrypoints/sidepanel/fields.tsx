@@ -1,7 +1,10 @@
 import type { ComponentChildren } from 'preact';
-import { useEffect, useId, useRef, useState } from 'preact/hooks';
+import { useContext, useEffect, useId, useRef, useState } from 'preact/hooks';
+import { t } from '@/i18n/translate';
 import type { FieldError } from './errors';
 import { visibleError } from './form';
+import { OpenGlossary } from './Glossary';
+import type { GlossaryTerm } from './glossary-terms';
 
 /**
  * The error a field shows now, and the handlers that tell it the user typed in the field and
@@ -46,6 +49,54 @@ function FieldNotes(props: {
   );
 }
 
+/**
+ * The field's label and, when the field names a technical term, a "?" button that shows the
+ * term's definition below it, as the glossary words it, with a way to its example there. Escape
+ * hides it again, and only it: the preferences, which Escape closes too, stay open.
+ */
+function FieldLabel({
+  term,
+  children,
+}: {
+  term: GlossaryTerm | undefined;
+  children: ComponentChildren;
+}) {
+  const definitionId = useId();
+  const [open, setOpen] = useState(false);
+  const openGlossary = useContext(OpenGlossary);
+  if (!term) return <>{children}</>;
+  return (
+    <>
+      <div class="field-label">
+        {children}
+        <button
+          type="button"
+          class="help-button"
+          aria-label={t('glossary_explain', [t(`glossaryTerm_${term}`)])}
+          aria-expanded={open}
+          aria-controls={definitionId}
+          onClick={() => setOpen(!open)}
+          onKeyDown={(event) => {
+            if (event.key !== 'Escape' || !open) return;
+            setOpen(false);
+            event.stopPropagation();
+          }}
+        >
+          <span aria-hidden="true">?</span>
+        </button>
+      </div>
+      <div id={definitionId} class="field-definition" hidden={!open}>
+        <p>{t(`glossaryDefinition_${term}`)}</p>
+        {openGlossary && (
+          <button type="button" class="link-button" onClick={() => openGlossary(term)}>
+            {t('glossary_seeEntry')}
+          </button>
+        )}
+      </div>
+    </>
+  );
+}
+
 interface NumberFieldProps {
   label: string;
   value: string;
@@ -55,6 +106,8 @@ interface NumberFieldProps {
   hint?: string | null;
   /** The results wait for a value in it. */
   required?: boolean;
+  /** The technical term its label names, explained by a "?" next to it. */
+  term?: GlossaryTerm;
 }
 
 /** A labelled text input for a number, with its hint and its error below it. */
@@ -66,7 +119,9 @@ export function NumberField(props: NumberFieldProps) {
   const errorId = `${id}-error`;
   return (
     <div class="field">
-      <label for={id}>{label}</label>
+      <FieldLabel term={props.term}>
+        <label for={id}>{label}</label>
+      </FieldLabel>
       <input
         id={id}
         type="text"
@@ -95,6 +150,8 @@ interface DateFieldProps {
   hint?: string;
   /** The results wait for a value in it. */
   required?: boolean;
+  /** The technical term its label names, explained by a "?" next to it. */
+  term?: GlossaryTerm;
 }
 
 /** A labelled date input, with its hint and its error below it. */
@@ -106,7 +163,9 @@ export function DateField(props: DateFieldProps) {
   const errorId = `${id}-error`;
   return (
     <div class="field">
-      <label for={id}>{label}</label>
+      <FieldLabel term={props.term}>
+        <label for={id}>{label}</label>
+      </FieldLabel>
       <input
         id={id}
         type="date"
@@ -168,6 +227,10 @@ interface SelectFieldProps<T extends string> {
   value: T;
   options: readonly { value: T; label: string }[];
   onChange: (value: T) => void;
+  /** What the chosen option means, below the select. */
+  hint?: string;
+  /** The technical term its label names, explained by a "?" next to it. */
+  term?: GlossaryTerm;
 }
 
 export function SelectField<T extends string>({
@@ -175,14 +238,20 @@ export function SelectField<T extends string>({
   value,
   options,
   onChange,
+  hint,
+  term,
 }: SelectFieldProps<T>) {
   const id = useId();
+  const hintId = `${id}-hint`;
   return (
     <div class="field">
-      <label for={id}>{label}</label>
+      <FieldLabel term={term}>
+        <label for={id}>{label}</label>
+      </FieldLabel>
       <select
         id={id}
         value={value}
+        aria-describedby={hint ? hintId : undefined}
         onChange={(event) => {
           const chosen = options.find((option) => option.value === event.currentTarget.value);
           if (chosen) onChange(chosen.value);
@@ -194,6 +263,11 @@ export function SelectField<T extends string>({
           </option>
         ))}
       </select>
+      {hint && (
+        <p id={hintId} class="field-hint">
+          {hint}
+        </p>
+      )}
     </div>
   );
 }
@@ -205,6 +279,8 @@ interface CheckboxFieldProps {
   /** The id of the text that says why it is disabled, or what it does. */
   describedBy?: string;
   onChange: (checked: boolean) => void;
+  /** The technical term its label names, explained by a "?" next to it. */
+  term?: GlossaryTerm;
 }
 
 export function CheckboxField({
@@ -213,8 +289,9 @@ export function CheckboxField({
   disabled,
   describedBy,
   onChange,
+  term,
 }: CheckboxFieldProps) {
-  return (
+  const checkbox = (
     <label class="checkbox">
       <input
         type="checkbox"
@@ -225,6 +302,12 @@ export function CheckboxField({
       />
       {label}
     </label>
+  );
+  if (!term) return checkbox;
+  return (
+    <div class="field">
+      <FieldLabel term={term}>{checkbox}</FieldLabel>
+    </div>
   );
 }
 
