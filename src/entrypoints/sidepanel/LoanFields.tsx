@@ -5,17 +5,27 @@ import { DayCountField, InsuranceFields, MethodField, RateFields } from './commo
 import type { FieldError } from './errors';
 import { CheckboxField, DateField, FieldGroup, NumberField, SelectField } from './fields';
 import type { LoanForm } from './form';
+import {
+  PRESET_CHOICES,
+  presetChanges,
+  presetName,
+  presetNote,
+  type InstitutionPreset,
+} from './institution-presets';
+import { format, locale } from './locale';
 
 interface LoanFieldsProps {
   form: LoanForm;
   update: (changes: Partial<LoanForm>) => void;
+  /** The empty form: what an institution's preset leaves in the fields it does not publish. */
+  defaults: LoanForm;
   errorOf: (field: ValidationField) => FieldError | undefined;
   /** The annual rate of the type not chosen, in percent, or null when it cannot be derived. */
   counterpartRate: number | null;
 }
 
 /** The required fields, then the advanced options folded away. */
-export function LoanFields({ form, update, errorOf, counterpartRate }: LoanFieldsProps) {
+export function LoanFields({ form, update, defaults, errorOf, counterpartRate }: LoanFieldsProps) {
   const actualDays = form.dayCount === 'actual360';
   return (
     <>
@@ -50,6 +60,13 @@ export function LoanFields({ form, update, errorOf, counterpartRate }: LoanField
 
       <details class="advanced">
         <summary>{t('section_advanced')}</summary>
+        <SelectField
+          label={t('field_institutionPreset')}
+          value={form.institutionPreset}
+          options={PRESET_CHOICES.map((value) => ({ value, label: presetName(value) }))}
+          onChange={(choice) => update(presetChanges(choice, defaults, locale))}
+        />
+        {form.institutionPreset !== 'none' && <PresetNote preset={form.institutionPreset} />}
         <InsuranceFields form={form} update={update} error={errorOf('insurance.rate')}>
           <SelectField
             label={t('field_insuranceBase')}
@@ -112,5 +129,23 @@ export function LoanFields({ form, update, errorOf, counterpartRate }: LoanField
         />
       </details>
     </>
+  );
+}
+
+/** What the institution publishes, what it leaves out, and the document to check it against. */
+function PresetNote({ preset }: { preset: InstitutionPreset }) {
+  const note = presetNote(preset, locale, format);
+  return (
+    <div class="preset-note">
+      <p>{note.published}</p>
+      <p>{note.unpublished}</p>
+      {note.caveat && <p>{note.caveat}</p>}
+      <p>
+        {note.source}{' '}
+        <a href={note.url} target="_blank" rel="noreferrer">
+          {t('presetNote_link')}
+        </a>
+      </p>
+    </div>
   );
 }

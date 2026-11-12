@@ -79,6 +79,7 @@ h3 {
 .field-hint,
 .field-error,
 .note,
+.preset-note,
 .empty-state p,
 .field-definition,
 .link-button,
@@ -472,6 +473,22 @@ summary:focus-visible,
   margin: 0;
   font-size: 0.86rem;
   color: var(--muted);
+}
+
+.preset-note {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+
+.preset-note p {
+  margin: 0;
+}
+
+.preset-note a {
+  color: var(--accent);
 }
 
 .warnings {

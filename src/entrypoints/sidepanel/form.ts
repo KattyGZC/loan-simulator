@@ -19,6 +19,7 @@ import { parseDecimal } from '@/i18n/parse-number';
 import { storedFields } from '@/storage/stored-fields';
 import { DAY_COUNTS, INSURANCE_BASES, INSURANCE_UNITS, METHODS, RATE_TYPES } from './choices';
 import type { FieldError } from './errors';
+import { PRESET_CHOICES, type PresetChoice } from './institution-presets';
 import { defaultPreferences, type Preferences } from './preferences';
 
 const LOAN_FIELDS: readonly ValidationField[] = ['amount', 'termMonths', 'annualRate'];
@@ -45,6 +46,8 @@ export interface LoanForm {
   /** ISO date, or empty. The engine only uses it with actual days. */
   disbursementDate: string;
   maxRate: string;
+  /** The institution whose published values filled the advanced options, if any. */
+  institutionPreset: PresetChoice;
   /** Labels only: together they name the scenario when it is saved. */
   institution: string;
   segment: string;
@@ -77,6 +80,7 @@ export function defaultForm(
     firstPaymentDate: paymentDate(today, ONE_MONTH_LATER),
     disbursementDate: today,
     maxRate: '',
+    institutionPreset: 'none',
     institution: '',
     segment: '',
   };
@@ -102,6 +106,7 @@ export function restoreLoanForm(stored: unknown, defaults: LoanForm): LoanForm {
     firstPaymentDate: text('firstPaymentDate', defaults.firstPaymentDate),
     disbursementDate: text('disbursementDate', defaults.disbursementDate),
     maxRate: text('maxRate', defaults.maxRate),
+    institutionPreset: oneOf('institutionPreset', PRESET_CHOICES, defaults.institutionPreset),
     institution: text('institution', defaults.institution),
     segment: text('segment', defaults.segment),
   };
