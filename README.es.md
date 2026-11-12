@@ -8,7 +8,7 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
 
 > Pensada para Ecuador (USD, SOLCA, segmentos del BCE), pero como casi todos los datos los ingresa el usuario, sirve para otros países desactivando lo específico de Ecuador.
 
-> **Estado:** en desarrollo, aún no publicada. El motor de cálculo (`src/core/`) y los textos y formatos de número en inglés y español (`src/i18n/`) están terminados y probados, y el panel lateral, cargando la extensión sin empaquetar, ya simula un crédito nuevo y un abono a un crédito que ya tienes; cuenta el interés en 30/360 o en días reales/360, guarda escenarios de crédito nuevo para comparar dos lado a lado y conserva tus preferencias (moneda, signo decimal de los archivos exportados y SOLCA), y exporta o imprime cualquiera de las dos simulaciones, también con el teclado o un lector de pantalla, en tema claro u oscuro. Siguen los íconos definitivos y un glosario. Este README describe la extensión prevista.
+> **Estado:** en desarrollo, aún no publicada. El motor de cálculo (`src/core/`) y los textos y formatos de número en inglés y español (`src/i18n/`) están terminados y probados, y el panel lateral, cargando la extensión sin empaquetar, ya simula un crédito nuevo y un abono a un crédito que ya tienes; cuenta el interés en 30/360 o en días reales/360, guarda escenarios de crédito nuevo para comparar dos lado a lado y conserva tus preferencias (moneda, signo decimal de los archivos exportados y SOLCA), exporta o imprime cualquiera de las dos simulaciones y explica sus términos técnicos en un glosario, también con el teclado o un lector de pantalla, en tema claro u oscuro. Siguen los íconos definitivos. Este README describe la extensión prevista.
 
 ---
 
@@ -23,6 +23,7 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
   - **Reducir plazo:** mantienes la cuota y terminas antes.
 - Muestra los totales: intereses, seguros, SOLCA y total pagado.
 - Exporta la tabla a CSV, y la imprime o la guarda como PDF.
+- Explica cada término de un crédito, para quien nunca ha tenido uno: un **Glosario** de 18 términos en cuatro grupos (lo básico, la tasa, seguros y cargos, fechas y abonos), cada uno con su definición y un ejemplo. Cada opción dice debajo qué significa la elegida, el campo de la tasa dice dónde encontrarla, y un **?** junto a un campo con jerga muestra su definición, con un enlace a su ejemplo.
 - Sigue el tema claro u oscuro del sistema; lo impreso siempre sale claro.
 - Interfaz en inglés y español, usable solo con el teclado y con un lector de pantalla: las pestañas se mueven con las flechas, los resultados y avisos se anuncian, y cada campo dice qué necesita.
 - Conserva lo que escribiste en cada pestaña al cerrar el panel. **Empezar de nuevo** vacía el formulario de crédito nuevo.
@@ -63,7 +64,7 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
 | **Entidad y segmento** | Vacío | En el diálogo **Guardar escenario…**, desde el menú ⋮ de los resultados, cuando el crédito ya se simula. Son solo etiquetas: sugieren el nombre del escenario (por ejemplo, «Coop JEP – Consumo») |
 | **Tasa máxima del segmento** | Vacío | Si la ingresas, la extensión avisa cuando la tasa supera el máximo legal |
 
-### Un crédito que ya tienes (segunda pestaña)
+### Un crédito que ya tienes (pestaña **Mi crédito**)
 
 Ingresa el crédito como aparece en tu último estado de cuenta o tabla de amortización.
 
@@ -79,9 +80,9 @@ Ingresa el crédito como aparece en tu último estado de cuenta o tabla de amort
 | **Abono: monto** | Lo que pagas. Debe ser mayor que el interés acumulado hasta su fecha |
 | **Abono: efecto** | `Reducir plazo` (por defecto) o `Reducir cuota` |
 
-### Preferencias
+### Glosario y preferencias
 
-El botón **Preferencias**, junto al título, las abre; **Listo** vuelve a las pestañas.
+Los botones **Glosario** y **Preferencias**, bajo las pestañas, los abren en lugar de las pestañas; mientras uno está abierto, **Volver** (o Escape) es la única salida, de vuelta a las pestañas. Un **?** junto a un campo con jerga muestra su definición bajo la etiqueta; **Ejemplo en el glosario** abre el glosario en ese término, y Escape vuelve al campo. Mientras el crédito esté incompleto, una línea bajo el formulario dice qué campos faltan para ver los resultados.
 
 | Preferencia | Por defecto | Descripción |
 |---|---|---|
