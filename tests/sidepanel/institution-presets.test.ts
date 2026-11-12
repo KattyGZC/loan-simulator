@@ -17,8 +17,7 @@ beforeEach(() => useLocale('en'));
 
 describe('presetChanges', () => {
   it('fills the insurance an institution publishes, written as the locale types it', () => {
-    const changes = presetChanges('jep', defaultForm(TODAY, 'es-EC'), 'es-EC');
-    expect(changes).toMatchObject({
+    expect(presetChanges('jep', 'es-EC')).toEqual({
       institutionPreset: 'jep',
       insuranceRate: '1,0065',
       insuranceUnit: 'percentPerYear',
@@ -26,51 +25,30 @@ describe('presetChanges', () => {
     });
   });
 
-  it('puts every field the institution does not publish back as in a new form', () => {
-    const defaults = defaultForm(TODAY, 'en-US');
-    const changes = presetChanges('pacifico', defaults, 'en-US');
-    expect(changes).toEqual({
+  it('changes no field the institution does not publish', () => {
+    expect(presetChanges('pacifico', 'en-US')).toEqual({
       institutionPreset: 'pacifico',
-      insuranceRate: '',
-      insuranceUnit: defaults.insuranceUnit,
       insuranceBase: 'balance',
-      onTopOfInstallment: false,
-      otherCharges: '',
-      solcaEnabled: defaults.solcaEnabled,
-      solcaPercent: defaults.solcaPercent,
-      dayCount: 'thirty360',
     });
   });
 
-  it('leaves no value of the previous institution behind', () => {
-    const defaults = defaultForm(TODAY, 'en-US');
-    const internacional = { ...defaults, ...presetChanges('internacional', defaults, 'en-US') };
-    expect(internacional.insuranceBase).toBe('originalAmount');
-    const pichincha = { ...internacional, ...presetChanges('pichincha', defaults, 'en-US') };
-    expect(pichincha.insuranceBase).toBe('balance');
-    expect(pichincha.insuranceRate).toBe('1.69');
+  it('keeps what the user typed in a field the next institution does not publish', () => {
+    const typed = { ...defaultForm(TODAY, 'en-US'), insuranceRate: '0.9', otherCharges: '3' };
+    const form = { ...typed, ...presetChanges('pacifico', 'en-US') };
+    expect(form.insuranceRate).toBe('0.9');
+    expect(form.otherCharges).toBe('3');
   });
 
   it('turns SOLCA on at the rate an institution publishes, even when the user turned it off', () => {
-    const defaults = defaultForm(TODAY, 'es-EC', { solcaEnabled: false, solcaPercent: '1' });
-    expect(presetChanges('jardinAzuayo', defaults, 'es-EC')).toMatchObject({
+    expect(presetChanges('jardinAzuayo', 'es-EC')).toEqual({
+      institutionPreset: 'jardinAzuayo',
       solcaEnabled: true,
       solcaPercent: '0,5',
     });
   });
 
-  it('keeps the SOLCA of the preferences when the institution does not publish it', () => {
-    const defaults = defaultForm(TODAY, 'en-US', { solcaEnabled: false, solcaPercent: '1' });
-    expect(presetChanges('jep', defaults, 'en-US')).toMatchObject({
-      solcaEnabled: false,
-      solcaPercent: '1',
-    });
-  });
-
   it('only clears the choice for none, keeping what the fields hold', () => {
-    expect(presetChanges('none', defaultForm(TODAY, 'en-US'), 'en-US')).toEqual({
-      institutionPreset: 'none',
-    });
+    expect(presetChanges('none', 'en-US')).toEqual({ institutionPreset: 'none' });
   });
 });
 
@@ -80,7 +58,7 @@ describe('presetNote', () => {
       published:
         'Banco Internacional publishes: credit life insurance 0.41 % per year and insurance on the original amount.',
       unpublished:
-        'It does not publish whether insurance is in the payment, other charges, SOLCA, and the day count: those fields stay as in a new form.',
+        'It does not publish whether insurance is in the payment, other charges, SOLCA, and the day count: those fields keep what they had, so check them.',
       caveat:
         'It publishes 4.1 per mille a year, written here as 0.41 % per year, for the borrower alone; with a spouse, 6.5 per mille. Its example, $41 on $10,000 over 12 months, charges it on the original amount.',
       source:
