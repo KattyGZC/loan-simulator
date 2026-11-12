@@ -52,7 +52,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 
 | Field | Default | Description |
 |---|---|---|
-| **Fill with what it publishes** | No institution | Fills the insurance and SOLCA with what one of seven Ecuadorian institutions publishes in its official documents (tariff, transparency page), never what its simulator charges. A field it doesn't publish goes back to how a new form has it. A note under the choice says what it publishes, what it leaves out, and links the document with the date it was read. The values may have changed: check them there and against your offer |
+| **Fill with what it publishes** | No institution | Fills the insurance and SOLCA with what one of seven Ecuadorian institutions publishes in its official documents (tariff, transparency page), never what its simulator charges. A field it doesn't publish keeps what it had, and the note names it so you check it. A note under the choice says what it publishes, what it leaves out, and links the document with the date it was read. The values may have changed: check them there and against your offer |
 | **Credit life insurance: rate** | No insurance | As published in the institution's transparency section |
 | **Credit life insurance: unit** | % per year | `% per year`, `% per month` or `‰ per month` (per mille). Institutions publish it in different formats |
 | **Credit life insurance: base** | Balance | `Balance`: decreases over time (most common). `Original amount`: fixed for the whole loan |
