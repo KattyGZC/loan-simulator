@@ -75,3 +75,39 @@ describe('start over', () => {
     expect(field('Amount').value).toBe('');
   });
 });
+
+const newLoanPanel = () => within(screen.getByRole('tabpanel', { name: 'New loan' }));
+
+describe('institution presets', () => {
+  it('fills the advanced options with what the institution publishes, and names the source', async () => {
+    const user = userEvent.setup();
+    await renderApp('en', { drafts: { newLoan: LOAN, existingLoan: undefined } });
+    await user.click(newLoanPanel().getByText('Advanced options'));
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Fill with what it publishes' }),
+      'internacional',
+    );
+
+    expect(field('Insurance rate').value).toBe('0.41');
+    expect(screen.getByRole<HTMLSelectElement>('combobox', { name: 'Base' }).value).toBe(
+      'originalAmount',
+    );
+    expect(screen.getByText(/^Banco Internacional publishes:/)).toBeTruthy();
+    const source = screen.getByRole('link', { name: 'Open the source' });
+    expect(source.getAttribute('target')).toBe('_blank');
+    expect(source.getAttribute('rel')).toBe('noreferrer');
+    expect(await axeViolations()).toEqual([]);
+  });
+
+  it('hides the note when the choice goes back to none, keeping the values', async () => {
+    const user = userEvent.setup();
+    await renderApp('en', { drafts: { newLoan: LOAN, existingLoan: undefined } });
+    await user.click(newLoanPanel().getByText('Advanced options'));
+    const choice = screen.getByRole('combobox', { name: 'Fill with what it publishes' });
+    await user.selectOptions(choice, 'jep');
+    await user.selectOptions(choice, 'none');
+
+    expect(screen.queryByRole('link', { name: 'Open the source' })).toBeNull();
+    expect(field('Insurance rate').value).toBe('1.0065');
+  });
+});
