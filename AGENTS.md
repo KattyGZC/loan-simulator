@@ -11,6 +11,7 @@ Read this before the first edit. It binds every author and every model (Claude, 
 | `src/i18n/` | UI text (`t()` over `chrome.i18n`), `Intl` formatting, and reading typed numbers |
 | `public/_locales/{en,es}/messages.json` | Every UI string, in English and Spanish. English is the fallback. `MessageKey` (`src/i18n/translate.ts`) is the key list of the English file |
 | `src/entrypoints/background.ts` | Opens the side panel when the toolbar icon is clicked |
+| `design/icon.svg`, `design/icon-16.svg` | Sources of `public/icon/*.png`: the first for 48 and 128 px, the second, on a 16 px grid, for 16 and 32 px. Export each at its sizes with a transparent background when one changes |
 | `src/entrypoints/sidepanel/` | The UI (Preact), two tabs: a new loan (`NewLoan.tsx`) and an extra payment on a loan you already have (`ExistingLoan.tsx`). `form.ts` and `existing-form.ts` hold the panel logic, unit-tested: typed form to engine input, and what the results area shows (`panelState`, `existingLoanState`). `results.ts` builds the lines and columns of the results with the formatter it is given, the panel's or `createFileFormat()`'s (`src/i18n/format.ts`); `csv.ts` writes them as a CSV file, which `downloadCsv()` (`download-csv.ts`) downloads; `printout.ts` writes them out for paper, which `openPrintPage()` (`print-page.ts`) stores and opens in the print page. Both, and saving a scenario (`SaveScenario.tsx`, a dialog), are reached from the ⋮ menu beside the first heading of the results (`ActionsMenu.tsx`). The components lay out and format; which error a field shows now is `visibleError()`, in `form.ts` |
 | `src/entrypoints/print/` | The print page, in its own tab: paper width, without the forms. It lays out the printout the panel stored (`restorePrintout()`) and opens the dialog |
 | `src/storage/` | What the panel keeps in `browser.storage.local`, each as `{ schemaVersion, data }` (`versioned.ts`): each tab's draft (`drafts.ts`), the saved scenarios (`scenarios.ts`) and the preferences (`preferences.ts`). The printout (`printout.ts`) goes to `browser.storage.session` instead, unversioned, since it empties when the browser closes or the extension updates. `storedFields()` reads stored data back without trusting it; each form's `restore…Form()` (`form.ts`, `existing-form.ts`), `restoreScenarios()` (`saved-scenarios.ts`) and `restorePreferences()` (`sidepanel/preferences.ts`) fall back to the default for a field that is missing or invalid. The option lists of each select are in `sidepanel/choices.ts` |
@@ -34,7 +35,7 @@ Done: project setup (phase 0), the calculation engine (phase 1), tested against 
 
 Next, in order:
 
-1. **Polish** (accessibility, dark theme, the visual redesign, the results menu and the glossary done): final icons in the new palette; performance; wording, glossary included.
+1. **Polish** (accessibility, dark theme, the visual redesign, the results menu, the glossary and the icons done): performance; wording, glossary included.
 2. **QA:** Playwright e2e and a manual check against 3 institutions.
 3. **Chrome Web Store** listing, privacy page and release workflow.
 
