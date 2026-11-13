@@ -52,6 +52,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 
 | Field | Default | Description |
 |---|---|---|
+| **Fill with what it publishes** | No institution | Fills the insurance and SOLCA with what one of seven Ecuadorian institutions publishes in its official documents (tariff, transparency page), never what its simulator charges. A field it doesn't publish keeps what it had, and the note names it so you check it. A note under the choice says what it publishes, what it leaves out, and links the document with the date it was read. The values may have changed: check them there and against your offer |
 | **Credit life insurance: rate** | No insurance | As published in the institution's transparency section |
 | **Credit life insurance: unit** | % per year | `% per year`, `% per month` or `‰ per month` (per mille). Institutions publish it in different formats |
 | **Credit life insurance: base** | Balance | `Balance`: decreases over time (most common). `Original amount`: fixed for the whole loan |
@@ -182,7 +183,7 @@ In the schedule, payment k shows the extra payment inside it, as a bank statemen
 | Data | Where |
 |---|---|
 | Nominal and effective rate per product | The institution's website, **Transparencia** / **Tasas y tarifas** / **Costos financieros** section |
-| Credit life insurance | The same transparency section (sometimes listed as "cargos financieros") |
+| Credit life insurance | The same transparency section (sometimes listed as "cargos financieros"). For seven institutions, **Fill with what it publishes** enters it and links the document |
 | Maximum rates per segment | **Banco Central del Ecuador**, monthly publication of lending rates |
 | Credit union data | The credit union itself; supervised by the **SEPS** |
 | Bank data | The bank itself; supervised by the **Superintendencia de Bancos** |

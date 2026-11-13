@@ -52,6 +52,7 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
 
 | Campo | Por defecto | Descripción |
 |---|---|---|
+| **Llenar con lo que publica** | Ninguna entidad | Llena el seguro y SOLCA con lo que publica una de siete entidades ecuatorianas en sus documentos oficiales (tarifario, página de transparencia), nunca lo que cobra su simulador. Un campo que no publica queda como estaba, y la nota lo nombra para que lo revises. Una nota debajo dice qué publica, qué deja fuera, y enlaza el documento con la fecha en que se revisó. Los valores pueden haber cambiado: compruébalos ahí y en tu oferta |
 | **Seguro de desgravamen: tasa** | Sin seguro | Lo que publica la entidad en transparencia |
 | **Seguro de desgravamen: unidad** | % anual | `% anual`, `% mensual` o `‰ mensual` (por mil). Las entidades lo publican en formatos distintos |
 | **Seguro de desgravamen: base** | Saldo | `Saldo`: baja con el tiempo (lo más común). `Monto original`: fijo todo el crédito |
@@ -182,7 +183,7 @@ En la tabla, la cuota k muestra el abono dentro de ella, como un estado de cuent
 | Dato | Dónde |
 |---|---|
 | Tasa nominal y efectiva por producto | Página web de la entidad, sección **Transparencia** / **Tasas y tarifas** / **Costos financieros** |
-| Seguro de desgravamen | La misma sección de transparencia (a veces como «cargos financieros») |
+| Seguro de desgravamen | La misma sección de transparencia (a veces como «cargos financieros»). Para siete entidades, **Llenar con lo que publica** lo ingresa y enlaza el documento |
 | Tasas máximas por segmento | **Banco Central del Ecuador**, publicación mensual de tasas de interés activas |
 | Datos de cooperativas | La propia cooperativa; la supervisa la **SEPS** |
 | Datos de bancos | El propio banco; lo supervisa la **Superintendencia de Bancos** |

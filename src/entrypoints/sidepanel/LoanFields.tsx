@@ -5,6 +5,14 @@ import { DayCountField, InsuranceFields, MethodField, RateFields } from './commo
 import type { FieldError } from './errors';
 import { CheckboxField, DateField, FieldGroup, NumberField, SelectField } from './fields';
 import type { LoanForm } from './form';
+import {
+  PRESET_CHOICES,
+  presetChanges,
+  presetName,
+  presetNote,
+  type InstitutionPreset,
+} from './institution-presets';
+import { format, locale } from './locale';
 
 interface LoanFieldsProps {
   form: LoanForm;
@@ -50,6 +58,13 @@ export function LoanFields({ form, update, errorOf, counterpartRate }: LoanField
 
       <details class="advanced">
         <summary>{t('section_advanced')}</summary>
+        <SelectField
+          label={t('field_institutionPreset')}
+          value={form.institutionPreset}
+          options={PRESET_CHOICES.map((value) => ({ value, label: presetName(value) }))}
+          onChange={(choice) => update(presetChanges(choice, locale))}
+        />
+        {form.institutionPreset !== 'none' && <PresetNote preset={form.institutionPreset} />}
         <InsuranceFields form={form} update={update} error={errorOf('insurance.rate')}>
           <SelectField
             label={t('field_insuranceBase')}
@@ -112,5 +127,23 @@ export function LoanFields({ form, update, errorOf, counterpartRate }: LoanField
         />
       </details>
     </>
+  );
+}
+
+/** What the institution publishes, what it leaves out, and the document to check it against. */
+function PresetNote({ preset }: { preset: InstitutionPreset }) {
+  const note = presetNote(preset, locale, format);
+  return (
+    <div class="preset-note">
+      <p>{note.published}</p>
+      <p>{note.unpublished}</p>
+      {note.caveat && <p>{note.caveat}</p>}
+      <p>
+        {note.source}{' '}
+        <a href={note.url} target="_blank" rel="noreferrer">
+          {t('presetNote_link')}
+        </a>
+      </p>
+    </div>
   );
 }
