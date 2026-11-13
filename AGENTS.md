@@ -35,7 +35,7 @@ Done: project setup (phase 0), the calculation engine (phase 1), tested against 
 
 Next, in order:
 
-1. **Polish** (accessibility, dark theme, the visual redesign, the results menu, the glossary and the icons done): performance; wording, glossary included.
+1. **Polish** (accessibility, dark theme, the visual redesign, the results menu, the glossary, the icons and performance done): wording, glossary included.
 2. **QA:** Playwright e2e and a manual check against 3 institutions.
 3. **Chrome Web Store** listing, privacy page and release workflow.
 
