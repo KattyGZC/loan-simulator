@@ -56,11 +56,11 @@ describe('presetNote', () => {
   it('says what the institution publishes, what it leaves out, and where it says so', () => {
     expect(presetNote('internacional', 'en-US', english)).toEqual({
       published:
-        'Banco Internacional publishes: credit life insurance 0.41 % per year and insurance on the original amount.',
+        'Banco Internacional publishes: credit life insurance 0.41% per year and insurance on the original amount.',
       unpublished:
         'It does not publish whether insurance is in the payment, other charges, SOLCA, and the day count: those fields keep what they had, so check them.',
       caveat:
-        'It publishes 4.1 per mille a year, written here as 0.41 % per year, for the borrower alone; with a spouse, 6.5 per mille. Its example, $41 on $10,000 over 12 months, charges it on the original amount.',
+        'It publishes 4.1 per mille a year, written here as 0.41% per year, for the borrower alone; with a spouse, 6.5 per mille. Its example, $41 on $10,000 over 12 months, charges it on the original amount.',
       source:
         'Source: its tariff of November 2026, third-party costs, read on 11/12/2026. The values may have changed, and what it charges may differ from what it publishes: check them against the source and your offer.',
       url: 'https://www.bancointernacional.com.ec/wp-content/uploads/2026/11/TarifarioNuevoFormatoPizarraMarcadeAguanov26.pdf',

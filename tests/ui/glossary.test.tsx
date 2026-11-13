@@ -43,7 +43,7 @@ describe('glossary', () => {
       expect(section.getAllByRole('term').map((term) => term.textContent)).toEqual(terms);
       expect(section.getAllByRole('definition')).toHaveLength(terms.length * 2);
     }
-    expect(glossary.getByText(/^Example: \$10,000 over 12 months at 15\.6 % nominal/)).toBeTruthy();
+    expect(glossary.getByText(/^Example: \$10,000 over 12 months at 15\.6% nominal/)).toBeTruthy();
     expect(screen.queryByRole('tablist')).toBeNull();
   });
 
@@ -184,7 +184,7 @@ describe('the "?" of a field', () => {
 
     expect(panel().getByRole('checkbox', { name: 'SOLCA contribution' })).toBeTruthy();
     await user.click(panel().getByRole('button', { name: 'What is SOLCA contribution?' }));
-    expect(panel().getByText(/^A 0\.5 % contribution on loans in Ecuador/)).toBeTruthy();
+    expect(panel().getByText(/^A 0\.5% contribution on loans in Ecuador/)).toBeTruthy();
   });
 
   it('breaks no axe rule while a definition shows', async () => {

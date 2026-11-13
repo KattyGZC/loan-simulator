@@ -31,7 +31,7 @@ describe('existing-loan fields', () => {
       .split(' ')
       .map((id) => document.getElementById(id)?.textContent);
     expect(notes).toEqual([
-      'Principal left after your last payment, as your statement shows it.',
+      'Principal left after the last payment you made, as your statement shows it.',
       'Enter a number.',
     ]);
   });
