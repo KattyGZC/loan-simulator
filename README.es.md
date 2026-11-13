@@ -8,7 +8,7 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
 
 > Pensada para Ecuador (USD, SOLCA, segmentos del BCE), pero como casi todos los datos los ingresa el usuario, sirve para otros países desactivando lo específico de Ecuador.
 
-> **Estado:** en desarrollo, aún no publicada. El motor de cálculo (`src/core/`) y los textos y formatos de número en inglés y español (`src/i18n/`) están terminados y probados, y el panel lateral, cargando la extensión sin empaquetar, ya simula un crédito nuevo y un abono a un crédito que ya tienes; cuenta el interés en 30/360 o en días reales/360, guarda escenarios de crédito nuevo para comparar dos lado a lado y conserva tus preferencias (moneda, signo decimal de los archivos exportados y SOLCA), exporta o imprime cualquiera de las dos simulaciones y explica sus términos técnicos en un glosario, también con el teclado o un lector de pantalla, en tema claro u oscuro. Sigue una revisión de los textos. Este README describe la extensión prevista.
+> **Estado:** en desarrollo, aún no publicada. El motor de cálculo (`src/core/`) y los textos y formatos de número en inglés y español (`src/i18n/`) están terminados y probados, y el panel lateral, cargando la extensión sin empaquetar, ya simula un crédito nuevo y un abono a un crédito que ya tienes; cuenta el interés en 30/360 o en días reales/360, guarda escenarios de crédito nuevo para comparar dos lado a lado y conserva tus preferencias (moneda, signo decimal de los archivos exportados y SOLCA), exporta o imprime cualquiera de las dos simulaciones y explica sus términos técnicos en un glosario, también con el teclado o un lector de pantalla, en tema claro u oscuro. Siguen las pruebas de extremo a extremo y una revisión manual contra tres entidades. Este README describe la extensión prevista.
 
 ---
 
@@ -52,10 +52,10 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
 
 | Campo | Por defecto | Descripción |
 |---|---|---|
-| **Llenar con lo que publica** | Ninguna entidad | Llena el seguro y SOLCA con lo que publica una de siete entidades ecuatorianas en sus documentos oficiales (tarifario, página de transparencia), nunca lo que cobra su simulador. Un campo que no publica queda como estaba, y la nota lo nombra para que lo revises. Una nota debajo dice qué publica, qué deja fuera, y enlaza el documento con la fecha en que se revisó. Los valores pueden haber cambiado: compruébalos ahí y en tu oferta |
+| **Llenar con datos de una entidad** | Ninguna entidad | Llena el seguro y SOLCA con lo que publica una de siete entidades ecuatorianas en sus documentos oficiales (tarifario, página de transparencia), nunca lo que cobra su simulador. Un campo que no publica queda como estaba, y la nota lo nombra para que lo revises. Una nota debajo dice qué publica, qué deja fuera, y enlaza el documento con la fecha en que se revisó. Los valores pueden haber cambiado: compruébalos ahí y en tu oferta |
 | **Seguro de desgravamen: tasa** | Sin seguro | Lo que publica la entidad en transparencia |
 | **Seguro de desgravamen: unidad** | % anual | `% anual`, `% mensual` o `‰ mensual` (por mil). Las entidades lo publican en formatos distintos |
-| **Seguro de desgravamen: base** | Saldo | `Saldo`: baja con el tiempo (lo más común). `Monto original`: fijo todo el crédito |
+| **Seguro de desgravamen: se calcula sobre** | Saldo | `Saldo`: baja con el tiempo (lo más común). `Monto original`: fijo todo el crédito |
 | **Seguro de desgravamen: en la cuota** | Sí | Solo sistema francés. `Sí`: la cuota fija ya incluye el seguro, así que la cuota total es la misma cada mes (lo usual en cooperativas). `No`: el seguro se suma encima, así que la cuota total cambia cada mes |
 | **Otros cargos por cuota** | $0 | Valor fijo mensual: otros seguros, cuota de socio, etc. |
 | **Contribución SOLCA** | Activada, 0,5 % (ver Preferencias) | Se descuenta una sola vez al desembolsar. Desactívala si no aplica (por ejemplo, fuera de Ecuador o en créditos exentos) |
@@ -89,7 +89,7 @@ Los botones **Glosario** y **Preferencias**, bajo las pestañas, los abren en lu
 |---|---|---|
 | **Moneda** | USD | Todos los montos se muestran en ella, siempre con 2 decimales: USD, EUR, MXN, GTQ, HNL, NIO, CRC, DOP, COP, PEN, BOB, ARS, UYU o BRL. Solo cambia cómo se escriben los montos; no convierte nada. Las monedas sin centavos (CLP, PYG) no se ofrecen, porque todos los montos se redondean a centavos |
 | **Signo decimal en archivos exportados** | Coma en español, punto en inglés | El que usa tu hoja de cálculo, que sigue la configuración regional de tu equipo y no el idioma: Ecuador usa coma y México punto. Con el equivocado, Excel lee los montos como texto |
-| **SOLCA activada en créditos nuevos** y su **porcentaje** | Activada, 0,5 % | Cómo empiezan los campos de SOLCA de un crédito nuevo: el primero y cada vez que pulsas **Empezar de nuevo**. El crédito que estás simulando y los escenarios guardados conservan los suyos |
+| **SOLCA activada en créditos nuevos** y su **porcentaje** | Activada, 0,5 % | Cómo empiezan los campos de SOLCA de un crédito nuevo: el primero y cada vez que haces clic en **Empezar de nuevo**. El crédito que estás simulando y los escenarios guardados conservan los suyos |
 
 ### Escenarios guardados (tercera pestaña)
 
@@ -183,7 +183,7 @@ En la tabla, la cuota k muestra el abono dentro de ella, como un estado de cuent
 | Dato | Dónde |
 |---|---|
 | Tasa nominal y efectiva por producto | Página web de la entidad, sección **Transparencia** / **Tasas y tarifas** / **Costos financieros** |
-| Seguro de desgravamen | La misma sección de transparencia (a veces como «cargos financieros»). Para siete entidades, **Llenar con lo que publica** lo ingresa y enlaza el documento |
+| Seguro de desgravamen | La misma sección de transparencia (a veces como «cargos financieros»). Para siete entidades, **Llenar con datos de una entidad** lo ingresa y enlaza el documento |
 | Tasas máximas por segmento | **Banco Central del Ecuador**, publicación mensual de tasas de interés activas |
 | Datos de cooperativas | La propia cooperativa; la supervisa la **SEPS** |
 | Datos de bancos | El propio banco; lo supervisa la **Superintendencia de Bancos** |
