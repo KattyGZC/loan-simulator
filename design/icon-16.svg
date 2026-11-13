@@ -1,0 +1,7 @@
+<!-- The extension icon at 16 and 32 px, drawn on the 16 px grid so every edge falls on a pixel. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <rect width="16" height="16" rx="3" fill="#0f5132"/>
+  <rect x="3" y="4" width="2" height="9" fill="#faf9f4"/>
+  <rect x="7" y="7" width="2" height="6" fill="#faf9f4"/>
+  <rect x="11" y="10" width="2" height="3" fill="#8fcba3"/>
+</svg>

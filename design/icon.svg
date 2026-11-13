@@ -1,0 +1,7 @@
+<!-- The extension icon at 48 and 128 px: 96 px of art inside 16 px of margin, as the Chrome Web Store asks. Bars falling from left to right: a balance paid down. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <rect x="16" y="16" width="96" height="96" rx="20" fill="#0f5132"/>
+  <rect x="32" y="40" width="16" height="52" rx="3" fill="#faf9f4"/>
+  <rect x="56" y="56" width="16" height="36" rx="3" fill="#faf9f4"/>
+  <rect x="80" y="72" width="16" height="20" rx="3" fill="#8fcba3"/>
+</svg>

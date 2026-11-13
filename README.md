@@ -8,7 +8,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 
 > Built for Ecuador (USD, SOLCA contribution, Central Bank credit segments). Since almost all data is entered by the user, it works for other countries once the Ecuador-specific options are turned off.
 
-> **Status:** in development, not published yet. The calculation engine (`src/core/`) and the English and Spanish texts and number formats (`src/i18n/`) are done and tested, and the side panel, loaded unpacked, simulates a new loan and an extra payment on a loan you already have; it counts interest on 30/360 or actual days/360, saves new-loan scenarios to compare two side by side, and keeps your preferences (currency, decimal sign of exported files and SOLCA), exports or prints either simulation, and explains its technical terms in a glossary, from the keyboard or a screen reader too, in a light or dark theme. Next: the final icons. This README describes the planned extension.
+> **Status:** in development, not published yet. The calculation engine (`src/core/`) and the English and Spanish texts and number formats (`src/i18n/`) are done and tested, and the side panel, loaded unpacked, simulates a new loan and an extra payment on a loan you already have; it counts interest on 30/360 or actual days/360, saves new-loan scenarios to compare two side by side, and keeps your preferences (currency, decimal sign of exported files and SOLCA), exports or prints either simulation, and explains its technical terms in a glossary, from the keyboard or a screen reader too, in a light or dark theme. Next: performance and a wording review. This README describes the planned extension.
 
 ---
 
