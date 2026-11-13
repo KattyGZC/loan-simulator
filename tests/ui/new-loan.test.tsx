@@ -84,12 +84,12 @@ describe('institution presets', () => {
     await renderApp('en', { drafts: { newLoan: LOAN, existingLoan: undefined } });
     await user.click(newLoanPanel().getByText('Advanced options'));
     await user.selectOptions(
-      screen.getByRole('combobox', { name: 'Fill with what it publishes' }),
+      screen.getByRole('combobox', { name: 'Fill in from an institution' }),
       'internacional',
     );
 
     expect(field('Insurance rate').value).toBe('0.41');
-    expect(screen.getByRole<HTMLSelectElement>('combobox', { name: 'Base' }).value).toBe(
+    expect(screen.getByRole<HTMLSelectElement>('combobox', { name: 'Charged on' }).value).toBe(
       'originalAmount',
     );
     expect(screen.getByText(/^Banco Internacional publishes:/)).toBeTruthy();
@@ -103,7 +103,7 @@ describe('institution presets', () => {
     const user = userEvent.setup();
     await renderApp('en', { drafts: { newLoan: LOAN, existingLoan: undefined } });
     await user.click(newLoanPanel().getByText('Advanced options'));
-    const choice = screen.getByRole('combobox', { name: 'Fill with what it publishes' });
+    const choice = screen.getByRole('combobox', { name: 'Fill in from an institution' });
     await user.selectOptions(choice, 'jep');
     await user.selectOptions(choice, 'none');
 

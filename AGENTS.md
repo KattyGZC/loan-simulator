@@ -31,13 +31,12 @@ Read this before the first edit. It binds every author and every model (Claude, 
 
 ## Status
 
-Done: project setup (phase 0), the calculation engine (phase 1), tested against Cooperativa JEP, languages and formatting (phase 2), the side panel UI (phase 3), the day-count basis (30/360 or actual days/360), and an extra payment on a loan you already have (`simulateExistingLoan()`, second tab), both tested against a Produbanco statement. Each tab keeps its form as a draft when the panel closes. New-loan scenarios are saved, opened, renamed, deleted and compared two at a time in a third tab (`Scenarios.tsx`, logic in `saved-scenarios.ts`). Preferences (currency, the decimal sign of exported files, and how SOLCA starts on a new loan) open from a header button (phase 4 done), and so does a glossary of 18 terms in four groups, each with a definition and an example (`Glossary.tsx`, `glossary-terms.ts`). The new-loan advanced options can be filled with what one of seven institutions publishes (`institution-presets.ts`), with a note that links its source. A "?" next to a field with jargon shows its definition and opens the glossary at its example; a choice (rate type, method, day count, effect of an extra payment) says under it what the chosen option means. Either simulator tab exports what it shows to CSV and prints it from a page in its own tab (phase 5 done).
+Done: project setup (phase 0), the calculation engine (phase 1), tested against Cooperativa JEP, languages and formatting (phase 2), the side panel UI (phase 3), the day-count basis (30/360 or actual days/360), and an extra payment on a loan you already have (`simulateExistingLoan()`, second tab), both tested against a Produbanco statement. Each tab keeps its form as a draft when the panel closes. New-loan scenarios are saved, opened, renamed, deleted and compared two at a time in a third tab (`Scenarios.tsx`, logic in `saved-scenarios.ts`). Preferences (currency, the decimal sign of exported files, and how SOLCA starts on a new loan) open from a header button (phase 4 done), and so does a glossary of 18 terms in four groups, each with a definition and an example (`Glossary.tsx`, `glossary-terms.ts`). The new-loan advanced options can be filled with what one of seven institutions publishes (`institution-presets.ts`), with a note that links its source. A "?" next to a field with jargon shows its definition and opens the glossary at its example; a choice (rate type, method, day count, effect of an extra payment) says under it what the chosen option means. Either simulator tab exports what it shows to CSV and prints it from a page in its own tab (phase 5 done). Polish is done: accessibility, the dark theme, the redesign, the icons, performance (measured, nothing to change) and a wording review in both languages.
 
 Next, in order:
 
-1. **Polish** (accessibility, dark theme, the visual redesign, the results menu, the glossary, the icons and performance done): wording, glossary included.
-2. **QA:** Playwright e2e and a manual check against 3 institutions.
-3. **Chrome Web Store** listing, privacy page and release workflow.
+1. **QA:** Playwright e2e and a manual check against 3 institutions.
+2. **Chrome Web Store** listing, privacy page and release workflow.
 
 After v1, not planned: total effective cost (IRR), non-monthly payments, grace periods, Firefox.
 

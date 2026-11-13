@@ -162,7 +162,7 @@ export function presetChanges(choice: PresetChoice, locale: FormatLocale): Parti
 
 /** What the note under the choice says about an institution's values, and where to check them. */
 export interface PresetNote {
-  /** "Banco Pichincha publishes: credit life insurance 1.69 ‰ per month." */
+  /** "Banco Pichincha publishes: credit life insurance 1.69‰ per month." */
   published: string;
   /** The fields it does not publish, left as the user had them. */
   unpublished: string;
@@ -184,7 +184,7 @@ export function presetNote(
   if (values.insurance) {
     const { rate, unit } = values.insurance;
     published.push(
-      t('presetValue_insurance', [`${typed(rate, locale)} ${t(`insuranceUnit_${unit}`)}`]),
+      t('presetValue_insurance', [`${typed(rate, locale)}${t(`insuranceUnit_${unit}`)}`]),
     );
   }
   if (values.insuranceBase) published.push(t(`presetValue_insuranceBase_${values.insuranceBase}`));

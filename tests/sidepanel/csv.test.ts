@@ -44,7 +44,7 @@ describe('newLoanCsv', () => {
     expect(rows[scheduleTitle + 13]).toBe('12,905.38,893.76,11.62,0.00');
     expect(rows.slice(-2)).toEqual([
       '',
-      'Estimates only. The institution sets the actual payment when it approves the loan.',
+      'Estimates only. The lender sets the actual payment when it approves the loan.',
     ]);
   });
 
@@ -142,7 +142,7 @@ describe('existingLoanCsv', () => {
     useLocale('es');
     const rows = lines(existingLoanCsv(produbancoExtraPayment('10000'), COMMA));
     expect(rows[0]).toBe('Moneda;USD');
-    expect(rows[1]).toMatch(/^El abono es mayor que lo que debes: solo se aplican 5\d{3},\d{2},/);
+    expect(rows[1]).toMatch(/^El abono es mayor que lo que debes: solo se aplica 5\d{3},\d{2},/);
     expect(rows).toContain(';Sin abono;Con abono');
   });
 });

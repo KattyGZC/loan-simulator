@@ -125,7 +125,7 @@
     "message": "‰ mensual"
   },
   "field_insuranceBase": {
-    "message": "Base"
+    "message": "Se calcula sobre"
   },
   "insuranceBase_balance": {
     "message": "Saldo"
@@ -173,7 +173,7 @@
     "message": "Saldo pendiente"
   },
   "hint_balance": {
-    "message": "El capital que queda después de tu última cuota, como aparece en tu estado de cuenta."
+    "message": "El capital que queda después de la última cuota que pagaste, como aparece en tu estado de cuenta."
   },
   "field_remainingPayments": {
     "message": "Cuotas restantes"
@@ -191,7 +191,7 @@
     "message": "Fecha de la próxima cuota"
   },
   "hint_existingInsurance": {
-    "message": "Sobre el saldo."
+    "message": "Se calcula sobre el saldo."
   },
   "section_extraPayment": {
     "message": "Abono a capital"
@@ -331,7 +331,7 @@
     }
   },
   "warning_extraPaymentClipped": {
-    "message": "El abono es mayor que lo que debes: solo se aplican $AMOUNT$, con lo que el crédito queda pagado.",
+    "message": "El abono es mayor que lo que debes: solo se aplica $AMOUNT$, con lo que el crédito queda pagado.",
     "placeholders": {
       "amount": { "content": "$1", "example": "$3.170,12" }
     }
@@ -448,7 +448,7 @@
     "message": "SOLCA en créditos nuevos"
   },
   "preferences_note": {
-    "message": "La moneda cambia todos los montos de inmediato. SOLCA prepara un crédito nuevo: el primero y cada vez que empiezas de nuevo. Los escenarios guardados conservan el suyo. Los archivos exportados usan el signo decimal de tu hoja de cálculo (la configuración regional de tu equipo), para que lea los montos como números."
+    "message": "La moneda cambia todos los montos de inmediato. SOLCA se aplica a cada crédito nuevo que empiezas; los escenarios guardados conservan el suyo. Los archivos exportados usan el signo decimal de tu hoja de cálculo (la configuración regional de tu computadora), para que lea los montos como números."
   },
   "button_startOver": {
     "message": "Empezar de nuevo"
@@ -457,7 +457,7 @@
     "message": "Exportar CSV"
   },
   "file_newLoanCsv": {
-    "message": "tabla-de-pagos-$DATE$.csv",
+    "message": "tabla-de-amortizacion-$DATE$.csv",
     "placeholders": {
       "date": { "content": "$1", "example": "2026-10-29" }
     }
@@ -493,7 +493,7 @@
     }
   },
   "print_nothing": {
-    "message": "No hay nada que imprimir. Simula un crédito en el panel lateral y pulsa Imprimir."
+    "message": "No hay nada que imprimir. Simula un crédito en el panel lateral y haz clic en Imprimir."
   },
   "hint_annualRate": {
     "message": "Está en la sección Transparencia (o «Tasas y tarifas») del sitio de la entidad."
@@ -505,7 +505,7 @@
     "message": "Con la que se calcula el interés de cada mes."
   },
   "hint_rateType_effective": {
-    "message": "Lo que el crédito cuesta en un año; los bancos suelen publicar esta."
+    "message": "Lo que el interés cuesta en un año al capitalizarse; las entidades suelen publicar esta."
   },
   "hint_method_french": {
     "message": "La misma cuota todos los meses."
@@ -607,7 +607,7 @@
     "message": "Lo que pagas a la entidad por usar su dinero. Se cobra cada mes sobre lo que aún debes."
   },
   "glossaryExample_interest": {
-    "message": "Ejemplo: sobre $$10.000 al 15,6 % nominal, el interés del primer mes es $$130."
+    "message": "Ejemplo: sobre $$10.000 al 15,6% nominal, el interés del primer mes es $$130."
   },
   "glossaryTerm_term": {
     "message": "Plazo"
@@ -625,7 +625,7 @@
     "message": "Lo que pagas cada mes. Cubre una parte del capital, el interés y, si los hay, el seguro y otros cargos."
   },
   "glossaryExample_installment": {
-    "message": "Ejemplo: $$10.000 a 12 meses al 15,6 % nominal, sistema francés: $$905,42 al mes."
+    "message": "Ejemplo: $$10.000 a 12 meses al 15,6% nominal, sistema francés: $$905,42 al mes."
   },
   "glossaryTerm_balance": {
     "message": "Saldo"
@@ -652,7 +652,7 @@
     "message": "Cómo se reparte cada cuota entre capital e interés. Francés: la misma cuota todos los meses. Alemán: el mismo capital cada mes, así que la cuota empieza más alta y baja."
   },
   "glossaryExample_amortization": {
-    "message": "Ejemplo: $$10.000 a 12 meses al 15,6 %: francés, $$905,42 cada mes y $$865 de interés; alemán, de $$963,33 a $$844,20 y $$845 de interés."
+    "message": "Ejemplo: $$10.000 a 12 meses al 15,6%: francés, $$905,42 cada mes y $$865 de interés; alemán, de $$963,33 a $$844,20 y $$845 de interés."
   },
   "glossaryTerm_nominalRate": {
     "message": "Tasa nominal"
@@ -661,16 +661,16 @@
     "message": "La tasa anual con la que se calcula el interés de cada mes: cada mes cobra más o menos la doceava parte."
   },
   "glossaryExample_nominalRate": {
-    "message": "Ejemplo: 15,6 % nominal es 1,3 % al mes."
+    "message": "Ejemplo: 15,6% nominal es 1,3% al mes."
   },
   "glossaryTerm_effectiveRate": {
     "message": "Tasa efectiva"
   },
   "glossaryDefinition_effectiveRate": {
-    "message": "Lo que el crédito cuesta en un año completo cuando el interés de cada mes también genera interés. Es un poco mayor que la nominal, y es la que suelen publicar los bancos."
+    "message": "Lo que el interés cuesta en un año completo cuando el interés de cada mes también genera interés. Es un poco mayor que la nominal, y es la que suelen publicar las entidades."
   },
   "glossaryExample_effectiveRate": {
-    "message": "Ejemplo: 15,6 % nominal equivale a 16,77 % efectiva."
+    "message": "Ejemplo: 15,6% nominal equivale a 16,77% efectiva."
   },
   "glossaryTerm_maxRate": {
     "message": "Tasa máxima del segmento"
@@ -697,13 +697,13 @@
     "message": "Seguro que paga lo que aún debes si falleces (y, en algunas pólizas, si quedas con una incapacidad permanente). Se cobra cada mes."
   },
   "glossaryExample_creditLifeInsurance": {
-    "message": "Ejemplo: al 0,05 % mensual sobre un saldo de $$10.000, el seguro de ese mes es $$5."
+    "message": "Ejemplo: al 0,05% mensual sobre un saldo de $$10.000, el seguro de ese mes es $$5."
   },
   "glossaryTerm_solca": {
     "message": "Contribución SOLCA"
   },
   "glossaryDefinition_solca": {
-    "message": "Una contribución del 0,5 % sobre los créditos en Ecuador que financia los hospitales de SOLCA (Sociedad de Lucha Contra el Cáncer). Se descuenta una sola vez del monto al desembolsar."
+    "message": "Una contribución del 0,5% sobre los créditos en Ecuador que financia los hospitales de SOLCA (Sociedad de Lucha Contra el Cáncer). Se descuenta una sola vez del monto al desembolsar."
   },
   "glossaryExample_solca": {
     "message": "Ejemplo: en un crédito de $$10.000, $$50 van a SOLCA y recibes $$9.950."
@@ -724,7 +724,7 @@
     "message": "Lo que pagas además del capital: intereses, seguros, otros cargos y SOLCA."
   },
   "glossaryExample_totalCost": {
-    "message": "Ejemplo: $$10.000 a 12 meses al 15,6 % con SOLCA: $$865 de interés más $$50 de SOLCA, $$915 en total."
+    "message": "Ejemplo: $$10.000 a 12 meses al 15,6% con SOLCA: $$865 de interés más $$50 de SOLCA, $$915 en total."
   },
   "glossaryTerm_disbursement": {
     "message": "Desembolso"
@@ -754,7 +754,7 @@
     "message": "Ejemplo: después de un abono, o sigues con la misma cuota y terminas antes (reducir plazo), o terminas en la misma fecha con una cuota menor (reducir cuota)."
   },
   "field_institutionPreset": {
-    "message": "Llenar con lo que publica"
+    "message": "Llenar con datos de una entidad"
   },
   "preset_none": {
     "message": "Ninguna entidad"
@@ -805,16 +805,16 @@
     "message": "Publica 1,69 por mil «de acuerdo a la periodicidad de pago», sin decir sobre qué base."
   },
   "presetCaveat_guayaquil": {
-    "message": "La página de su Multicrédito dice 2,50 % (cliente soltero) en lugar del 1,80 % del tarifario. El tarifario no dice sobre qué base."
+    "message": "La página de su Multicrédito dice 2,50% (cliente soltero) en lugar del 1,80% del tarifario. El tarifario no dice sobre qué base."
   },
   "presetCaveat_pacifico": {
-    "message": "Publica un factor de 0,0388 % sobre el saldo sin decir si es mensual o anual, así que la tasa no se llena."
+    "message": "Publica un factor de 0,0388% sobre el saldo sin decir si es mensual o anual, así que la tasa no se llena."
   },
   "presetCaveat_bolivariano": {
-    "message": "Publica 0,7 por mil mensual sin decir sobre qué base, y aclara que varía según el producto. Su seguro de cesantía, 1,80 % mensual sin base, tampoco se llena."
+    "message": "Publica 0,7 por mil mensual sin decir sobre qué base, y aclara que varía según el producto. Su seguro de cesantía, 1,80% mensual sin base, tampoco se llena."
   },
   "presetCaveat_internacional": {
-    "message": "Publica 4,1 por mil al año, que aquí se escribe 0,41 % anual, para el titular solo; con cónyuge, 6,5 por mil. Su ejemplo, $$41 por $$10.000 a 12 meses, lo cobra sobre el monto original."
+    "message": "Publica 4,1 por mil al año, que aquí se escribe 0,41% anual, para el titular solo; con cónyuge, 6,5 por mil. Su ejemplo, $$41 por $$10.000 a 12 meses, lo cobra sobre el monto original."
   },
   "presetCaveat_jardinAzuayo": {
     "message": "Su seguro varía por edad y estado civil, y la unidad publicada («por mil») no dice el periodo, así que no se llena."
@@ -824,7 +824,7 @@
     "placeholders": {
       "rate": {
         "content": "$1",
-        "example": "1,69 ‰ mensual"
+        "example": "1,69‰ mensual"
       }
     }
   },
@@ -870,7 +870,7 @@
       },
       "values": {
         "content": "$2",
-        "example": "seguro de desgravamen 1,69 ‰ mensual"
+        "example": "seguro de desgravamen 1,69‰ mensual"
       }
     }
   },
@@ -884,7 +884,7 @@
     }
   },
   "presetNote_source": {
-    "message": "Fuente: $DOCUMENT$, revisado el $DATE$. Los valores pueden haber cambiado, y lo que cobra puede no ser lo que publica: compruébalos en la fuente y en tu oferta.",
+    "message": "Fuente: $DOCUMENT$ (consultada el $DATE$). Los valores pueden haber cambiado, y lo que cobra puede no ser lo que publica: compruébalos en la fuente y en tu oferta.",
     "placeholders": {
       "document": {
         "content": "$1",
