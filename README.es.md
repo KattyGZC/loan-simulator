@@ -216,6 +216,7 @@ El resto (tasas, plazo, sistemas de amortización, seguros y abonos) es igual en
 
 ```
 loan-simulator/
+├── e2e/               # tests de Playwright de la extensión compilada en Chromium
 ├── src/
 │   ├── core/          # motor de cálculo (tasas, francés, alemán, seguros, abonos)
 │   ├── i18n/          # textos de la interfaz, formatos de número y fecha, lectura de números
@@ -239,12 +240,14 @@ Requiere **Node.js 22** y npm.
 
 ```bash
 npm install        # instalar dependencias
+npx playwright install chromium  # el navegador donde corren los tests e2e, una vez
 npm run dev        # abrir Chrome con la extensión cargada y recarga en caliente
 npm test           # correr los tests unitarios
 npm run lint       # ESLint
 npm run typecheck  # TypeScript
 npm run build      # build de producción en .output/chrome-mv3
-npm run check      # todo lo que corre la CI: lint, formato, typecheck, código sin uso, cobertura, build
+npm run test:e2e   # tests de extremo a extremo del build en Chromium (antes, npm run build)
+npm run check      # todo lo que corre la CI: lint, formato, typecheck, código sin uso, cobertura, build, e2e
 npm run test:mutation  # tests de mutación del motor (Stryker, ~8 min)
 npm run zip        # zip listo para la Chrome Web Store
 ```
@@ -253,7 +256,7 @@ Para cargar el build a mano: abre `chrome://extensions`, activa el **Modo de des
 
 Antes de cambiar código, lee [AGENTS.md](AGENTS.md) (en inglés): estándar de código, estado actual y las decisiones en las que se apoya el motor.
 
-La CI (GitHub Actions) corre lint, revisión de formato, typecheck, código sin uso, tests y build en cada push a `main` y en cada pull request. En un pull request, un job `guard` falla cuando cambia los casos golden, un umbral, una regla de lint o la CI, o elimina tests, para que la dueña lo revise. Los tests de mutación corren cada semana. Un hook de pre-commit revisa lint, formato y tipos de lo que commiteas.
+La CI (GitHub Actions) corre lint, revisión de formato, typecheck, código sin uso, tests, build y los tests de extremo a extremo en cada push a `main` y en cada pull request. En un pull request, un job `guard` falla cuando cambia los casos golden, un umbral, una regla de lint o la CI, o elimina tests, para que la dueña lo revise. Los tests de mutación corren cada semana. Un hook de pre-commit revisa lint, formato y tipos de lo que commiteas.
 
 ---
 

@@ -24,6 +24,7 @@ Read this before the first edit. It binds every author and every model (Claude, 
 | `tests/styles/` | The contrast of every color pair the pages draw, in both themes, against WCAG AA |
 | `tests/ui/` | Tests of the rendered panel in happy-dom (`// @vitest-environment happy-dom` per file): what the user can reach, read and operate. `renderApp()` mounts `App` over the fake browser in one language per file; `axeViolations()` lists the axe rules the page breaks, without contrast |
 | `tests/golden/` | Reference schedules copied from real simulators, with their source |
+| `e2e/`, `playwright.config.ts` | End-to-end tests (Playwright) of the build in `.output/chrome-mv3`, loaded in Chromium with a new profile per test (`e2e/fixtures.ts`): the toolbar icon set to open the side panel, a new loan and its draft, an extra payment, a saved scenario, the CSV file and the print page. The panel opens as a page in a tab: Playwright cannot click the toolbar icon |
 | `wxt.config.ts` | Manifest: name, permissions (`storage`, `sidePanel`), side panel |
 | `eslint.config.js`, `vitest.config.ts`, `knip.json`, `stryker.config.json` | The checks: the rules of this file that a linter can see, coverage per file, unused code, mutation testing |
 | `scripts/` | `guard.mjs`, the CI job that flags a pull request changing a guarded file (`guarded-files.mjs`) or removing tests |
@@ -31,11 +32,11 @@ Read this before the first edit. It binds every author and every model (Claude, 
 
 ## Status
 
-Done: project setup (phase 0), the calculation engine (phase 1), tested against Cooperativa JEP, languages and formatting (phase 2), the side panel UI (phase 3), the day-count basis (30/360 or actual days/360), and an extra payment on a loan you already have (`simulateExistingLoan()`, second tab), both tested against a Produbanco statement. Each tab keeps its form as a draft when the panel closes. New-loan scenarios are saved, opened, renamed, deleted and compared two at a time in a third tab (`Scenarios.tsx`, logic in `saved-scenarios.ts`). Preferences (currency, the decimal sign of exported files, and how SOLCA starts on a new loan) open from a header button (phase 4 done), and so does a glossary of 18 terms in four groups, each with a definition and an example (`Glossary.tsx`, `glossary-terms.ts`). The new-loan advanced options can be filled with what one of seven institutions publishes (`institution-presets.ts`), with a note that links its source. A "?" next to a field with jargon shows its definition and opens the glossary at its example; a choice (rate type, method, day count, effect of an extra payment) says under it what the chosen option means. Either simulator tab exports what it shows to CSV and prints it from a page in its own tab (phase 5 done). Polish is done: accessibility, the dark theme, the redesign, the icons, performance (measured, nothing to change) and a wording review in both languages.
+Done: project setup (phase 0), the calculation engine (phase 1), tested against Cooperativa JEP, languages and formatting (phase 2), the side panel UI (phase 3), the day-count basis (30/360 or actual days/360), and an extra payment on a loan you already have (`simulateExistingLoan()`, second tab), both tested against a Produbanco statement. Each tab keeps its form as a draft when the panel closes. New-loan scenarios are saved, opened, renamed, deleted and compared two at a time in a third tab (`Scenarios.tsx`, logic in `saved-scenarios.ts`). Preferences (currency, the decimal sign of exported files, and how SOLCA starts on a new loan) open from a header button (phase 4 done), and so does a glossary of 18 terms in four groups, each with a definition and an example (`Glossary.tsx`, `glossary-terms.ts`). The new-loan advanced options can be filled with what one of seven institutions publishes (`institution-presets.ts`), with a note that links its source. A "?" next to a field with jargon shows its definition and opens the glossary at its example; a choice (rate type, method, day count, effect of an extra payment) says under it what the chosen option means. Either simulator tab exports what it shows to CSV and prints it from a page in its own tab (phase 5 done). Polish is done: accessibility, the dark theme, the redesign, the icons, performance (measured, nothing to change) and a wording review in both languages. End-to-end tests (Playwright) run the build in Chromium, in CI too.
 
 Next, in order:
 
-1. **QA:** Playwright e2e and a manual check against 3 institutions.
+1. **QA:** a manual check against 3 institutions, Chrome and Edge, a new install and an update.
 2. **Chrome Web Store** listing, privacy page and release workflow.
 
 After v1, not planned: total effective cost (IRR), non-monthly payments, grace periods, Firefox.
@@ -112,6 +113,7 @@ Smallest change that solves the cause. Do not refactor nearby code in the same c
 - A test asserts something (`vitest/expect-expect`). No `.only`, `.skip` or commented-out tests.
 - `npm run test:mutation` (Stryker, about 8 minutes, weekly in CI) changes the engine on purpose and checks a test fails. A surviving mutant is a behavior no test pins; add the test, do not exclude the line. The score may not drop below 92 % (`stryker.config.json`); 52 survivors are known debt, 41 of them in the rescheduling of `amortization.ts`.
 - Tests live in `tests/**/*.test.{ts,tsx}`. A file outside that glob never runs. Logic tests run in node; a test that renders a component is a `.tsx` file in `tests/ui/` and runs in happy-dom.
+- An end-to-end test (`e2e/*.spec.ts`) covers what only the real browser does: loading the extension, `browser.storage` across a reload, a download, a new tab. What happy-dom can show stays in `tests/ui/`. `npm run test:e2e` runs on the last build, so build first.
 
 ## Docs
 
