@@ -216,6 +216,7 @@ Everything else (rates, term, amortization methods, insurance and extra payments
 
 ```
 loan-simulator/
+├── e2e/               # Playwright tests of the built extension in Chromium
 ├── src/
 │   ├── core/          # calculation engine (rates, French, German, insurance, extra payments)
 │   ├── i18n/          # UI text, number and date formats, reading typed numbers
@@ -239,12 +240,14 @@ Requires **Node.js 22** and npm.
 
 ```bash
 npm install        # install dependencies
+npx playwright install chromium  # the browser the e2e tests run in, once
 npm run dev        # open Chrome with the extension loaded and hot reload
 npm test           # run the unit tests
 npm run lint       # ESLint
 npm run typecheck  # TypeScript
 npm run build      # production build in .output/chrome-mv3
-npm run check      # everything CI runs: lint, format, typecheck, unused code, coverage, build
+npm run test:e2e   # end-to-end tests of the build in Chromium (run npm run build first)
+npm run check      # everything CI runs: lint, format, typecheck, unused code, coverage, build, e2e
 npm run test:mutation  # mutation tests of the engine (Stryker, ~8 min)
 npm run zip        # zip ready for the Chrome Web Store
 ```
@@ -253,7 +256,7 @@ To load the build by hand: open `chrome://extensions`, turn on **Developer mode*
 
 Before changing code, read [AGENTS.md](AGENTS.md): coding standard, current status and the decisions the engine relies on.
 
-CI (GitHub Actions) runs lint, format check, typecheck, unused code, tests and build on every push to `main` and on every pull request. On a pull request, a `guard` job fails when it changes the golden cases, a threshold, a lint rule or CI, or removes tests, so the owner reviews it. Mutation tests run weekly. A pre-commit hook lints, formats and type-checks what you commit.
+CI (GitHub Actions) runs lint, format check, typecheck, unused code, tests, build and the end-to-end tests on every push to `main` and on every pull request. On a pull request, a `guard` job fails when it changes the golden cases, a threshold, a lint rule or CI, or removes tests, so the owner reviews it. Mutation tests run weekly. A pre-commit hook lints, formats and type-checks what you commit.
 
 ---
 
