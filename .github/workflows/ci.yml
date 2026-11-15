@@ -21,6 +21,14 @@ jobs:
       - run: npm run knip
       - run: npm run test:coverage
       - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      # The e2e tests load the build above.
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: e2e-traces
+          path: reports/e2e/
 
   # Fails when a pull request changes what "passing" means; the owner reviews it and merges anyway.
   guard:
