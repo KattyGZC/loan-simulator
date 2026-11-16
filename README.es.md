@@ -8,7 +8,7 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
 
 > Pensada para Ecuador (USD, SOLCA, segmentos del BCE), pero como casi todos los datos los ingresa el usuario, sirve para otros países desactivando lo específico de Ecuador.
 
-> **Estado:** en desarrollo, aún no publicada. El motor de cálculo (`src/core/`) y los textos y formatos de número en inglés y español (`src/i18n/`) están terminados y probados, y el panel lateral, cargando la extensión sin empaquetar, ya simula un crédito nuevo y un abono a un crédito que ya tienes; cuenta el interés en 30/360 o en días reales/360, guarda escenarios de crédito nuevo para comparar dos lado a lado y conserva tus preferencias (moneda, signo decimal de los archivos exportados y SOLCA), exporta o imprime cualquiera de las dos simulaciones y explica sus términos técnicos en un glosario, también con el teclado o un lector de pantalla, en tema claro u oscuro. Siguen las pruebas de extremo a extremo y una revisión manual contra tres entidades. Este README describe la extensión prevista.
+> **Estado:** terminada y probada, aún no está en la Chrome Web Store. Todo lo que describe este README funciona cargando la extensión sin empaquetar; se revisó a mano en Chrome y Edge y contra los simuladores de Banco Pichincha y Jardín Azuayo. Sigue: la ficha de la tienda y el flujo de publicación.
 
 ---
 
@@ -212,7 +212,7 @@ El resto (tasas, plazo, sistemas de amortización, seguros y abonos) es igual en
 - Permisos: `storage` (conservar tus formularios y escenarios guardados en el navegador) y `sidePanel` (mostrar la interfaz). Sin acceso a ningún sitio web.
 - Interfaz en **inglés y español** con el sistema de idiomas de Chrome (`_locales`): sigue el idioma del navegador y, si no es ninguno de los dos, usa inglés.
 
-### Estructura prevista
+### Estructura
 
 ```
 loan-simulator/
@@ -231,6 +231,7 @@ loan-simulator/
 ├── public/
 │   ├── _locales/      # textos de la interfaz: en/ y es/ messages.json
 │   └── licenses/      # la SIL Open Font License de las fuentes
+├── store/             # lo que dicen la ficha y el formulario de privacidad de la Chrome Web Store (en, es)
 ├── tests/             # tests del motor contra casos conocidos, de la lógica del panel, el almacenamiento, i18n y el panel renderizado
 └── wxt.config.ts
 ```

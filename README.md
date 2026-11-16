@@ -8,7 +8,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 
 > Built for Ecuador (USD, SOLCA contribution, Central Bank credit segments). Since almost all data is entered by the user, it works for other countries once the Ecuador-specific options are turned off.
 
-> **Status:** in development, not published yet. The calculation engine (`src/core/`) and the English and Spanish texts and number formats (`src/i18n/`) are done and tested, and the side panel, loaded unpacked, simulates a new loan and an extra payment on a loan you already have; it counts interest on 30/360 or actual days/360, saves new-loan scenarios to compare two side by side, and keeps your preferences (currency, decimal sign of exported files and SOLCA), exports or prints either simulation, and explains its technical terms in a glossary, from the keyboard or a screen reader too, in a light or dark theme. Next: end-to-end tests and a manual check against three institutions. This README describes the planned extension.
+> **Status:** done and tested, not in the Chrome Web Store yet. Everything this README describes works when the extension is loaded unpacked; it was checked by hand in Chrome and Edge and against the simulators of Banco Pichincha and Jardín Azuayo. Next: the store listing and the release workflow.
 
 ---
 
@@ -212,7 +212,7 @@ Everything else (rates, term, amortization methods, insurance and extra payments
 - Permissions: `storage` (keep your forms and saved scenarios in the browser) and `sidePanel` (show the UI). No host permissions.
 - UI in **English and Spanish** via Chrome's i18n (`_locales`): it follows the browser language and falls back to English.
 
-### Planned structure
+### Structure
 
 ```
 loan-simulator/
@@ -231,6 +231,7 @@ loan-simulator/
 ├── public/
 │   ├── _locales/      # UI strings: en/ and es/ messages.json
 │   └── licenses/      # the fonts' SIL Open Font License
+├── store/             # what the Chrome Web Store listing and privacy form say (en, es)
 ├── tests/             # engine tests against known cases, panel logic, storage, i18n and the rendered panel
 └── wxt.config.ts
 ```
