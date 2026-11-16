@@ -216,6 +216,7 @@ Everything else (rates, term, amortization methods, insurance and extra payments
 
 ```
 loan-simulator/
+├── docs/              # the privacy policy (en, es), served by GitHub Pages from main
 ├── e2e/               # Playwright tests of the built extension in Chromium
 ├── src/
 │   ├── core/          # calculation engine (rates, French, German, insurance, extra payments)
@@ -263,6 +264,8 @@ CI (GitHub Actions) runs lint, format check, typecheck, unused code, tests, buil
 ## Privacy
 
 The extension **does not collect, send or share any data**. What you type and the scenarios you save stay only in your browser's local storage.
+
+The full policy: [Privacy policy](https://kattygzc.github.io/loan-simulator/privacy/).
 
 ## Disclaimer
 

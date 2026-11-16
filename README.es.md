@@ -216,6 +216,7 @@ El resto (tasas, plazo, sistemas de amortización, seguros y abonos) es igual en
 
 ```
 loan-simulator/
+├── docs/              # la política de privacidad (en, es), publicada por GitHub Pages desde main
 ├── e2e/               # tests de Playwright de la extensión compilada en Chromium
 ├── src/
 │   ├── core/          # motor de cálculo (tasas, francés, alemán, seguros, abonos)
@@ -263,6 +264,8 @@ La CI (GitHub Actions) corre lint, revisión de formato, typecheck, código sin 
 ## Privacidad
 
 La extensión **no recoge, no envía y no comparte ningún dato**. Lo que escribes y los escenarios que guardas quedan solo en el almacenamiento local de tu navegador.
+
+La política completa: [Política de privacidad](https://kattygzc.github.io/loan-simulator/es/privacy/).
 
 ## Aviso
 
