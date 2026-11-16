@@ -4,6 +4,7 @@ import { t, type MessageKey } from '@/i18n/translate';
 import { saveDraft, type Drafts } from '@/storage/drafts';
 import { savePreferences } from '@/storage/preferences';
 import { ExistingLoan } from './ExistingLoan';
+import { defaultExistingLoanForm } from './existing-form';
 import { defaultForm, type LoanForm } from './form';
 import { Glossary, OpenGlossary } from './Glossary';
 import type { GlossaryTerm } from './glossary-terms';
@@ -84,12 +85,21 @@ export function App({ stored }: { stored: StoredState }) {
   const { scenarios, add, rename, remove } = useScenarios(() =>
     restoreScenarios(stored.scenarios, newLoanDefaults),
   );
-  // Restarting mounts the new-loan tab again (a new key), from `form`. A tab saves its draft
+  // Restarting mounts a simulator tab again (a new key), from `form`. A tab saves its draft
   // only when the form changes, so `form` becomes the draft here.
   const [newLoan, setNewLoan] = useState({ draft: stored.drafts.newLoan, restarts: 0 });
   const restartNewLoan = (form: LoanForm) => {
     setNewLoan((current) => ({ draft: form, restarts: current.restarts + 1 }));
     saveDraft('newLoan', form).catch((error: unknown) => console.error(error));
+  };
+  const [existingLoan, setExistingLoan] = useState({
+    draft: stored.drafts.existingLoan,
+    restarts: 0,
+  });
+  const restartExistingLoan = () => {
+    const form = defaultExistingLoanForm(todayDate);
+    setExistingLoan((current) => ({ draft: form, restarts: current.restarts + 1 }));
+    saveDraft('existingLoan', form).catch((error: unknown) => console.error(error));
   };
   const openScenario = (scenario: Scenario) => {
     restartNewLoan(scenario.form);
@@ -114,9 +124,12 @@ export function App({ stored }: { stored: StoredState }) {
       case 'existingLoan':
         return (
           <ExistingLoan
+            key={existingLoan.restarts}
+            focusFirstField={existingLoan.restarts > 0}
             today={todayDate}
             csvSettings={preferences}
-            draft={stored.drafts.existingLoan}
+            draft={existingLoan.draft}
+            onStartOver={restartExistingLoan}
           />
         );
       case 'scenarios':
