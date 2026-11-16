@@ -1,8 +1,10 @@
 // Reference cases from real Ecuadorian simulators. The accepted difference is ±$0.01 per
-// payment, accumulated over the loan for totals.
+// payment, accumulated over the loan for totals. A source that carries unrounded values from
+// row to row differs on the last payment, which here takes the rounding left over.
 //
-// Banco Guayaquil is not here: its simulator charges interest on actual days / 365, and this
-// engine counts 30/360 or actual days / 360.
+// Banco Guayaquil is not here, nor Banco Pichincha's German schedule: both charge interest on
+// actual days / 365, and this engine counts 30/360 or actual days / 360. Neither is Banco del
+// Pacífico: its simulator falls due every 30 days and rounds interest to ten cents.
 //
 // JEP's insurance constant is not the one it publishes. The online simulator fits
 // 0.1258 % per month, and part of its PDF table fits 0.12582 % per month; both are about
@@ -13,6 +15,7 @@ import { simulateExistingLoan } from '@/core/existing-loan';
 import { simulate } from '@/core/simulate';
 import { jepPublishedCases } from './jep-published';
 import { jepSimulatorCases } from './jep-simulator';
+import { pichinchaPreciso } from './pichincha';
 import {
   produbancoAfterExtraPayment,
   produbancoExtraPayment,
@@ -63,6 +66,55 @@ describe('JEP published cost table (summaries)', () => {
       expect(Math.abs(summary.totalPaid - expected.total)).toBeLessThan(totalTolerance);
     },
   );
+});
+
+describe('Banco Pichincha online simulator (insurance inside the French payment)', () => {
+  const golden = pichinchaPreciso;
+
+  function simulatePichincha() {
+    const result = simulate({
+      amount: golden.amount,
+      termMonths: golden.termMonths,
+      annualRate: golden.annualRate,
+      rateType: 'nominal',
+      method: 'french',
+      insurance: {
+        rate: golden.insuranceRatePercentPerMonth,
+        unit: 'percentPerMonth',
+        base: 'balance',
+      },
+      solcaPercent: golden.solcaPercent,
+    });
+    if (!result.ok) throw new Error('invalid input');
+    return result.schedule;
+  }
+
+  it('matches every payment but the last one to the cent', () => {
+    const { rows } = simulatePichincha();
+    expect(rows).toHaveLength(golden.rows.length);
+    // The last payment takes the rounding left over (see pichincha.ts).
+    golden.rows.slice(0, -1).forEach(([principal, interest, insurance, payment], index) => {
+      const row = rows[index]!;
+      const label = `row ${row.number}`;
+      expect(Math.abs(row.principal - principal), `${label} principal`).toBeLessThan(CENT);
+      expect(Math.abs(row.interest - interest), `${label} interest`).toBeLessThan(CENT);
+      expect(Math.abs(row.insurance - insurance), `${label} insurance`).toBeLessThan(CENT);
+      expect(Math.abs(row.payment - payment), `${label} payment`).toBeLessThan(CENT);
+    });
+  });
+
+  it('matches the amount paid out after SOLCA and the totals', () => {
+    const { summary } = simulatePichincha();
+    const totalTolerance = CENT * golden.termMonths;
+    expect(summary.amountReceived).toBe(golden.summary.amountReceived);
+    expect(Math.abs(summary.totalInterest - golden.summary.totalInterest)).toBeLessThan(
+      totalTolerance,
+    );
+    expect(Math.abs(summary.totalInsurance - golden.summary.totalInsurance)).toBeLessThan(
+      totalTolerance,
+    );
+    expect(Math.abs(summary.totalPaid - golden.summary.totalPaid)).toBeLessThan(totalTolerance);
+  });
 });
 
 describe('Produbanco statement (actual days / 360, German)', () => {
