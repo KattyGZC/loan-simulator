@@ -1,0 +1,88 @@
+/*
+ * The privacy pages, in the side panel's palette (src/styles/theme.css), which GitHub Pages cannot
+ * reach. System fonts: a web font from a third party would tell it who reads a privacy policy.
+ */
+:root {
+  color-scheme: light dark;
+
+  --text: #1b2621;
+  --muted: #5a645e;
+  --border: #d6d3c8;
+  --surface: #faf9f4;
+  --surface-alt: #f0eee6;
+  --accent: #0f5132;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #e7ebe6;
+    --muted: #a3aea7;
+    --border: #2f3b35;
+    --surface: #161e1a;
+    --surface-alt: #1c2621;
+    --accent: #8fcba3;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--surface);
+  color: var(--text);
+  font-family: system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+main {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 32px 16px;
+}
+
+h1,
+h2 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+h1 {
+  margin: 0 0 8px;
+  font-size: 2rem;
+}
+
+h2 {
+  margin: 32px 0 8px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  font-size: 1.25rem;
+}
+
+a {
+  color: var(--accent);
+}
+
+code {
+  padding: 0 4px;
+  border-radius: 4px;
+  background: var(--surface-alt);
+  font-size: 0.875em;
+}
+
+ul {
+  padding-left: 24px;
+}
+
+.language {
+  margin: 0 0 24px;
+  text-align: right;
+}
+
+.updated {
+  margin: 0 0 24px;
+  color: var(--muted);
+}
+
+.summary {
+  font-size: 1.125rem;
+}
