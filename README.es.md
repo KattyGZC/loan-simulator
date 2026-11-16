@@ -26,7 +26,7 @@ Muchos simuladores oficiales fallan, piden datos personales o solo dejan elegir 
 - Explica cada término de un crédito, para quien nunca ha tenido uno: un **Glosario** de 18 términos en cuatro grupos (lo básico, la tasa, seguros y cargos, fechas y abonos), cada uno con su definición y un ejemplo. Cada opción dice debajo qué significa la elegida, el campo de la tasa dice dónde encontrarla, y un **?** junto a un campo con jerga muestra su definición, con un enlace a su ejemplo.
 - Sigue el tema claro u oscuro del sistema; lo impreso siempre sale claro.
 - Interfaz en inglés y español, usable solo con el teclado y con un lector de pantalla: las pestañas se mueven con las flechas, los resultados y avisos se anuncian, y cada campo dice qué necesita.
-- Conserva lo que escribiste en cada pestaña al cerrar el panel. **Empezar de nuevo** vacía el formulario de crédito nuevo.
+- Conserva lo que escribiste en cada pestaña al cerrar el panel. **Empezar de nuevo** vacía el formulario de la pestaña en la que está.
 - Guarda escenarios de crédito nuevo y compara dos lado a lado (por ejemplo, «Coop X – consumo» vs «Banco Y – consumo»).
 
 ## Qué NO hace

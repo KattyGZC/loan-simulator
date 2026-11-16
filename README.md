@@ -26,7 +26,7 @@ Many official simulators break, ask for personal data, or only offer a few fixed
 - Explains every term a loan raises, for someone who has never had one: a **Glossary** of 18 terms in four groups (the basics, the rate, insurance and charges, dates and extra payments), each with a definition and an example. A choice says under it what the chosen option means, the rate field says where to find the rate, and a **?** next to a field with jargon shows its definition, with a link to its example.
 - Follows the system's light or dark theme; printouts are always light.
 - Interface in English and Spanish, usable with the keyboard alone and with a screen reader: the tabs move with the arrow keys, results and warnings are announced, and every field says what it needs.
-- Keeps what you typed in each tab when you close the panel. **Start over** empties the new-loan form.
+- Keeps what you typed in each tab when you close the panel. **Start over** empties the form of the tab it is in.
 - Saves new-loan scenarios and compares two of them side by side (e.g. "Credit Union X – consumer" vs "Bank Y – consumer").
 
 ## What it does NOT do
