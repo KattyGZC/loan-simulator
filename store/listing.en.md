@@ -13,6 +13,20 @@ They come from the manifest (`public/_locales/en/messages.json`), not from the d
 
 One for every language: Productivity › Tools.
 
+## Images
+
+In `images/en/`, made from the build by `npm run store:images` (run `npm run build` first). Upload the screenshots in their order:
+
+1. `1-summary.png`: the new loan's summary and schedule.
+2. `2-extraPayment.png`: what an extra payment saves.
+3. `3-scenarios.png`: two scenarios side by side.
+4. `4-preset.png`: the advanced options filled from what an institution publishes.
+5. `5-glossary.png`: the glossary, in the dark theme.
+
+Small promo tile (440×280): `promo-tile.png`.
+
+When the panel changes how it looks, run the script again so the listing shows the extension as it is.
+
 ## Description
 
 Plain text: the store shows line breaks but no Markdown.
