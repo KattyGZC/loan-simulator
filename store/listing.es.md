@@ -13,6 +13,20 @@ Salen del manifest (`public/_locales/es/messages.json`), no del panel:
 
 Es una sola para todos los idiomas: la de `listing.en.md`.
 
+## Imágenes
+
+En `images/es/`, generadas desde el build con `npm run store:images` (antes, `npm run build`). Sube las capturas en su orden:
+
+1. `1-summary.png`: el resumen y la tabla de un crédito nuevo.
+2. `2-extraPayment.png`: cuánto ahorras con un abono.
+3. `3-scenarios.png`: dos escenarios lado a lado.
+4. `4-preset.png`: las opciones avanzadas llenas con lo que publica una entidad.
+5. `5-glossary.png`: el glosario, en tema oscuro.
+
+Mosaico promocional pequeño (440×280): `promo-tile.png`.
+
+Cuando el panel cambie de aspecto, vuelve a correr el script para que la ficha muestre la extensión como es.
+
 ## Descripción
 
 Texto plano: la tienda muestra los saltos de línea, pero no Markdown.
