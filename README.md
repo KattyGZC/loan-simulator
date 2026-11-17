@@ -261,6 +261,8 @@ Before changing code, read [AGENTS.md](AGENTS.md): coding standard, current stat
 
 CI (GitHub Actions) runs lint, format check, typecheck, unused code, tests, build and the end-to-end tests on every push to `main` and on every pull request. On a pull request, a `guard` job fails when it changes the golden cases, a threshold, a lint rule or CI, or removes tests, so the owner reviews it. Mutation tests run weekly. A pre-commit hook lints, formats and type-checks what you commit.
 
+To release: set the new version in `package.json` (`npm version <x.y.z> --no-git-tag-version`), merge it, then tag `main` with it and push the tag (`git tag v<x.y.z> && git push origin v<x.y.z>`). The `Release` workflow checks that the tag matches the version, runs every check, and attaches the zip to a GitHub release; upload that zip in the Chrome Web Store developer dashboard.
+
 ---
 
 ## Privacy
