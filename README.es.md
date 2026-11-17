@@ -260,6 +260,8 @@ Antes de cambiar código, lee [AGENTS.md](AGENTS.md) (en inglés): estándar de 
 
 La CI (GitHub Actions) corre lint, revisión de formato, typecheck, código sin uso, tests, build y los tests de extremo a extremo en cada push a `main` y en cada pull request. En un pull request, un job `guard` falla cuando cambia los casos golden, un umbral, una regla de lint o la CI, o elimina tests, para que la dueña lo revise. Los tests de mutación corren cada semana. Un hook de pre-commit revisa lint, formato y tipos de lo que commiteas.
 
+Para publicar una versión: pon la nueva versión en `package.json` (`npm version <x.y.z> --no-git-tag-version`), mergéala, luego etiqueta `main` con ella y sube la etiqueta (`git tag v<x.y.z> && git push origin v<x.y.z>`). El workflow `Release` revisa que la etiqueta coincida con la versión, corre todas las revisiones y adjunta el zip a un release de GitHub; ese zip se sube en el panel de desarrollador de la Chrome Web Store.
+
 ---
 
 ## Privacidad
