@@ -231,7 +231,7 @@ loan-simulator/
 ├── public/
 │   ├── _locales/      # UI strings: en/ and es/ messages.json
 │   └── licenses/      # the fonts' SIL Open Font License
-├── store/             # what the Chrome Web Store listing and privacy form say (en, es)
+├── store/             # the Chrome Web Store listing, privacy form and images (en, es)
 ├── tests/             # engine tests against known cases, panel logic, storage, i18n and the rendered panel
 └── wxt.config.ts
 ```
@@ -252,6 +252,7 @@ npm run test:e2e   # end-to-end tests of the build in Chromium (run npm run buil
 npm run check      # everything CI runs: lint, format, typecheck, unused code, coverage, build, e2e
 npm run test:mutation  # mutation tests of the engine (Stryker, ~8 min)
 npm run zip        # zip ready for the Chrome Web Store
+npm run store:images  # the store's screenshots and promo tile in store/images (run npm run build first)
 ```
 
 To load the build by hand: open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and pick `.output/chrome-mv3`. Clicking the toolbar icon opens the side panel.
