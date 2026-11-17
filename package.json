@@ -2,7 +2,7 @@
   "name": "loan-simulator",
   "description": "Simulate loans from any bank or credit union, with extra principal payments.",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
   "engines": {
     "node": ">=22"
